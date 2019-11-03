@@ -64,5 +64,9 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:text="Get Event" />
-
+    <Button
+        android:id="@+id/everyTime"
+        android:layout_width="113dp"
+        android:layout_height="wrap_content"
+        android:text="EveryTime" />
 </LinearLayout>

@@ -3,9 +3,11 @@ package com.example.onlinelecturefairy;
 import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -15,8 +17,10 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -51,6 +55,11 @@ import java.util.Locale;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
 
 public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
@@ -73,6 +82,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     private Button mGetEventButton;
     private Button mAddEventButton;
     private Button mAddCalendarButton;
+    private Button mGetEveryTime;
     ProgressDialog mProgress;
 
 
@@ -85,7 +95,11 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
-
+    //everytime crawling variable
+    final private String everyTimeURL = "https://everytime.kr/find/timetable/table/friend";
+    private String userIdentifier;
+    private String professors;
+    private String result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,10 +175,87 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 Arrays.asList(SCOPES)
         ).setBackOff(new ExponentialBackOff()); // I/O 예외 상황을 대비해서 백오프 정책 사용
 
+
+        //everyTime crawling test
+        final Context context = this;
+        mGetEveryTime = (Button) findViewById(R.id.everyTime);
+        mGetEveryTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LayoutInflater li = LayoutInflater.from(context);
+                View promptsView = li.inflate(R.layout.prompts ,null);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+
+                alertDialogBuilder.setView(promptsView);
+                final EditText userInput = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput);
+                //set dialog message
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        //get user input and set everytime URL.
+                                        String[] temp = userInput.getText().toString().split("@");
+                                        userIdentifier = temp[1];
+                                        CrawlingEveryTime crw = new CrawlingEveryTime();
+                                        crw.execute();
+                                    }
+                                })
+                        .setNegativeButton("Cancel",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                    }
+                                });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                alertDialog.show();
+            }
+        });
     }
 
+    /**
+     * crawling everyTime url
+     */
+    ProgressDialog progressDialog;
+    private class CrawlingEveryTime extends AsyncTask<Void,Void,Void>{
 
+        @Override
+        protected  void onPreExecute(){
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(GoogleCalendarSyncTest.this);
+            progressDialog.show();
+        }
 
+        @Override
+        protected void onPostExecute(Void aVoid){
+            super.onPostExecute(aVoid);
+            mResultText.setText(result);
+            progressDialog.dismiss();
+        }
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+
+                Document doc = Jsoup.connect("https://everytime.kr/find/timetable/table/friend")
+                        .data("identifier", userIdentifier)
+                        .data("friendInfo", "true")
+                        .parser(Parser.xmlParser())
+                        .post();
+                String target = "professor";
+                Elements bbb = doc.select(target);
+                result ="";
+                for(Element e:bbb) {
+                    result += e.attr("value");
+                }
+            }catch (IOException o){
+                o.printStackTrace();
+            }
+            return null;
+        }
+    }
 
     /**
      * 다음 사전 조건을 모두 만족해야 Google Calendar API를 사용할 수 있다.
@@ -427,7 +518,6 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         return id;
     }
 
-
     /*
      * 비동기적으로 Google Calendar API 호출
      */
@@ -464,6 +554,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         /*
          * 백그라운드에서 Google Calendar API 호출 처리
          */
+
         @Override
         protected String doInBackground(Void... params) {
             try {
@@ -668,6 +759,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             return eventStrings;
         }
     }
+
 
 
 }
