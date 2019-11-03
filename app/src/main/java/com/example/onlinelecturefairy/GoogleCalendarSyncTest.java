@@ -91,7 +91,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.google_calendar_sync_test);
 
         mAddCalendarButton = (Button) findViewById(R.id.button_main_add_calendar);
         mAddEventButton = (Button) findViewById(R.id.button_main_add_event);
