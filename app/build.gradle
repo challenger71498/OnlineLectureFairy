@@ -42,4 +42,5 @@ dependencies {
     implementation('com.google.apis:google-api-services-calendar:v3-rev235-1.22.0') {
         exclude group: 'org.apache.httpcomponents'
     }
+    implementation 'androidx.gridlayout:gridlayout:1.0.0'
 }

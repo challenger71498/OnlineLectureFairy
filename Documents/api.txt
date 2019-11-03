@@ -1,0 +1,44 @@
+Application Key
+48d47b13-cc10-4465-b6e0-f5c2a7c92f9f
+
+Secret
+i2SiJyTxu7VC1DKl1rJm5LUI0M9rZF1t
+
+Issuer
+https://blackboard.com
+
+Public keyset URL
+https://developer.blackboard.com/api/v1/management/applications/c44e7613-961a-4582-b8d4-faff5ba5e9e4/jwks.json
+
+Auth token endpoint
+https://developer.blackboard.com/api/v1/gateway/oauth2/jwttoken
+
+Tool private key
+-----BEGIN PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCLu7Rb4IzsfBW9
+nKaL+8zV14RPZKu+/EGbH6I4kwASZdreNLggGfSbpB2IGvXVE2bNxRLE2CeULY+Z
+di9vejwaguhb79x0NaSsA1J+J4Z6szPonauIF97zKx0M7TKXLELnplMjyaAjqTKF
+yNsoOh9iSdw8jcoXliG3lngOAzkRsmfy5P92t73pFEUT540C0JhrR/hB1rH0C/ql
+fDlge/2a4ijeIkneG0n5FnHgKnW6EZDaGLLpSfGx+ReoI3sUc1f79PJ18Vt7x6CH
+WK/b+3W+PIojRxzZPPY4qaIzvayuBsTlq1z0YEJoqyAzQJhX3H8p8YKTsWFWI+IX
+hu8KoNSjAgMBAAECggEATuw9+obiEdAkF2ybRQV7tGx99rnNp5mjFJLRdVLR/5I4
+BLmSJc+DMUWIyI8xup+yuRZOe4/7Ct6Q9QSj1jscJ3048HSR97E0yVM3DLoWYsdE
+0mX7tGqHKqF3Tw3KPUhqoZx36QbAxGOUfavs3NO3VjSRiEItmxTZBnCebouzeCKI
+ru+y1QkyfwuKKVzseWZ9XvjKS8ZUONZMf6SzIFZe7SWN/jVuAp4yyykPkj9c5uyc
+1cHqfElj5f+Phv3FE7+Wvgv23qeZfisFb17KxNV+iJx1usfn2zoTA7fflNkRy1kS
+WjeHRjnV/+RbjPiv1UUnUBxXa1EvfIL71vQps7ZNwQKBgQDvPsksjPdWtRl7Rx8/
+xXVEeV5CxK7wJHrKQkf+ARvOqTe03x2MyC00oMLd0cuO5h3jV2tGEQ1wbEn6Iuld
+I/IOHmr3KnQt3nP3XPuSSTiedvY6iJ5wwqAywIcbckbQTyInNSryDw6AzW8g/Y+e
+UZemZVewzbjTFfxkhoy0MXaeLQKBgQCVhNs+mlQvmOkTPagduZoFusOiiQvfQDJD
+/NcKmCGc90c6tMz+pfk42xgG8sUKv03kDAI9jVn+Qtai3pl5KfU80xA6Lx3ZFvXp
+Rf+Kw7lbTYGF1Iw3NxOCJJILLUr+3Uvfc3Zkmp6h1iRK/8XpmzswJh4qdy40MYfe
+UhH1923QDwKBgFQDclXIstqqAea+lQSp7II9NJKxytTdmpkIKYvTC9bIqZ1EdHYJ
+nYZLpeKLV7Y4rOo2up8CQfvmqxvBwr1IcCnxGJLvP5kT8xk8d8NpHw7Wq6TmcO0c
+C3GHFmrW+HMSNuYZz5jtHKSyf4HQSOzJrj1qfR7DP1Iw+E68yRBGBmeJAoGBAIEk
+IC3BJGd7/gwFXBhYf6TlPCY9koiALSo1zxKydY3asqYNFWX4uvqVmfoeY3w14bPP
+f3vkg88tsa847nwNdmjTsBdhLLmdsEaMk/wpswYeOnn6LCVgp7PnnFCVDUp2nxrf
+4mlgdxU3HV+97RYpYoTi13k8OScRhNXMMwEsdaeXAoGAOwXaa0jv7pt9AbGLMRS1
+jqrEYb747W76WnHkI+F4FtJsant+xUUpRQwH3/IE2k6NBQElNhLICEVoPwipTQEZ
+FboJ6RysUvfTUTZaOOMlMZ5a7xzk1jxMjMYCaBlba+kvEYJV2upjNYXxB32d3sca
+VDCgjSwJALaY5uRX2WBDnNk=
+-----END PRIVATE KEY-----
