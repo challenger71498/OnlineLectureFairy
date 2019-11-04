@@ -97,9 +97,15 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     //everytime crawling variable
     final private String everyTimeURL = "https://everytime.kr/find/timetable/table/friend";
     private String userIdentifier;
-    private String professors;
-    private String result;
 
+    //배열의 순서와 과목의 순서가 일치한다.
+    private String[] arrProfessor;
+    private String[] arrSubject;
+    private String[] arrSubId;
+    private String[] arrSubInfo; // 수업의 날짜, 시간, 장소
+
+    private String result;
+    private int numOfSubject;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -231,6 +237,11 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         @Override
         protected void onPostExecute(Void aVoid){
             super.onPostExecute(aVoid);
+            result = "";
+            for(int i=0;i<numOfSubject;i++){
+                result+=arrSubInfo[i];
+                result+="\n";
+            }
             mResultText.setText(result);
             progressDialog.dismiss();
         }
@@ -243,11 +254,99 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                         .data("friendInfo", "true")
                         .parser(Parser.xmlParser())
                         .post();
-                String target = "professor";
-                Elements bbb = doc.select(target);
-                result ="";
-                for(Element e:bbb) {
-                    result += e.attr("value");
+
+
+
+                //initialize information (과목수가 최대 20개라고 가정함.)
+                arrProfessor = new String[20];
+                arrSubject = new String[20];
+                arrSubId = new String[20];
+                arrSubInfo = new String[20];
+                //select subject id
+                int idx = 0;
+                numOfSubject = 0;
+                String target = "subject";
+                Elements selector = doc.select(target);
+                for(Element e:selector){
+                    arrSubId[idx] = e.attr("id");
+                    idx++;
+                    numOfSubject++;
+                }
+
+                //select subject data name, professor, day, startTime, endTime, place
+                for(int i=0;i<numOfSubject;i++){
+
+                    arrSubInfo[i]="";
+                    //get professor name
+                    target = "subject#" + arrSubId[i];
+                    target += " professor";
+                    selector = doc.select(target);
+                    arrSubInfo[i] += selector.attr("value");
+                    arrSubInfo[i] += " ";
+
+
+                    //get subject name
+                    target = "subject#" + arrSubId[i];
+                    target+=" name";
+                    selector = doc.select(target);
+                    arrSubInfo[i] += selector.attr("value");
+                    arrSubInfo[i]+= "\n";
+
+                    //get subject data = (day, startTime, endTime, place)
+                    target = "subject#" + arrSubId[i] + " data";
+                    selector = doc.select(target);
+                    for(Element e:selector) {
+                        //get day
+                        int intDay = Integer.parseInt(e.attr("day"));
+                        if (intDay == 0) { // 0 == Monday
+                            arrSubInfo[i] += "월 ";
+                        } else if (intDay == 1) {
+                            arrSubInfo[i] += "화 ";
+                        } else if (intDay == 2) {
+                            arrSubInfo[i] += "수 ";
+                        } else if (intDay == 3) {
+                            arrSubInfo[i] += "목 ";
+                        } else if (intDay == 4) {
+                            arrSubInfo[i] += "금 ";
+                        } else if (intDay == 5) {
+                            arrSubInfo[i] += "토 ";
+                        } else if (intDay == 6) {
+                            arrSubInfo[i] += "일 ";
+                        }
+
+
+                        //get startTime
+                        String Hour;
+                        String Minute;
+                        int calHour =  Integer.parseInt(e.attr("starttime"));
+                        Hour = Integer.toString(calHour/12);
+                        if(calHour%12==0){
+                           Minute = "00";
+                        }
+                        else{
+                            Minute = Integer.toString((calHour%12)*5);
+                        }
+                        arrSubInfo[i]+= Hour+":"+Minute;
+                        arrSubInfo[i]+=" - ";
+
+                        //get endTime
+                        calHour = Integer.parseInt(e.attr("endtime"));
+                        Hour = Integer.toString(calHour/12);
+                        if(calHour%12==0){
+                            Minute = "00";
+                        }
+                        else{
+                            Minute = Integer.toString((calHour%12)*5);
+                        }
+                        arrSubInfo[i]+= Hour+":"+Minute;
+
+                        //get place
+                        arrSubInfo[i]+=" "+e.attr("place");
+                        arrSubInfo[i]+="\n";
+                    }
+
+
+
                 }
             }catch (IOException o){
                 o.printStackTrace();
