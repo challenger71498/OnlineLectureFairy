@@ -1,45 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="80dp"
-    android:orientation="vertical"
-    android:padding="2dp" >
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="14"
-        android:textSize="12sp"
-        android:textStyle="bold" />
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="3dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <include
-            layout="@layout/event"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="0.5dp" />
-        <include
-            layout="@layout/event"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="0.5dp" />
-        <include
-            layout="@layout/event"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="0.5dp" />
-        <include
-            layout="@layout/event"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="0.5dp" />
+            android:layout_height="-1dp"
+            android:foreground="?android:selectableItemBackgroundBorderless"
+            android:onClick="@{(v)->model.startRecord(v)}"
+            android:orientation="vertical"
+            app:layout_constraintDimensionRatio="2:3">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/cardview_dark_background" />
+
+            <TextView
+                setDayText="@{model.mCalendar}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:textSize="12sp"
+                tools:text="1" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="2dp"
+                android:orientation="vertical">
+
+                <include
+                    layout="@layout/event"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="0.5dp" />
+
+                <include
+                    layout="@layout/event"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="0.5dp" />
+
+                <include
+                    layout="@layout/event"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="0.5dp" />
+
+                <include
+                    layout="@layout/event"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="0.5dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </LinearLayout>
 
-</LinearLayout>
+</layout>

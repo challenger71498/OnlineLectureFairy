@@ -17,6 +17,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    dataBinding {
+        enabled = true
+    }
 }
 
 dependencies {
@@ -43,4 +46,6 @@ dependencies {
         exclude group: 'org.apache.httpcomponents'
     }
     implementation 'org.jsoup:jsoup:1.12.1'
+    implementation 'org.jsoup:jsoup:1.12.1'
+    implementation "com.github.prolificinteractive:material-calendarview:1.6.0"
 }

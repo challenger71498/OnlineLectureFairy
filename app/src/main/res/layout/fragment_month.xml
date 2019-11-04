@@ -1,79 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<layout>
 
-    <LinearLayout
+    <data class="MonthFragmentBinding">
+
+        <import type="android.view.View"/>
+
+        <variable
+            name="model"
+            type="com.example.onlinelecturefairy.ui.month.MonthViewModel" />
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="일"
-            android:textSize="9sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:background="@color/cardview_light_background"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="월"
-            android:textColor="@color/cardview_dark_background"
-            android:textSize="9sp" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="일"
+                android:textSize="9sp" />
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="화"
-            android:textColor="@color/cardview_dark_background"
-            android:textSize="9sp" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="월"
+                android:textColor="@color/cardview_dark_background"
+                android:textSize="9sp" />
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="수"
-            android:textColor="@color/cardview_dark_background"
-            android:textSize="9sp" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="화"
+                android:textColor="@color/cardview_dark_background"
+                android:textSize="9sp" />
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="목"
-            android:textColor="@color/cardview_dark_background"
-            android:textSize="9sp" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="수"
+                android:textColor="@color/cardview_dark_background"
+                android:textSize="9sp" />
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="금"
-            android:textColor="@color/cardview_dark_background"
-            android:textSize="9sp" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="목"
+                android:textColor="@color/cardview_dark_background"
+                android:textSize="9sp" />
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="금"
+                android:textColor="@color/cardview_dark_background"
+                android:textSize="9sp" />
 
-            android:text="토"
-            android:textSize="9sp" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+
+                android:text="토"
+                android:textSize="9sp" />
+
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
