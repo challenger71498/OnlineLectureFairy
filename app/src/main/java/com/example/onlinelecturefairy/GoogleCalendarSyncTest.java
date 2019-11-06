@@ -86,7 +86,8 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     private Button mAddEventButton;
     private Button mAddCalendarButton;
     private Button mGetEveryTime;
-    private Button mGetBlackBoard;
+    private Button mGetBlackBoard_login;
+    private Button mGetBlackBoard_logOut;
     ProgressDialog mProgress;
 
 
@@ -110,9 +111,9 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     private int numOfSubject;
 
     //blackboard crawling variable
-    private String token_action;
-    private String token_new_loc;
-
+    private String blackboard_user_id;
+    private String blackboard_user_password;
+    private boolean user_already_login = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -227,43 +228,78 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             }
         });
 
-        mGetBlackBoard = (Button)findViewById(R.id.blackBoard);
-        mGetBlackBoard.setOnClickListener(new View.OnClickListener() {
+        mGetBlackBoard_login = (Button)findViewById(R.id.blackBoard_login);
+        mGetBlackBoard_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                LayoutInflater li = LayoutInflater.from(context);
-//                View promptsView = li.inflate(R.layout.prompts ,null);
-//
-//                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-//
-//                alertDialogBuilder.setView(promptsView);
-//                final EditText userInput = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput);
-//                //set dialog message
-//                alertDialogBuilder
-//                        .setCancelable(false)
-//                        .setPositiveButton("OK",
-//                                new DialogInterface.OnClickListener() {
-//                                    public void onClick(DialogInterface dialog, int id) {
-//                                        //get user input and set everytime URL.
-//                                        String[] temp = userInput.getText().toString().split("@");
-//                                        userIdentifier = temp[1];
-//                                        CrawlingEveryTime crw = new CrawlingEveryTime();
-//                                        crw.execute();
-//                                    }
-//                                })
-//                        .setNegativeButton("Cancel",
-//                                new DialogInterface.OnClickListener() {
-//                                    @Override
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                        dialog.cancel();
-//                                    }
-//                                });
-//                AlertDialog alertDialog = alertDialogBuilder.create();
-//
-//                alertDialog.show();
+                LayoutInflater li = LayoutInflater.from(context);
+                View promptsView = li.inflate(R.layout.prompt2 ,null);
 
-                CrawlingBlackBoard crw = new CrawlingBlackBoard();
-                crw.execute();
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+
+                alertDialogBuilder.setView(promptsView);
+                final EditText userInput1 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput1);
+                final EditText userInput2 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput2);
+                //set dialog message
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        //get user id and password
+                                        blackboard_user_id = userInput1.getText().toString();
+                                        blackboard_user_password = userInput2.getText().toString();
+
+                                        //자동로그인 해놓음 귀찮아서
+                                        blackboard_user_id = "12181637";
+                                        blackboard_user_password = "!dlstjd1105";
+                                        CrawlingBlackBoard crw = new CrawlingBlackBoard();
+                                        crw.execute();
+                                    }
+                                })
+                        .setNegativeButton("Cancel",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                    }
+                                });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                alertDialog.show();
+            }
+        });
+
+        mGetBlackBoard_logOut = (Button)findViewById(R.id.blackBoard_logout);
+        mGetBlackBoard_logOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LayoutInflater li = LayoutInflater.from(context);
+                View promptsView = li.inflate(R.layout.logout_prompt ,null);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+
+                alertDialogBuilder.setView(promptsView);
+                //set dialog message
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("예",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        //로그아웃 진행
+                                        mResultText.setText("1");
+                                    }
+                                })
+                        .setNegativeButton("아니오",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                    }
+                                });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                alertDialog.show();
             }
         });
     }
@@ -429,14 +465,14 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                         .header("Origin","https://learn.inha.ac.kr")
                         .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
                         .header("Content-Type","application/x-www-form-urlencoded")
-                        .data("user_id","12181637","password","!dlstjd1105")
+                        .data("user_id",blackboard_user_id,"password",blackboard_user_password)
                         .method(Connection.Method.POST)
                         .execute();
                 Map<String,String> loginTryCookie = loginPageResponse.cookies();
 
                 Map<String,String> userData = new HashMap<>();
-                userData.put("user_id","12181637");
-                userData.put("password","!dlstjd1105");
+                userData.put("user_id",blackboard_user_id);
+                userData.put("password",blackboard_user_password);
 
                 Connection.Response res =  Jsoup.connect("https://learn.inha.ac.kr/webapps/login/")
                         .userAgent(userAgent)
@@ -449,16 +485,26 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                         .method(Connection.Method.POST)
                         .execute();
                 Map<String,String> loginCookie = res.cookies();
-
-                Document blackBoard = Jsoup.connect("https://learn.inha.ac.kr/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1")
+                //dlstjd
+                Document blackBoard = Jsoup.connect("https://learn.inha.ac.kr/webapps/portal/execute/tabs/tabAction")
                         .userAgent(userAgent)
                         .header("Origin","https://learn.inha.ac.kr")
                         .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
                         .header("Content-Type","application/x-www-form-urlencoded")
                         .cookies(loginCookie) // 위에서 얻은 '로그인 된' 쿠키
-                        .get();
+                        .data("action","refreshAjaxModule")
+                        .data("modId","_1_1")
+                        .data("tabId","_1_1")
+                        .data("tab_tab_group_id","_1_1")
+                        .parser(Parser.xmlParser())
+                        .post();
 
-                result = blackBoard.html();
+                Elements contest = blackBoard.select("contents");
+                for(Element e:contest){
+                    result += e.html()+ " ";
+                }
+
+
 
             }catch (IOException o){
                 o.printStackTrace();
