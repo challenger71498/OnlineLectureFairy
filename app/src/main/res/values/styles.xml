@@ -17,4 +17,8 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="CalendarDateTextTheme" parent="TextAppearance.MaterialCalendarWidget.Date">
+        <item name="android:text">5dp</item>
+    </style>
+
 </resources>

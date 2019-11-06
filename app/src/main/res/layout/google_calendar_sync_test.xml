@@ -9,7 +9,7 @@
     android:paddingRight="16dp"
     android:paddingTop="16dp"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".FragmentActivity">
 
     <TextView
         android:id="@+id/textview_main_status"
