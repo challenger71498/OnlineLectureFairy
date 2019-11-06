@@ -42,6 +42,7 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -52,8 +53,11 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -82,6 +86,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     private Button mAddEventButton;
     private Button mAddCalendarButton;
     private Button mGetEveryTime;
+    private Button mGetBlackBoard;
     ProgressDialog mProgress;
 
 
@@ -95,17 +100,19 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
     //everytime crawling variable
-    final private String everyTimeURL = "https://everytime.kr/find/timetable/table/friend";
     private String userIdentifier;
 
     //배열의 순서와 과목의 순서가 일치한다.
-    private String[] arrProfessor;
-    private String[] arrSubject;
     private String[] arrSubId;
     private String[] arrSubInfo; // 수업의 날짜, 시간, 장소
 
     private String result;
     private int numOfSubject;
+
+    //blackboard crawling variable
+    private String token_action;
+    private String token_new_loc;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -219,6 +226,46 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 alertDialog.show();
             }
         });
+
+        mGetBlackBoard = (Button)findViewById(R.id.blackBoard);
+        mGetBlackBoard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                LayoutInflater li = LayoutInflater.from(context);
+//                View promptsView = li.inflate(R.layout.prompts ,null);
+//
+//                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+//
+//                alertDialogBuilder.setView(promptsView);
+//                final EditText userInput = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput);
+//                //set dialog message
+//                alertDialogBuilder
+//                        .setCancelable(false)
+//                        .setPositiveButton("OK",
+//                                new DialogInterface.OnClickListener() {
+//                                    public void onClick(DialogInterface dialog, int id) {
+//                                        //get user input and set everytime URL.
+//                                        String[] temp = userInput.getText().toString().split("@");
+//                                        userIdentifier = temp[1];
+//                                        CrawlingEveryTime crw = new CrawlingEveryTime();
+//                                        crw.execute();
+//                                    }
+//                                })
+//                        .setNegativeButton("Cancel",
+//                                new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                        dialog.cancel();
+//                                    }
+//                                });
+//                AlertDialog alertDialog = alertDialogBuilder.create();
+//
+//                alertDialog.show();
+
+                CrawlingBlackBoard crw = new CrawlingBlackBoard();
+                crw.execute();
+            }
+        });
     }
 
     /**
@@ -258,8 +305,6 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
 
                 //initialize information (과목수가 최대 20개라고 가정함.)
-                arrProfessor = new String[20];
-                arrSubject = new String[20];
                 arrSubId = new String[20];
                 arrSubInfo = new String[20];
                 //select subject id
@@ -355,6 +400,73 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         }
     }
 
+    /**
+     * crawling blackboard url
+     */
+    private class CrawlingBlackBoard extends AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected  void onPreExecute(){
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(GoogleCalendarSyncTest.this);
+            progressDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid){
+            super.onPostExecute(aVoid);
+            mResultText.setText(result);
+            progressDialog.dismiss();
+        }
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36";
+
+
+                Connection.Response loginPageResponse = Jsoup.connect("https://learn.inha.ac.kr/webapps/login/")
+                        .timeout(3000)
+                        .header("Origin","https://learn.inha.ac.kr")
+                        .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+                        .header("Content-Type","application/x-www-form-urlencoded")
+                        .data("user_id","12181637","password","!dlstjd1105")
+                        .method(Connection.Method.POST)
+                        .execute();
+                Map<String,String> loginTryCookie = loginPageResponse.cookies();
+
+                Map<String,String> userData = new HashMap<>();
+                userData.put("user_id","12181637");
+                userData.put("password","!dlstjd1105");
+
+                Connection.Response res =  Jsoup.connect("https://learn.inha.ac.kr/webapps/login/")
+                        .userAgent(userAgent)
+                        .timeout(3000)
+                        .header("Origin","https://learn.inha.ac.kr")
+                        .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+                        .header("Content-Type","application/x-www-form-urlencoded")
+                        .cookies(loginTryCookie)
+                        .data(userData)
+                        .method(Connection.Method.POST)
+                        .execute();
+                Map<String,String> loginCookie = res.cookies();
+
+                Document blackBoard = Jsoup.connect("https://learn.inha.ac.kr/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1")
+                        .userAgent(userAgent)
+                        .header("Origin","https://learn.inha.ac.kr")
+                        .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+                        .header("Content-Type","application/x-www-form-urlencoded")
+                        .cookies(loginCookie) // 위에서 얻은 '로그인 된' 쿠키
+                        .get();
+
+                result = blackBoard.html();
+
+            }catch (IOException o){
+                o.printStackTrace();
+            }
+            return null;
+        }
+
+    }
     /**
      * 다음 사전 조건을 모두 만족해야 Google Calendar API를 사용할 수 있다.
      *

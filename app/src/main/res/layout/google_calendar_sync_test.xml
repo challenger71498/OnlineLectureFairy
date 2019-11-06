@@ -64,6 +64,13 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:text="Get Event" />
+
+    <Button
+        android:id="@+id/blackBoard"
+        android:layout_width="112dp"
+        android:layout_height="wrap_content"
+        android:text="BlackBoard" />
+
     <Button
         android:id="@+id/everyTime"
         android:layout_width="113dp"
