@@ -14,30 +14,30 @@
     <TextView
         android:id="@+id/textview_main_status"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="40"
+        android:layout_height="20dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
         android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:text=""/>
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_weight="40"
+        android:text="" />
 
     <TextView
         android:id="@+id/textview_main_result"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="80"
+        android:layout_height="20dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
         android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:text=""/>
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_weight="80"
+        android:text="" />
 
     <Button
         android:id="@+id/button_main_add_calendar"
@@ -66,14 +66,24 @@
         android:text="Get Event" />
 
     <Button
-        android:id="@+id/blackBoard"
-        android:layout_width="112dp"
-        android:layout_height="wrap_content"
-        android:text="BlackBoard" />
-
-    <Button
         android:id="@+id/everyTime"
         android:layout_width="113dp"
         android:layout_height="wrap_content"
         android:text="EveryTime" />
+
+    <Button
+        android:id="@+id/blackBoard_login"
+        android:layout_width="112dp"
+        android:layout_height="wrap_content"
+        android:text="login" />
+
+
+    <Button
+        android:id="@+id/blackBoard_logout"
+        android:layout_width="112dp"
+        android:layout_height="wrap_content"
+        android:text="logout" />
+
+
+
 </LinearLayout>
