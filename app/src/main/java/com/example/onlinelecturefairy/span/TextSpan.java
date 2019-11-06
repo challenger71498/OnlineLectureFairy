@@ -12,7 +12,7 @@ public class TextSpan implements LineBackgroundSpan {
     public final int colorBackGround;
     public final int index;
 
-    private final int offset = 100;
+    private final int offset = 0;
     private final int height = 60;
 
     public TextSpan(String text, int textColor, int colorBackGround, int index) {

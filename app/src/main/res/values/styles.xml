@@ -21,4 +21,12 @@
         <item name="android:text">5dp</item>
     </style>
 
+    <style name="CalendarDatesTheme">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:textColor">@color/textLight</item>
+    </style>
+
 </resources>

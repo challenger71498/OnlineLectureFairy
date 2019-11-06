@@ -954,7 +954,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             event.setEnd(end);
 
             //String[] recurrence = new String[]{"RRULE:FREQ=DAILY;COUNT=2"};
-            //event.setRecurrence(Arrays.asList(recurrence));
+            //fragment_event.setRecurrence(Arrays.asList(recurrence));
 
 
             try {
@@ -963,8 +963,8 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 e.printStackTrace();
                 Log.e("Exception", "Exception : " + e.toString());
             }
-            System.out.printf("Event created: %s\n", event.getHtmlLink());
-            Log.e("Event", "created : " + event.getHtmlLink());
+            System.out.printf("EventViewModel created: %s\n", event.getHtmlLink());
+            Log.e("EventViewModel", "created : " + event.getHtmlLink());
             String eventStrings = "created : " + event.getHtmlLink();
             return eventStrings;
         }

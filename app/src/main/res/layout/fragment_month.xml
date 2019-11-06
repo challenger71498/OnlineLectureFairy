@@ -29,8 +29,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:mcv_showOtherDates="all"
-        app:mcv_tileHeight="match_parent"
-        app:mcv_dateTextAppearance="@style/CalendarDateTextTheme">
+        app:mcv_tileHeight="match_parent" >
 
     </com.prolificinteractive.materialcalendarview.MaterialCalendarView>
 

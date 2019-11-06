@@ -20,22 +20,22 @@
         android:orientation="vertical">
 
         <include
-            layout="@layout/event"
+            layout="@layout/fragment_event"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="0.5dp" />
         <include
-            layout="@layout/event"
+            layout="@layout/fragment_event"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="0.5dp" />
         <include
-            layout="@layout/event"
+            layout="@layout/fragment_event"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="0.5dp" />
         <include
-            layout="@layout/event"
+            layout="@layout/fragment_event"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="0.5dp" />

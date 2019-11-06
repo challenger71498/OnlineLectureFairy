@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/dates"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/monday"
+            style="@style/CalendarDatesTheme"
+            android:text="월" />
+
+        <TextView
+            android:id="@+id/tuesday"
+            style="@style/CalendarDatesTheme"
+            android:text="화" />
+
+        <TextView
+            android:id="@+id/wednesday"
+            style="@style/CalendarDatesTheme"
+            android:text="수" />
+
+        <TextView
+            android:id="@+id/thursday"
+            style="@style/CalendarDatesTheme"
+            android:text="목" />
+
+        <TextView
+            android:id="@+id/friday"
+            style="@style/CalendarDatesTheme"
+            android:text="금" />
+
+        <TextView
+            android:id="@+id/saturday"
+            style="@style/CalendarDatesTheme"
+            android:text="토" />
+
+        <TextView
+            android:id="@+id/sunday"
+            style="@style/CalendarDatesTheme"
+            android:text="일" />
+    </LinearLayout>
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/timetable_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dates" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
