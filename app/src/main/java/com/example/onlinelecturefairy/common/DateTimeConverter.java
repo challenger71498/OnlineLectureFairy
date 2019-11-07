@@ -7,6 +7,6 @@ import java.util.Date;
 
 public class DateTimeConverter {
     public static Date convert(DateTime dateTime) throws ParseException {
-
+        return new Date();
     }
 }

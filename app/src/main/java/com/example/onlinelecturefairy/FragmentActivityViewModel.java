@@ -1,6 +1,7 @@
 package com.example.onlinelecturefairy;
 
 import com.example.onlinelecturefairy.day.Day;
+import com.example.onlinelecturefairy.event.CalendarEvent;
 import com.example.onlinelecturefairy.event.Event;
 
 import java.util.ArrayList;
@@ -15,10 +16,10 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 public class FragmentActivityViewModel extends ViewModel {
-    private MutableLiveData<HashMap<Calendar, ArrayList<Event>>> mDays;
-    private MutableLiveData<ArrayList<Event>> mEvents;
+    private MutableLiveData<HashMap<Calendar, ArrayList<CalendarEvent>>> mDays;
+    private MutableLiveData<ArrayList<CalendarEvent>> mEvents;
 
-    public LiveData<HashMap<Calendar,  ArrayList<Event>>> getDays() {
+    public LiveData<HashMap<Calendar,  ArrayList<CalendarEvent>>> getDays() {
         if(mDays == null) {
             mDays = new MutableLiveData<>();
             loadDays();
@@ -31,15 +32,15 @@ public class FragmentActivityViewModel extends ViewModel {
         setCalendarList();
     }
 
-    public LiveData<HashMap<Calendar,  ArrayList<Event>>> getDays() {
-        if(mDays == null) {
-            mDays = new MutableLiveData<>();
-            loadDays();
+    public LiveData<ArrayList<CalendarEvent>> getEvents() {
+        if(mEvents == null) {
+            mEvents = new MutableLiveData<>();
+            loadEvents();
         }
-        return mDays;
+        return mEvents;
     }
 
-    private void loadDays() {
+    private void loadEvents() {
         // Do an asynchronous operation to fetch days.
         setCalendarList();
     }
@@ -81,9 +82,9 @@ public class FragmentActivityViewModel extends ViewModel {
     }
 
     public void attachEvents() {
-        for(Event event : Objects.requireNonNull(mEvents.getValue())) {
+        for(CalendarEvent event : Objects.requireNonNull(mEvents.getValue())) {
 
-            Date startDate = ;
+            Date startDate = event.;
             if (startDate == null) {
                 startDate = event.getStartDate();
             }
