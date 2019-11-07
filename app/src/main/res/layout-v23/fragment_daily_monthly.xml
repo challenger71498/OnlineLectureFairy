@@ -36,9 +36,7 @@
                 android:layout_height="20dp"
                 android:foreground="@drawable/rounded"
                 android:foregroundTint="@color/colorAccent"
-                android:visibility="@{
-                    isToday ? View.VISIBLE : View.GONE
-                }"
+                android:visibility="@{isToday ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -58,7 +56,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-        </>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -72,4 +70,5 @@
             app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>
