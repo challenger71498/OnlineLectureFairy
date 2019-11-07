@@ -922,7 +922,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         private Exception mLastError = null;
         private GoogleCalendarSyncTest mActivity;
         List<String> eventStrings = new ArrayList<String>();
-
+        List<com.example.onlinelecturefairy.event.Event> ourEventArray = new ArrayList<com.example.onlinelecturefairy.event.Event>();
 
         public MakeRequestTask(GoogleCalendarSyncTest activity, GoogleAccountCredential credential) {
 
@@ -1023,6 +1023,12 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             return eventStrings.size() + "개의 데이터를 가져왔습니다.";
         }
 
+        /**
+         * api event를 project 내의 event로 변환하여 관리
+         * @param calendarId
+         * @return
+         * @throws IOException
+         */
         private String getEventById(String calendarId) throws IOException {
 
 
@@ -1047,57 +1053,33 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             for (Event event : items) {
 
                 DateTime start = event.getStart().getDateTime();
+                DateTime end = event.getEnd().getDateTime();
                 if (start == null) {
-
                     // 모든 이벤트가 시작 시간을 갖고 있지는 않다. 그런 경우 시작 날짜만 사용
                     start = event.getStart().getDate();
                 }
+                if(end == null){
+                    // 모든 이벤트가 시작 시간을 갖고 있지는 않다. 그런 경우 시작 날짜만 사용
+                    end = event.getEnd().getDate();
+                }
+                com.example.onlinelecturefairy.event.Event tempEvent = new com.example.onlinelecturefairy.event.Event(start,end);
+                tempEvent.setSummary(event.getSummary());
+                ourEventArray.add(tempEvent);
 
-
-                eventStrings.add(String.format("%s \n (%s)", event.getSummary(), start));
             }
 
-
+            for(com.example.onlinelecturefairy.event.Event event : ourEventArray){
+                //시작 시간을 가지고 있는 경우
+                if(event.getStartDateTime()==null){
+                    eventStrings.add(String.format("%s \n (%s) ~ (%s)",event.getSummary(), event.getStartDate(),event.getEndDate()));
+                }
+                else{
+                    eventStrings.add(String.format("%s \n (%s) ~ (%s)",event.getSummary(), event.getStartDateTime(),event.getEndDateTime()));
+                }
+            }
             return eventStrings.size() + "개의 데이터를 가져왔습니다.";
         }
 
-        private List<String> getEventList(String calendarId) throws IOException {
-
-
-            DateTime now = new DateTime(System.currentTimeMillis());
-
-            String calendarID = getCalendarID(calendarId);
-            if ( calendarID == null ){
-
-                return null;
-            }
-
-
-            Events events = mService.events().list(calendarID)//"primary")
-                    .setMaxResults(10)
-                    //.setTimeMin(now)
-                    .setOrderBy("startTime")
-                    .setSingleEvents(true)
-                    .execute();
-            List<Event> items = events.getItems();
-
-
-            for (Event event : items) {
-
-                DateTime start = event.getStart().getDateTime();
-                if (start == null) {
-
-                    // 모든 이벤트가 시작 시간을 갖고 있지는 않다. 그런 경우 시작 날짜만 사용
-                    start = event.getStart().getDate();
-                }
-
-
-                eventStrings.add(String.format("%s \n (%s)", event.getSummary(), start));
-            }
-
-
-            return eventStrings;
-        }
         /*
          * 선택되어 있는 Google 계정에 새 캘린더를 추가한다.
          */

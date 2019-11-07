@@ -13,8 +13,5 @@ public interface IEvent {
     int getColor();
     void setColor(int color);
 
-    Timeset getStartTimeSet();
-    void setStartTimeSet(Timeset startTimeSet);
-    Timeset getEndTimeSet();
-    void setEndTimeSet(Timeset endTimeSet);
+
 }

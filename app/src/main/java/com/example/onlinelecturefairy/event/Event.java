@@ -10,17 +10,27 @@ public class Event implements IEvent {
     private String location;
     private int color;
 
-    private Timeset startTimeSet;
-    private Timeset endTimeSet;
+    private Date startDate;
+    private Date endDate;
+    private DateTime startDateTime;
+    private DateTime endDateTime;
 
-    public Event(Date start, Date end) {
-        startTimeSet = new Timeset(start);
-        endTimeSet = new Timeset(end);
+    public Event(){
+        startDate = null;
+        endDate = null;
+        startDateTime = null;
+        endDateTime = null;
     }
 
+    public Event(Date start, Date end){
+        this();
+        this.startDate = start;
+        this.endDate = end;
+    }
     public Event(DateTime start, DateTime end) {
-        startTimeSet = new Timeset(start);
-        endTimeSet = new Timeset(end);
+        this();
+        this.startDateTime  = start;
+        this.endDateTime = end;
     }
 
     public String getSummary() {
@@ -57,49 +67,18 @@ public class Event implements IEvent {
         this.color = color;
     }
 
-    public Timeset getStartTimeSet() {
-        return startTimeSet;
-    }
 
-    public void setStartTimeSet(Timeset startTimeSet) {
-        this.startTimeSet = startTimeSet;
-    }
+    public Date getStartDate(){return startDate;}
+    public Date getEndDate(){return endDate;}
 
-    public Timeset getEndTimeSet() {
-        return endTimeSet;
-    }
+    public DateTime getStartDateTime(){return startDateTime;}
+    public DateTime getEndDateTime(){return endDateTime;}
 
-    public void setEndTimeSet(Timeset endTimeSet) {
-        this.endTimeSet = endTimeSet;
-    }
+    public void setStartDate(Date start){this.startDate = start;}
+    public void setEndDate(Date end){this.endDate = end;}
+
+    public void setStartDateTime(DateTime start){this.startDateTime = start;}
+    public void setEndDateTime(DateTime end){this.endDateTime = end;}
 }
 
 
-class Timeset {
-    private Date date;
-    private DateTime dateTime;
-
-    Timeset(Date date) {
-        this.date = date;
-    }
-
-    Timeset(DateTime dateTime) {
-        this.dateTime = dateTime;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public DateTime getDateTime() {
-        return dateTime;
-    }
-
-    public void setDateTime(DateTime dateTime) {
-        this.dateTime = dateTime;
-    }
-}
