@@ -58,6 +58,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -108,7 +109,6 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     //배열의 순서와 과목의 순서가 일치한다.
     private String[] arrSubId;
     private String[] arrSubInfo; // 수업의 날짜, 시간, 장소
-
     private String result;
     private int numOfSubject;
 
@@ -219,6 +219,11 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                                         userIdentifier = temp[1];
                                         CrawlingEveryTime crw = new CrawlingEveryTime();
                                         crw.execute();
+                                        mGetEveryTime.setEnabled(false);
+                                        mStatusText.setText("");
+                                        mID = 5;        //이벤트 생성
+                                        getResultsFromApi();
+                                        mGetEveryTime.setEnabled(true);
                                     }
                                 })
                         .setNegativeButton("Cancel",
@@ -276,6 +281,10 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             }
         });
 
+
+        /**
+         * 구글계정에서 캘린더 가져오기
+         */
         mGetBlackBoard_test = (Button)findViewById(R.id.blackBoard_test);
         mGetBlackBoard_test.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -327,6 +336,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
     /**
      * crawling everyTime url
+     * crawling한 data를 일정화시킨다.
      */
     ProgressDialog progressDialog;
     private class CrawlingEveryTime extends AsyncTask<Void,Void,Void>{
@@ -346,6 +356,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 result+=arrSubInfo[i];
                 result+="\n";
             }
+            result+=numOfSubject;
             mResultText.setText(result);
             progressDialog.dismiss();
         }
@@ -364,6 +375,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 //initialize information (과목수가 최대 20개라고 가정함.)
                 arrSubId = new String[20];
                 arrSubInfo = new String[20];
+
                 //select subject id
                 int idx = 0;
                 numOfSubject = 0;
@@ -374,46 +386,51 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                     idx++;
                     numOfSubject++;
                 }
+                Event everytime = new Event();
 
                 //select subject data name, professor, day, startTime, endTime, place
+                int subIdx = 0;
                 for(int i=0;i<numOfSubject;i++){
 
-                    arrSubInfo[i]="";
-                    //get professor name
-                    target = "subject#" + arrSubId[i];
-                    target += " professor";
-                    selector = doc.select(target);
-                    arrSubInfo[i] += selector.attr("value");
-                    arrSubInfo[i] += " ";
 
 
                     //get subject name
                     target = "subject#" + arrSubId[i];
                     target+=" name";
                     selector = doc.select(target);
-                    arrSubInfo[i] += selector.attr("value");
-                    arrSubInfo[i]+= "\n";
+                    String subject_name = selector.attr("value");
+
+
+                    //get professor name
+                    target = "subject#" + arrSubId[i];
+                    target += " professor";
+                    selector = doc.select(target);
+                    String professor_name = selector.attr("value");
+
 
                     //get subject data = (day, startTime, endTime, place)
                     target = "subject#" + arrSubId[i] + " data";
                     selector = doc.select(target);
                     for(Element e:selector) {
+                        arrSubInfo[subIdx]="";
+                        arrSubInfo[subIdx]+=subject_name+"@";
+                        arrSubInfo[subIdx]+=professor_name+"@";
                         //get day
                         int intDay = Integer.parseInt(e.attr("day"));
                         if (intDay == 0) { // 0 == Monday
-                            arrSubInfo[i] += "월 ";
+                            arrSubInfo[subIdx] += "2@";
                         } else if (intDay == 1) {
-                            arrSubInfo[i] += "화 ";
+                            arrSubInfo[subIdx] += "3@";
                         } else if (intDay == 2) {
-                            arrSubInfo[i] += "수 ";
+                            arrSubInfo[subIdx] += "4@";
                         } else if (intDay == 3) {
-                            arrSubInfo[i] += "목 ";
+                            arrSubInfo[subIdx] += "5@";
                         } else if (intDay == 4) {
-                            arrSubInfo[i] += "금 ";
+                            arrSubInfo[subIdx] += "6@";
                         } else if (intDay == 5) {
-                            arrSubInfo[i] += "토 ";
+                            arrSubInfo[subIdx] += "7@";
                         } else if (intDay == 6) {
-                            arrSubInfo[i] += "일 ";
+                            arrSubInfo[subIdx] += "1@";
                         }
 
 
@@ -428,8 +445,8 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                         else{
                             Minute = Integer.toString((calHour%12)*5);
                         }
-                        arrSubInfo[i]+= Hour+":"+Minute;
-                        arrSubInfo[i]+=" - ";
+                        arrSubInfo[subIdx]+= Hour+":"+Minute;
+                        arrSubInfo[subIdx]+="@";
 
                         //get endTime
                         calHour = Integer.parseInt(e.attr("endtime"));
@@ -440,16 +457,18 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                         else{
                             Minute = Integer.toString((calHour%12)*5);
                         }
-                        arrSubInfo[i]+= Hour+":"+Minute;
+                        arrSubInfo[subIdx]+= Hour+":"+Minute;
 
                         //get place
-                        arrSubInfo[i]+=" "+e.attr("place");
-                        arrSubInfo[i]+="\n";
+                        arrSubInfo[subIdx]+="@"+e.attr("place");
+                        arrSubInfo[subIdx]+="\n";
+                        subIdx++;
                     }
 
 
 
                 }
+                numOfSubject = subIdx;
             }catch (IOException o){
                 o.printStackTrace();
             }
@@ -922,7 +941,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         private Exception mLastError = null;
         private GoogleCalendarSyncTest mActivity;
         List<String> eventStrings = new ArrayList<String>();
-        List<com.example.onlinelecturefairy.event.Event> ourEventArray = new ArrayList<com.example.onlinelecturefairy.event.Event>();
+        List<Event> ourEventArray = new ArrayList<Event>();
 
         public MakeRequestTask(GoogleCalendarSyncTest activity, GoogleAccountCredential credential) {
 
@@ -971,7 +990,9 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
                     return getEventById(mCredential.getSelectedAccountName());
                 }
-
+                else if(mID == 5){
+                    return addEveryTimeEvent();
+                }
             } catch (Exception e) {
                 mLastError = e;
                 cancel(true);
@@ -1062,19 +1083,18 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                     // 모든 이벤트가 시작 시간을 갖고 있지는 않다. 그런 경우 시작 날짜만 사용
                     end = event.getEnd().getDate();
                 }
-                com.example.onlinelecturefairy.event.Event tempEvent = new com.example.onlinelecturefairy.event.Event(start,end);
-                tempEvent.setSummary(event.getSummary());
+                Event tempEvent = event;
                 ourEventArray.add(tempEvent);
 
             }
 
-            for(com.example.onlinelecturefairy.event.Event event : ourEventArray){
+            for(Event event : ourEventArray){
                 //시작 시간을 가지고 있는 경우
-                if(event.getStartDateTime()==null){
-                    eventStrings.add(String.format("%s \n (%s) ~ (%s)",event.getSummary(), event.getStartDate(),event.getEndDate()));
+                if(event.getEnd().getDateTime()==null){
+                    eventStrings.add(String.format("%s \n (%s) ~ (%s)",event.getSummary(), event.getStart().getDate(),event.getEnd().getDate()));
                 }
                 else{
-                    eventStrings.add(String.format("%s \n (%s) ~ (%s)",event.getSummary(), event.getStartDateTime(),event.getEndDateTime()));
+                    eventStrings.add(String.format("%s \n (%s) ~ (%s)",event.getSummary(), event.getStart().getDateTime(),event.getEnd().getDateTime()));
                 }
             }
             return eventStrings.size() + "개의 데이터를 가져왔습니다.";
@@ -1135,6 +1155,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
             if ( mID == 3)   mResultText.setText(TextUtils.join("\n\n", eventStrings));
             if ( mID == 4)   mResultText.setText(TextUtils.join("\n\n", eventStrings));
+            if ( mID == 5)   mResultText.setText(TextUtils.join("\n\n", eventStrings));
         }
 
 
@@ -1156,6 +1177,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             } else {
                 mStatusText.setText("요청 취소됨.");
             }
+
         }
 
 
@@ -1213,6 +1235,142 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             System.out.printf("EventViewModel created: %s\n", event.getHtmlLink());
             Log.e("EventViewModel", "created : " + event.getHtmlLink());
             String eventStrings = "created : " + event.getHtmlLink();
+            return eventStrings;
+        }
+
+        /**
+         * In google calendar,
+         * subjectName == summary
+         * professorName == description
+         * startTime == start
+         * endTime == end
+         * location == location
+         */
+        private String addEveryTimeEvent() {
+            String subjectName;
+            String professorName;
+            String startTime;
+            String endTime;
+            String location;
+            String[] temp;
+            String calendarID = getCalendarID("CalendarTitle");
+            java.util.Calendar calendar;
+
+
+            SimpleDateFormat simpledateformat;
+            //simpledateformat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ssZ", Locale.KOREA);
+            // Z에 대응하여 +0900이 입력되어 문제 생겨 수작업으로 입력
+            simpledateformat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss+09:00", Locale.KOREA);
+
+            if ( calendarID == null ){
+
+                return "캘린더를 먼저 생성하세요.";
+
+            }
+            calendar = java.util.Calendar.getInstance();
+            int tYear = calendar.get(calendar.YEAR);
+            int tMonth = calendar.get(calendar.MONTH);
+            int tDate = calendar.get(calendar.DATE);
+            for(int i=0;i<numOfSubject;i++) {
+                calendar = java.util.Calendar.getInstance();
+                temp = arrSubInfo[i].split("@");
+                subjectName = temp[0];
+                professorName = temp[1];
+                int week = Integer.parseInt(temp[2]);
+                startTime = temp[3];
+                endTime = temp[4];
+                location = temp[5];
+                Event event = new Event()
+                        .setSummary(subjectName)
+                        .setLocation(location)
+                        .setDescription(professorName);
+
+
+                if(week==1){
+                    calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
+                }
+                else if(week==2){
+                    calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
+                }
+                else if(week==3){
+                    calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.TUESDAY);
+                }
+                else if(week==4){
+                    calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.WEDNESDAY);
+                }
+                else if(week==5){
+                    calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.THURSDAY);
+                }
+                else if(week==6){
+                    calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.FRIDAY);
+                }
+                else if(week==7){
+                    calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SATURDAY);
+                }
+                //set start time
+                temp = startTime.split(":");
+                int startHour = Integer.parseInt(temp[0]);
+                int startMinute = Integer.parseInt(temp[1]);
+                calendar.set(calendar.HOUR, + startHour);
+                calendar.set(calendar.MINUTE, + startMinute);
+                String datetime = simpledateformat.format(calendar.getTime());
+                DateTime startDateTime = new DateTime(datetime);
+                EventDateTime start = new EventDateTime()
+                        .setDateTime(startDateTime)
+                        .setTimeZone("Asia/Seoul");
+                event.setStart(start);
+
+                //set start time  default한 시간을 위해 다시 초기화
+                calendar = java.util.Calendar.getInstance();
+                if(week==1){
+                    calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
+                }
+                else if(week==2){
+                    calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
+                }
+                else if(week==3){
+                    calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.TUESDAY);
+                }
+                else if(week==4){
+                    calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.WEDNESDAY);
+                }
+                else if(week==5){
+                    calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.THURSDAY);
+                }
+                else if(week==6){
+                    calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.FRIDAY);
+                }
+                else if(week==7){
+                    calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SATURDAY);
+                }
+                temp = endTime.split(":");
+                int endHour = Integer.parseInt(temp[0]);
+                int endMinute = Integer.parseInt(temp[1]);
+                calendar.set(calendar.HOUR, + endHour);
+                calendar.set(calendar.MINUTE, + endMinute);
+                datetime = simpledateformat.format(calendar.getTime());
+                DateTime endDateTime = new DateTime(datetime);
+                EventDateTime end = new EventDateTime()
+                        .setDateTime(endDateTime)
+                        .setTimeZone("Asia/Seoul");
+                event.setEnd(end);
+                Random random = new Random();
+                int cR = random.nextInt(11)+1;
+                event.setColorId(Integer.toString(cR));
+                //String[] recurrence = new String[]{"RRULE:FREQ=DAILY;COUNT=2"};
+                //fragment_event.setRecurrence(Arrays.asList(recurrence));
+
+
+                try {
+                    event = mService.events().insert(calendarID, event).execute();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e("Exception", "Exception : " + e.toString());
+                }
+            }
+            String eventStrings = "시간표가 구글 캘린더 이번 주의 일정에 추가되었습니다.";
+
+
             return eventStrings;
         }
     }
