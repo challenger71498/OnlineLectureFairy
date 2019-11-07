@@ -79,10 +79,10 @@
 
 
     <Button
-        android:id="@+id/blackBoard_logout"
+        android:id="@+id/blackBoard_test"
         android:layout_width="112dp"
         android:layout_height="wrap_content"
-        android:text="logout" />
+        android:text="GET EVENT BY USER ID" />
 
 
 

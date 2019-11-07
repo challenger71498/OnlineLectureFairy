@@ -87,7 +87,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     private Button mAddCalendarButton;
     private Button mGetEveryTime;
     private Button mGetBlackBoard_login;
-    private Button mGetBlackBoard_logOut;
+    private Button mGetBlackBoard_test;
     ProgressDialog mProgress;
 
 
@@ -276,36 +276,51 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             }
         });
 
-        mGetBlackBoard_logOut = (Button)findViewById(R.id.blackBoard_logout);
-        mGetBlackBoard_logOut.setOnClickListener(new View.OnClickListener() {
+        mGetBlackBoard_test = (Button)findViewById(R.id.blackBoard_test);
+        mGetBlackBoard_test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LayoutInflater li = LayoutInflater.from(context);
-                View promptsView = li.inflate(R.layout.logout_prompt ,null);
+//                LayoutInflater li = LayoutInflater.from(context);
+//                View promptsView = li.inflate(R.layout.prompt2 ,null);
+//
+//                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+//
+//                alertDialogBuilder.setView(promptsView);
+//                final EditText userInput1 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput1);
+//                final EditText userInput2 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput2);
+//                //set dialog message
+//                alertDialogBuilder
+//                        .setCancelable(false)
+//                        .setPositiveButton("OK",
+//                                new DialogInterface.OnClickListener() {
+//                                    public void onClick(DialogInterface dialog, int id) {
+//                                        //get user id and password
+//                                        blackboard_user_id = userInput1.getText().toString();
+//                                        blackboard_user_password = userInput2.getText().toString();
+//
+//                                        //자동로그인 해놓음 귀찮아서
+//                                        blackboard_user_id = "12181637";
+//                                        blackboard_user_password = "!dlstjd1105";
+//                                        CrawlingBlackBoard2 crw = new CrawlingBlackBoard2();
+//                                        crw.execute();
+//                                    }
+//                                })
+//                        .setNegativeButton("Cancel",
+//                                new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                        dialog.cancel();
+//                                    }
+//                                });
+//                AlertDialog alertDialog = alertDialogBuilder.create();
+//
+//                alertDialog.show();
 
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-
-                alertDialogBuilder.setView(promptsView);
-                //set dialog message
-                alertDialogBuilder
-                        .setCancelable(false)
-                        .setPositiveButton("예",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        //로그아웃 진행
-                                        mResultText.setText("1");
-                                    }
-                                })
-                        .setNegativeButton("아니오",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.cancel();
-                                    }
-                                });
-                AlertDialog alertDialog = alertDialogBuilder.create();
-
-                alertDialog.show();
+                mAddCalendarButton.setEnabled(false);
+                mStatusText.setText("");
+                mID = 4;           //캘린더 생성
+                getResultsFromApi();
+                mAddCalendarButton.setEnabled(true);
             }
         });
     }
@@ -443,6 +458,34 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     }
 
     /**
+     * 다음 사전 조건을 모두 만족해야 Google Calendar API를 사용할 수 있다.
+     *
+     * 사전 조건
+     *     - Google Play Services 설치
+     *     - 유효한 구글 계정 선택
+     *     - 안드로이드 디바이스에서 인터넷 사용 가능
+     *
+     * 하나라도 만족하지 않으면 해당 사항을 사용자에게 알림.
+     */
+    private String getResultsFromApi() {
+
+        if (!isGooglePlayServicesAvailable()) { // Google Play Services를 사용할 수 없는 경우
+
+            acquireGooglePlayServices();
+        } else if (mCredential.getSelectedAccountName() == null) { // 유효한 Google 계정이 선택되어 있지 않은 경우
+
+            chooseAccount();
+        } else if (!isDeviceOnline()) {    // 인터넷을 사용할 수 없는 경우
+
+            mStatusText.setText("No network connection available.");
+        } else {
+
+            // Google Calendar API 호출
+            new MakeRequestTask(this, mCredential).execute();
+        }
+        return null;
+    }
+    /**
      * crawling blackboard url
      */
     private class CrawlingBlackBoard extends AsyncTask<Void,Void,Void>{
@@ -542,7 +585,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                     }
 
                 }
-                    String t="";
+                String t="";
                 for(int i=0;i<numOfSub;i++){
                     result+=blackboard_subject[i]+"\n";
                     result+=blackboard_notice[i]+"\n";
@@ -554,34 +597,90 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         }
 
     }
+
+
+
     /**
-     * 다음 사전 조건을 모두 만족해야 Google Calendar API를 사용할 수 있다.
-     *
-     * 사전 조건
-     *     - Google Play Services 설치
-     *     - 유효한 구글 계정 선택
-     *     - 안드로이드 디바이스에서 인터넷 사용 가능
-     *
-     * 하나라도 만족하지 않으면 해당 사항을 사용자에게 알림.
+     * crawling blackboard url
      */
-    private String getResultsFromApi() {
+    private class CrawlingBlackBoard2 extends AsyncTask<Void,Void,Void>{
 
-        if (!isGooglePlayServicesAvailable()) { // Google Play Services를 사용할 수 없는 경우
-
-            acquireGooglePlayServices();
-        } else if (mCredential.getSelectedAccountName() == null) { // 유효한 Google 계정이 선택되어 있지 않은 경우
-
-            chooseAccount();
-        } else if (!isDeviceOnline()) {    // 인터넷을 사용할 수 없는 경우
-
-            mStatusText.setText("No network connection available.");
-        } else {
-
-            // Google Calendar API 호출
-            new MakeRequestTask(this, mCredential).execute();
+        @Override
+        protected  void onPreExecute(){
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(GoogleCalendarSyncTest.this);
+            progressDialog.show();
         }
-        return null;
+
+        @Override
+        protected void onPostExecute(Void aVoid){
+            super.onPostExecute(aVoid);
+            mResultText.setText(result);
+            progressDialog.dismiss();
+        }
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36";
+
+
+                Connection.Response loginPageResponse = Jsoup.connect("https://learn.inha.ac.kr/webapps/login/")
+                        .timeout(3000)
+                        .header("Origin","https://learn.inha.ac.kr")
+                        .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+                        .header("Content-Type","application/x-www-form-urlencoded")
+                        .data("user_id",blackboard_user_id,"password",blackboard_user_password)
+                        .method(Connection.Method.POST)
+                        .execute();
+                Map<String,String> loginTryCookie = loginPageResponse.cookies();
+
+                Map<String,String> userData = new HashMap<>();
+                userData.put("user_id",blackboard_user_id);
+                userData.put("password",blackboard_user_password);
+
+                Connection.Response res =  Jsoup.connect("https://learn.inha.ac.kr/webapps/login/")
+                        .userAgent(userAgent)
+                        .timeout(3000)
+                        .header("Origin","https://learn.inha.ac.kr")
+                        .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+                        .header("Content-Type","application/x-www-form-urlencoded")
+                        .cookies(loginTryCookie)
+                        .data(userData)
+                        .method(Connection.Method.POST)
+                        .execute();
+                Map<String,String> loginCookie = res.cookies();
+
+                Document docSubId = Jsoup.connect("https://learn.inha.ac.kr/webapps/portal/execute/tabs/tabAction")
+                        .userAgent(userAgent)
+                        .header("Origin","https://learn.inha.ac.kr")
+                        .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+                        .header("Content-Type","application/x-www-form-urlencoded")
+                        .cookies(loginCookie) // 위에서 얻은 '로그인 된' 쿠키
+                        .data("action","refreshAjaxModule")
+                        .data("modId","_3_1")
+                        .data("tabId","_1_1")
+                        .data("tab_tab_group_id","_1_1")
+                        .parser(Parser.xmlParser())
+                        .post();
+                String temp1 = "";
+                Elements contest = docSubId.select("contents");
+                for(Element e:contest){
+                    temp1+=e.html();
+                }
+                String[] temp2;
+                temp1 = temp1.replace("<![CDATA[","").replace("]]>","");
+                temp2 = temp1.split("<!-- Display course/org announcements -->");
+                temp1  = temp2[1];
+                result = temp1;
+
+            }catch (IOException o){
+                o.printStackTrace();
+            }
+            return null;
+        }
+
     }
+
 
 
 
@@ -868,7 +967,10 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
                     return getEvent();
                 }
+                else if(mID == 4){
 
+                    return getEventById(mCredential.getSelectedAccountName());
+                }
 
             } catch (Exception e) {
                 mLastError = e;
@@ -921,6 +1023,81 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             return eventStrings.size() + "개의 데이터를 가져왔습니다.";
         }
 
+        private String getEventById(String calendarId) throws IOException {
+
+
+            DateTime now = new DateTime(System.currentTimeMillis());
+
+            String calendarID = getCalendarID(calendarId);
+            if ( calendarID == null ){
+
+                return "캘린더를 먼저 생성하세요.";
+            }
+
+
+            Events events = mService.events().list(calendarID)//"primary")
+                    .setMaxResults(10)
+                    //.setTimeMin(now)
+                    .setOrderBy("startTime")
+                    .setSingleEvents(true)
+                    .execute();
+            List<Event> items = events.getItems();
+
+
+            for (Event event : items) {
+
+                DateTime start = event.getStart().getDateTime();
+                if (start == null) {
+
+                    // 모든 이벤트가 시작 시간을 갖고 있지는 않다. 그런 경우 시작 날짜만 사용
+                    start = event.getStart().getDate();
+                }
+
+
+                eventStrings.add(String.format("%s \n (%s)", event.getSummary(), start));
+            }
+
+
+            return eventStrings.size() + "개의 데이터를 가져왔습니다.";
+        }
+
+        private List<String> getEventList(String calendarId) throws IOException {
+
+
+            DateTime now = new DateTime(System.currentTimeMillis());
+
+            String calendarID = getCalendarID(calendarId);
+            if ( calendarID == null ){
+
+                return null;
+            }
+
+
+            Events events = mService.events().list(calendarID)//"primary")
+                    .setMaxResults(10)
+                    //.setTimeMin(now)
+                    .setOrderBy("startTime")
+                    .setSingleEvents(true)
+                    .execute();
+            List<Event> items = events.getItems();
+
+
+            for (Event event : items) {
+
+                DateTime start = event.getStart().getDateTime();
+                if (start == null) {
+
+                    // 모든 이벤트가 시작 시간을 갖고 있지는 않다. 그런 경우 시작 날짜만 사용
+                    start = event.getStart().getDate();
+                }
+
+
+                eventStrings.add(String.format("%s \n (%s)", event.getSummary(), start));
+            }
+
+
+            return eventStrings;
+        }
         /*
          * 선택되어 있는 Google 계정에 새 캘린더를 추가한다.
          */
@@ -974,7 +1151,8 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             mProgress.hide();
             mStatusText.setText(output);
 
-            if ( mID == 3 )   mResultText.setText(TextUtils.join("\n\n", eventStrings));
+            if ( mID == 3)   mResultText.setText(TextUtils.join("\n\n", eventStrings));
+            if ( mID == 4)   mResultText.setText(TextUtils.join("\n\n", eventStrings));
         }
 
 
