@@ -33,16 +33,11 @@ public class EventFragment extends Fragment {
         binding = DataBindingUtil.setContentView(activity, R.layout.fragment_event);
 
         EventViewModel model = ViewModelProviders.of(this).get(EventViewModel.class);
-        model.getCalendar().observe(this, event -> {
+        model.getEvent().observe(this, event -> {
             //update UI.
             binding.setEvent(event);
         });
 
         return view;
-    }
-
-    //Set function.
-    public void set() {
-
     }
 }

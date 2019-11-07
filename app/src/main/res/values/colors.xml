@@ -7,4 +7,18 @@
     <color name="textLight">#252525</color>
     <color name="textGray">#666666</color>
     <color name="textDark">#FFFFFF</color>
+
+    <color name="lavender">#a4bdfc</color>
+    <color name="sage">#7ae7bf</color>
+    <color name="grape">#dbadff</color>
+    <color name="flamingo">#ff887c</color>
+    <color name="banana">#fbd75b</color>
+    <color name="mandarin">#ffb878</color>
+    <color name="peacock">#46d6db</color>
+    <color name="graphite">#e1e1e1</color>
+    <color name="blueberry">#5484ed</color>
+    <color name="basil">#51b749</color>
+    <color name="tomato">#dc2127</color>
+    <color name="foreground">#1d1d1d</color>
+
 </resources>

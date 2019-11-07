@@ -9,7 +9,7 @@ import com.example.onlinelecturefairy.event.Event;
 public class EventViewModel extends ViewModel {
     private MutableLiveData<Event> event;
 
-    public LiveData<Event> getCalendar() {
+    public LiveData<Event> getEvent() {
         if(event == null) {
             event = new MutableLiveData<>();
             loadEvent();
@@ -18,6 +18,6 @@ public class EventViewModel extends ViewModel {
     }
 
     private void loadEvent() {
-        // Do an asynchronous operation to fetch calendars.
+        // Do an asynchronous operation to fetch event.
     }
 }

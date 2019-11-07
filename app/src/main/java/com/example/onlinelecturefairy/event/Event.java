@@ -4,13 +4,13 @@ import com.google.api.client.util.DateTime;
 
 import java.util.Date;
 
-public class Event {
+public class Event implements IEvent {
     private String summary;
     private String description;
     private String location;
+    private int color;
 
     private Timeset startTimeSet;
-
     private Timeset endTimeSet;
 
     public Event(Date start, Date end) {
@@ -45,6 +45,16 @@ public class Event {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    @Override
+    public int getColor() {
+        return color;
+    }
+
+    @Override
+    public void setColor(int color) {
+        this.color = color;
     }
 
     public Timeset getStartTimeSet() {
