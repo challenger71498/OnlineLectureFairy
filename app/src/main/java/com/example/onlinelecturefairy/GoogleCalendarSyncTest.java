@@ -100,7 +100,9 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
-    //everytime crawling variable
+    /*
+    everytime crawling variable
+     */
     private String userIdentifier;
 
     //배열의 순서와 과목의 순서가 일치한다.
@@ -110,10 +112,14 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     private String result;
     private int numOfSubject;
 
-    //blackboard crawling variable
+    /*
+    blackboard crawling variable
+     */
     private String blackboard_user_id;
     private String blackboard_user_password;
     private boolean user_already_login = false;
+    private String[] blackboard_subject;
+    private String[] blackboard_notice;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -498,14 +504,49 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                         .data("tab_tab_group_id","_1_1")
                         .parser(Parser.xmlParser())
                         .post();
-
+                String temp1 = "";
                 Elements contest = blackBoard.select("contents");
                 for(Element e:contest){
-                    result += e.html()+ " ";
+                    temp1+=e.html();
                 }
+                String[] temp2;
+                temp1 = temp1.replace("<![CDATA[","").replace("]]>","");
+                temp2 = temp1.split("<!-- Display course/org announcements -->");
+                temp1  = temp2[1];
 
+                result = "";
+                int idx=0;
+                int numOfSub;
+                blackboard_subject = new String[10];
+                blackboard_notice = new String[10];
 
+                //selecting subject name
+                Document doc = Jsoup.parse(temp1);
+                Elements elem = doc.select("h3");
+                for(Element e:elem){
+                    temp2 = e.text().split("\\)");
+                    blackboard_subject[idx] = temp2[1];
+                    idx++;
+                }
+                numOfSub = idx;
 
+                //selecting notice of each subject
+                temp2 = temp1.split("</div>");
+                for(int i=0;i<temp2.length;i++){
+                    doc = Jsoup.parse(temp2[i]);
+                    elem = doc.select("li");
+                    blackboard_notice[i] = "";
+                    for(Element e:elem){
+                        blackboard_notice[i] += e.text();
+                        blackboard_notice[i] +="\n";
+                    }
+
+                }
+                    String t="";
+                for(int i=0;i<numOfSub;i++){
+                    result+=blackboard_subject[i]+"\n";
+                    result+=blackboard_notice[i]+"\n";
+                }
             }catch (IOException o){
                 o.printStackTrace();
             }
