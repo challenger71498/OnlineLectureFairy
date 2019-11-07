@@ -1,4 +1,4 @@
-package com.example.onlinelecturefairy.ui.monthly;
+package com.example.onlinelecturefairy.ui.monthly.dailymonthly;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -15,7 +15,9 @@ import androidx.lifecycle.ViewModelProviders;
 import com.example.onlinelecturefairy.R;
 import com.example.onlinelecturefairy.databinding.FragmentDailyMonthlyBinding;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Objects;
 
 public class DailyMonthlyFragment extends Fragment {
@@ -36,19 +38,19 @@ public class DailyMonthlyFragment extends Fragment {
         binding = DataBindingUtil.setContentView(activity, R.layout.fragment_daily_monthly);
 
         DailyMonthlyViewModel model = ViewModelProviders.of(this).get(DailyMonthlyViewModel.class);
-        model.getCalendar().observe(this, calendar -> {
+        model.getDay().observe(this, day -> {
             // update UI;
             Calendar today = Calendar.getInstance();
-            Calendar date = Objects.requireNonNull(model.getCalendar().getValue());
+            Calendar date = Objects.requireNonNull(model.getDay().getValue()).getCalendar();
+
+            // update date.
+            binding.setDate(new SimpleDateFormat("d", Locale.KOREAN).format(date));
 
             // checks whether today or not.
             binding.setIsToday(
                     date.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)
                     && date.get(Calendar.YEAR) == today.get(Calendar.YEAR)
             );
-        });
-        model.getEvents().observe(this, events -> {
-            // update UI;
         });
 
         return view;

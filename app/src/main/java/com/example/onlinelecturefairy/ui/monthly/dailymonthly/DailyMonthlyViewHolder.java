@@ -1,4 +1,4 @@
-package com.example.onlinelecturefairy.ui.monthly;
+package com.example.onlinelecturefairy.ui.monthly.dailymonthly;
 
 import android.view.View;
 

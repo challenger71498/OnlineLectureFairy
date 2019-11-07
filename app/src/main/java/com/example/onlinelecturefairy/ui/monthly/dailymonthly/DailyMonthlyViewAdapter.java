@@ -1,4 +1,4 @@
-package com.example.onlinelecturefairy.ui.monthly;
+package com.example.onlinelecturefairy.ui.monthly.dailymonthly;
 
 import android.content.Context;
 import android.view.LayoutInflater;
