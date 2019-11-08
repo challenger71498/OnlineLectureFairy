@@ -89,6 +89,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     private Button mGetEveryTime;
     private Button mGetBlackBoard_login;
     private Button mGetBlackBoard_test;
+    private Button mGetBlackBoard_web;
     ProgressDialog mProgress;
 
 
@@ -261,9 +262,9 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                                         blackboard_user_id = userInput1.getText().toString();
                                         blackboard_user_password = userInput2.getText().toString();
 
-                                        //자동로그인 해놓음 귀찮아서
-                                        blackboard_user_id = "12181637";
-                                        blackboard_user_password = "!dlstjd1105";
+                                        //비어있으면 자동로그인 해놓음 귀찮아서
+                                        if(blackboard_user_id.matches("")) blackboard_user_id = "12181637";
+                                        if(blackboard_user_password.matches("")) blackboard_user_password = "!dlstjd1105";
                                         CrawlingBlackBoard crw = new CrawlingBlackBoard();
                                         crw.execute();
                                     }
@@ -279,8 +280,54 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
                 alertDialog.show();
             }
+
         });
 
+        /**
+         * 블랙보드 웹강 처리 버튼 : CrawlingBlackBoardWeb 실행
+         */
+        mGetBlackBoard_web = (Button)findViewById(R.id.blackBoard_web);
+        mGetBlackBoard_web.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LayoutInflater li = LayoutInflater.from(context);
+                View promptsView = li.inflate(R.layout.prompt2 ,null);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+
+                alertDialogBuilder.setView(promptsView);
+                final EditText userInput1 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput1);
+                final EditText userInput2 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput2);
+                //set dialog message
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        //get user id and password
+                                        blackboard_user_id = userInput1.getText().toString();
+                                        blackboard_user_password = userInput2.getText().toString();
+
+                                        //비어있으면 자동로그인 해놓음 귀찮아서
+                                        if(blackboard_user_id.matches("")) blackboard_user_id = "12181637";
+                                        if(blackboard_user_password.matches("")) blackboard_user_password = "!dlstjd1105";
+                                        CrawlingBlackBoardWeb crw = new CrawlingBlackBoardWeb();
+                                        crw.execute();
+                                    }
+                                })
+                        .setNegativeButton("Cancel",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                    }
+                                });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                alertDialog.show();
+            }
+
+        });
 
         /**
          * 구글계정에서 캘린더 가져오기
@@ -289,45 +336,9 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         mGetBlackBoard_test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                LayoutInflater li = LayoutInflater.from(context);
-//                View promptsView = li.inflate(R.layout.prompt2 ,null);
-//
-//                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-//
-//                alertDialogBuilder.setView(promptsView);
-//                final EditText userInput1 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput1);
-//                final EditText userInput2 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput2);
-//                //set dialog message
-//                alertDialogBuilder
-//                        .setCancelable(false)
-//                        .setPositiveButton("OK",
-//                                new DialogInterface.OnClickListener() {
-//                                    public void onClick(DialogInterface dialog, int id) {
-//                                        //get user id and password
-//                                        blackboard_user_id = userInput1.getText().toString();
-//                                        blackboard_user_password = userInput2.getText().toString();
-//
-//                                        //자동로그인 해놓음 귀찮아서
-//                                        blackboard_user_id = "12181637";
-//                                        blackboard_user_password = "!dlstjd1105";
-//                                        CrawlingBlackBoard2 crw = new CrawlingBlackBoard2();
-//                                        crw.execute();
-//                                    }
-//                                })
-//                        .setNegativeButton("Cancel",
-//                                new DialogInterface.OnClickListener() {
-//                                    @Override
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                        dialog.cancel();
-//                                    }
-//                                });
-//                AlertDialog alertDialog = alertDialogBuilder.create();
-//
-//                alertDialog.show();
-
                 mAddCalendarButton.setEnabled(false);
                 mStatusText.setText("");
-                mID = 4;           //캘린더 생성
+                mID = 4;           //사용자의 구글 계정에서 일정 가져오기
                 getResultsFromApi();
                 mAddCalendarButton.setEnabled(true);
             }
@@ -620,9 +631,9 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
 
     /**
-     * crawling blackboard url
+     * 웹강 요정의 화룡점정!!
      */
-    private class CrawlingBlackBoard2 extends AsyncTask<Void,Void,Void>{
+    private class CrawlingBlackBoardWeb extends AsyncTask<Void,Void,Void>{
 
         @Override
         protected  void onPreExecute(){
@@ -669,7 +680,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                         .execute();
                 Map<String,String> loginCookie = res.cookies();
 
-                Document docSubId = Jsoup.connect("https://learn.inha.ac.kr/webapps/portal/execute/tabs/tabAction")
+                Document blackboard = Jsoup.connect("https://learn.inha.ac.kr/webapps/portal/execute/tabs/tabAction")
                         .userAgent(userAgent)
                         .header("Origin","https://learn.inha.ac.kr")
                         .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
@@ -681,17 +692,28 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                         .data("tab_tab_group_id","_1_1")
                         .parser(Parser.xmlParser())
                         .post();
+
+                  //CDATA parsing
                 String temp1 = "";
-                Elements contest = docSubId.select("contents");
+                Elements contest = blackboard.select("contents");
                 for(Element e:contest){
                     temp1+=e.html();
                 }
                 String[] temp2;
                 temp1 = temp1.replace("<![CDATA[","").replace("]]>","");
-                temp2 = temp1.split("<!-- Display course/org announcements -->");
-                temp1  = temp2[1];
-                result = temp1;
+//                temp2 = temp1.split("<!-- Display course/org announcements -->");
 
+
+                Document doc = Jsoup.parse(temp1);
+                //여기부터 다시하자
+                Elements elem = doc.select("a");
+                for(Element e:elem){
+                    String temp = e.text();
+                    if(temp.contains(":")){
+                                
+                    }
+                    result+="\n";
+                }
             }catch (IOException o){
                 o.printStackTrace();
             }

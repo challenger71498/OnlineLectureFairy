@@ -84,6 +84,11 @@
         android:layout_height="wrap_content"
         android:text="GET EVENT BY USER ID" />
 
+    <Button
+        android:id="@+id/blackBoard_web"
+        android:layout_width="122dp"
+        android:layout_height="wrap_content"
+        android:text="WEB LECTURE" />
 
 
 </LinearLayout>
