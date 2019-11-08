@@ -1,6 +1,5 @@
 package com.example.onlinelecturefairy.ui.monthly.dailymonthly;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,19 +22,12 @@ import java.util.Objects;
 public class DailyMonthlyFragment extends Fragment {
     private FragmentDailyMonthlyBinding binding;
 
-    private final Activity activity;
-
-
-    public DailyMonthlyFragment(Activity activity) {
-        this.activity = activity;
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_daily_monthly, container, false);
 
-        binding = DataBindingUtil.setContentView(activity, R.layout.fragment_daily_monthly);
+        binding = DataBindingUtil.setContentView(Objects.requireNonNull(getActivity()), R.layout.fragment_daily_monthly);
 
         DailyMonthlyViewModel model = ViewModelProviders.of(this).get(DailyMonthlyViewModel.class);
         model.getDay().observe(this, day -> {

@@ -4,64 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:stretchColumns="*"
+    <fragment
+        android:id="@+id/fragment"
+        android:name="com.example.onlinelecturefairy.ui.monthly.MonthlyFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <include
-                layout="@layout/calendar_day"
-                android:layout_width="wrap_content"
-                android:layout_height="80dp" />
-
-            <include
-                layout="@layout/calendar_day"
-                android:layout_width="wrap_content"
-                android:layout_height="80dp" />
-
-            <include
-                layout="@layout/calendar_day"
-                android:layout_width="wrap_content"
-                android:layout_height="80dp" />
-
-            <include
-                layout="@layout/calendar_day"
-                android:layout_width="wrap_content"
-                android:layout_height="80dp" />
-
-            <include
-                layout="@layout/calendar_day"
-                android:layout_width="wrap_content"
-                android:layout_height="80dp" />
-
-            <include
-                layout="@layout/calendar_day"
-                android:layout_width="wrap_content"
-                android:layout_height="80dp" />
-
-            <include
-                layout="@layout/calendar_day"
-                android:layout_width="wrap_content"
-                android:layout_height="80dp" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <include
-                layout="@layout/calendar_day"
-                android:layout_width="wrap_content"
-                android:layout_height="80dp" />
-        </TableRow>
-
-    </TableLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

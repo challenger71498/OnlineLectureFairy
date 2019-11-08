@@ -18,6 +18,7 @@ public abstract class BindingRecyclerViewAdapter<T, H extends RecyclerView.ViewH
 
     public BindingRecyclerViewAdapter(Context context) {
         this.context = context;
+        this.arrayList = new ArrayList<>();
     }
 
     public BindingRecyclerViewAdapter(Context context, List<T> arrayList) {

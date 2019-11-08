@@ -3,7 +3,9 @@ package com.example.onlinelecturefairy;
 import com.example.onlinelecturefairy.day.Day;
 import com.example.onlinelecturefairy.event.CalendarEvent;
 import com.example.onlinelecturefairy.event.Event;
+import com.google.api.client.util.DateTime;
 
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -30,6 +32,7 @@ public class FragmentActivityViewModel extends ViewModel {
     private void loadDays() {
         // Do an asynchronous operation to fetch days.
         setCalendarList();
+        attachEvents();
     }
 
     public LiveData<ArrayList<CalendarEvent>> getEvents() {
@@ -84,12 +87,17 @@ public class FragmentActivityViewModel extends ViewModel {
     public void attachEvents() {
         for(CalendarEvent event : Objects.requireNonNull(mEvents.getValue())) {
 
-            Date startDate = event.;
-            if (startDate == null) {
-                startDate = event.getStartDate();
+            GregorianCalendar start = new GregorianCalendar();
+            start.setTime(new Date(event.getMyEvent().getStart().getDate().getValue()));
+            GregorianCalendar end = new GregorianCalendar();
+            end.setTime(new Date(event.getMyEvent().getEnd().getDate().getValue()));
+
+            int length = end.get(Calendar.DAY_OF_MONTH) - start.get(Calendar.DAY_OF_MONTH);
+
+            for(int i = 0; i < length; ++i) {
+                GregorianCalendar temp = new GregorianCalendar(start.get(Calendar.YEAR), start.get(Calendar.MONTH), start.get(Calendar.DAY_OF_MONTH) + i);
+                Objects.requireNonNull(Objects.requireNonNull(mDays.getValue()).get(temp)).add(event);
             }
-            for()
-            Objects.requireNonNull(mDays.getValue()).get(event.get)
         }
     }
 }

@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/nav_month"
-        android:name="com.example.onlinelecturefairy.ui.month.MonthFragment"
+        android:name="com.example.onlinelecturefairy.ui.home.HomeFragment"
         android:label="@string/menu_home"
-        tools:layout="@layout/fragment_month" />
+        tools:layout="@layout/fragment_monthly" />
 
     <fragment
         android:id="@+id/nav_gallery"
@@ -19,9 +19,9 @@
 
     <fragment
         android:id="@+id/nav_slideshow"
-        android:name="com.example.onlinelecturefairy.ui.slideshow.SlideshowFragment"
+        android:name="com.example.onlinelecturefairy.ui.monthly.MonthlyFragment"
         android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        tools:layout="@layout/fragment_monthly" />
 
     <fragment
         android:id="@+id/nav_tools"
