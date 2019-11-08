@@ -33,7 +33,7 @@ public class DailyMonthlyFragment extends Fragment {
         model.getDay().observe(this, day -> {
             // update UI;
             Calendar today = Calendar.getInstance();
-            Calendar date = Objects.requireNonNull(model.getDay().getValue()).getCalendar();
+            Calendar date = day.getCalendar();
 
             // update date.
             binding.setDate(new SimpleDateFormat("d", Locale.KOREAN).format(date));
