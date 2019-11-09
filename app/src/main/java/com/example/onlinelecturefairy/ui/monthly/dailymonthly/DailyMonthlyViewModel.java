@@ -9,13 +9,19 @@ import com.example.onlinelecturefairy.event.CalendarEvent;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class DailyMonthlyViewModel extends ViewModel {
     private MutableLiveData<Day> mDay;
 
-    public void setDay(Calendar calendar, ArrayList<CalendarEvent> events) {
+    public void initDay() {
         mDay = new MutableLiveData<>();
-        mDay.setValue(new Day(calendar, events));
+        mDay.setValue(new Day(new GregorianCalendar(), false));
+    }
+
+    public void setDay(Calendar calendar, ArrayList<CalendarEvent> events, boolean isThisMonth) {
+        mDay = new MutableLiveData<>();
+        mDay.setValue(new Day(calendar, events, isThisMonth));
     }
 
     public LiveData<Day> getDay() {

@@ -1,22 +1,16 @@
 package com.example.onlinelecturefairy.ui.home;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
+import com.example.onlinelecturefairy.R;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-
-import com.example.onlinelecturefairy.R;
-import com.example.onlinelecturefairy.ui.monthly.MonthlyFragment;
 
 public class HomeFragment extends Fragment {
 

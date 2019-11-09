@@ -1,2 +1,2 @@
-include ':app', ':jsoup-1.12.1'
+include ':app'
 rootProject.name='OnlineLectureFairy'

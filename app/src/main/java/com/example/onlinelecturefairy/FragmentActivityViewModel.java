@@ -65,17 +65,17 @@ public class FragmentActivityViewModel extends ViewModel {
                 int nextMonthDays = 7 - new GregorianCalendar(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), max).get(Calendar.DAY_OF_WEEK);  //해당 월의 말일의 요일
 
                 for (int j = prevMonthDays; j <= dayOfWeek; ++j) {
-                    Day day = new Day(new GregorianCalendar(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), j));
+                    Day day = new Day(new GregorianCalendar(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), j), false);
                     Objects.requireNonNull(mDays.getValue()).put(day.getCalendar(), null); //일자 타입
                 }
 
                 for (int j = 1; j <= max; j++) {
-                    Day day = new Day(new GregorianCalendar(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), j));
+                    Day day = new Day(new GregorianCalendar(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), j), false);
                     Objects.requireNonNull(mDays.getValue()).put(day.getCalendar(), null); //일자 타입
                 }
 
                 for (int j = 1; j <= nextMonthDays + (6 - weekCount) * 7; ++j) {
-                    Day day = new Day(new GregorianCalendar(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), j));
+                    Day day = new Day(new GregorianCalendar(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), j), false);
                     Objects.requireNonNull(mDays.getValue()).put(day.getCalendar(), null); //일자 타입
                 }
             } catch (Exception e) {

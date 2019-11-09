@@ -1,13 +1,31 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <!-- Base Theme -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:background">@color/colorBackground</item>
+
+        <!-- TextView -->
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textColorHint">@color/textGray</item>
+
+        <!-- Button -->
+        <item name="buttonStyle">@style/Widget.AppCompat.Button.Colored</item>
+
+        <!-- EditText -->
+        <item name="editTextColor">@color/white</item>
+        <item name="editTextStyle">@style/EditTextStyle</item>
+        <item name="colorControlNormal">@color/white</item>
+        <item name="colorControlActivated">@color/colorAccent</item>
+
+        <!-- SnackBar -->
+        <item name="snackbarStyle">@style/SnackBarStyle</item>
     </style>
 
+    <!-- No action bar -->
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -21,11 +39,25 @@
         <item name="android:text">5dp</item>
     </style>
 
+    <!-- Custom Styles -->
+    <style name="SnackBarStyle" parent="Widget.MaterialComponents.Snackbar">
+        <item name="android:background">@color/colorInverse</item>
+        <item name="android:textColor">@color/textLight</item>
+    </style>
+
+    <style name="EditTextStyle" parent="Widget.AppCompat.EditText">
+        <item name="colorControlNormal">@color/white</item>
+        <item name="colorControlActivated">@color/colorAccent</item>
+        <item name="android:textCursorDrawable">@color/colorAccent</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textColorHint">@color/textGray</item>
+        <item name="android:textColorHighlight">@color/colorAccent</item>
+    </style>
+
     <style name="CalendarDatesTheme">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_weight">1</item>
-        <item name="android:gravity">center_horizontal</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_gravity">center</item>
         <item name="android:textColor">@color/textLight</item>
     </style>
 
