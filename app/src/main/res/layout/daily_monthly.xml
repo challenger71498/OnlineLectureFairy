@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View" />
+
+        <variable
+            name="model"
+            type="com.example.onlinelecturefairy.ui.monthly.dailymonthly.DailyMonthlyViewModel" />
+        <variable
+            name="date"
+            type="String" />
+        <variable
+            name="dayColor"
+            type="int" />
+        <variable
+            name="isToday"
+            type="boolean" />
+    </data>
+
+    <LinearLayout
+        android:orientation="vertical" android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="7">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/todayImage"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@color/blueberry"
+                setVisibility="@{model.day.calendar}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/day"
+                setDayColor="@{model}"
+                setDayText="@{model.day.calendar}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="1"
+                android:textColor="@color/textLight"
+                android:textAlignment="center"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/todayImage"
+                app:layout_constraintEnd_toEndOf="@id/todayImage"
+                app:layout_constraintStart_toStartOf="@id/todayImage"
+                app:layout_constraintTop_toTopOf="@id/todayImage" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/dailyView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/border_all"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </LinearLayout>
+
+</layout>

@@ -35,7 +35,7 @@ public class EventFragment extends Fragment {
         EventViewModel model = ViewModelProviders.of(this).get(EventViewModel.class);
         model.getEvent().observe(this, event -> {
             //update UI.
-            binding.setEvent(event);
+            binding.setModel(model);
         });
 
         return view;

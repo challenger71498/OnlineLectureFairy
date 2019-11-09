@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable
-            name="event"
-            type="com.example.onlinelecturefairy.event.Event" />
+            name="model"
+            type="com.example.onlinelecturefairy.ui.event.EventViewModel" />
     </data>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@{event.color}"
+        android:background="@color/blueberry"
         android:orientation="vertical">
 
         <TextView
@@ -18,7 +19,9 @@
             android:layout_height="wrap_content"
             android:layout_margin="2dp"
             android:maxLines="1"
-            android:text="@{event.summary}"
+            android:text="제목이 여기 표시됩니다."
+            setEventSumamry="@{model}"
+            android:textColor="@color/white"
             android:textAlignment="textStart"
             android:textSize="8sp" />
     </LinearLayout>

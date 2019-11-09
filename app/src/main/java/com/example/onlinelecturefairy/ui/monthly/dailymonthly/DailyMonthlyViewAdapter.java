@@ -1,38 +1,51 @@
 package com.example.onlinelecturefairy.ui.monthly.dailymonthly;
 
-import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-
 import com.example.onlinelecturefairy.R;
-import com.example.onlinelecturefairy.common.BindingRecyclerViewAdapter;
-import com.example.onlinelecturefairy.event.Event;
+import com.example.onlinelecturefairy.databinding.FragmentEventBinding;
+import com.example.onlinelecturefairy.event.CalendarEvent;
+import com.example.onlinelecturefairy.ui.event.EventViewModel;
 
-import java.util.List;
+import java.util.ArrayList;
 
-public class DailyMonthlyViewAdapter extends BindingRecyclerViewAdapter<Event, DailyMonthlyViewHolder> {
+import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.RecyclerView;
 
-    public DailyMonthlyViewAdapter(Context context) {
-        super(context);
+public class DailyMonthlyViewAdapter extends RecyclerView.Adapter {
+    private ArrayList<CalendarEvent> mEvents;
+
+    public DailyMonthlyViewAdapter(ArrayList<CalendarEvent> events) {
+        this.mEvents = events;
     }
 
-    public DailyMonthlyViewAdapter(Context context, List arrayList) {
-        super(context, arrayList);
-    }
-
-    @Override
-    public void onBindView(DailyMonthlyViewHolder holder, int position) {
-        Event event = getItem(position);
-        holder.binding.setEvent(event);
+    public void setmEvents(ArrayList<CalendarEvent> events) {
+        this.mEvents = events;
+        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public DailyMonthlyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_event, parent, false);
-        return new DailyMonthlyViewHolder(view);
+        FragmentEventBinding binding =
+                DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()),
+                        R.layout.fragment_event, parent, false);
+        return new DailyMonthlyViewHolder(binding);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
+        CalendarEvent event = mEvents.get(position);
+        EventViewModel model = new EventViewModel();
+        DailyMonthlyViewHolder holder = (DailyMonthlyViewHolder) viewHolder;
+        model.setEvent(event);
+        holder.setViewModel(model);
+    }
+
+    @Override
+    public int getItemCount() {
+        return mEvents.size();
     }
 }

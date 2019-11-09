@@ -1,18 +1,15 @@
 package com.example.onlinelecturefairy.ui.monthly;
 
-import android.view.View;
-
-import com.example.onlinelecturefairy.databinding.FragmentDailyMonthlyBinding;
+import com.example.onlinelecturefairy.databinding.DailyMonthlyBinding;
 import com.example.onlinelecturefairy.ui.monthly.dailymonthly.DailyMonthlyViewModel;
 
 import androidx.annotation.NonNull;
-import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class MonthlyViewHolder extends RecyclerView.ViewHolder {
-    FragmentDailyMonthlyBinding binding;
+    DailyMonthlyBinding binding;
 
-    public MonthlyViewHolder(@NonNull FragmentDailyMonthlyBinding binding) {
+    public MonthlyViewHolder(@NonNull DailyMonthlyBinding binding) {
         super(binding.getRoot());
         this.binding = binding;
     }
