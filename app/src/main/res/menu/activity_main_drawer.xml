@@ -24,4 +24,10 @@
             android:title="로그아웃"/>
     </group>
 
+    <group>
+        <item
+            android:id="@+id/nav_debug"
+            android:title="디버그" />
+    </group>
+
 </menu>

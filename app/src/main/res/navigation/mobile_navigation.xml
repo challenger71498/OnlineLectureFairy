@@ -44,4 +44,9 @@
     <activity
         android:id="@+id/nav_settings"
         android:name="com.example.onlinelecturefairy.SettingsActivity"/>
+
+    <activity
+        android:id="@+id/nav_debug"
+        android:name="com.example.onlinelecturefairy.GoogleCalendarSyncTest"
+        />
 </navigation>
