@@ -1,27 +1,32 @@
 package com.example.onlinelecturefairy;
 
-import android.content.SharedPreferences;
-import android.util.Log;
-
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 public class LoginActivityViewModel extends ViewModel {
-    private String id;
-    private String pw;
+    private MutableLiveData<String> mId;
+    private MutableLiveData<String> mPw;
 
-    public String getId() {
-        return id;
+    public LiveData<String> getId() {
+        return mId;
     }
 
     public void setId(String id) {
-        this.id = id;
+        if(mId == null) {
+            mId = new MutableLiveData<>();
+        }
+        mId.setValue(id);
     }
 
-    public String getPw() {
-        return pw;
+    public LiveData<String> getPw() {
+        return mPw;
     }
 
     public void setPw(String pw) {
-        this.pw = pw;
+        if(mPw == null) {
+            mPw = new MutableLiveData<>();
+        }
+        this.mPw.setValue(pw);
     }
 }

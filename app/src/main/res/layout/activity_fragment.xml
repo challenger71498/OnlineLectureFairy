@@ -20,7 +20,9 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_fragment"
-        app:menu="@menu/activity_main_drawer" >
+        app:menu="@menu/activity_main_drawer"
+        android:background="@color/colorBackground"
+        app:itemTextColor="@color/white">
 
     </com.google.android.material.navigation.NavigationView>
 

@@ -10,7 +10,7 @@ public class LoginActivityBindingAdapter {
     @BindingAdapter("setIdText")
     public static void setIdText(EditText view, LoginActivityViewModel model) {
         try {
-            view.setText(model.getId());
+            view.setText(model.getId().getValue());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -19,7 +19,7 @@ public class LoginActivityBindingAdapter {
     @BindingAdapter("setPwText")
     public static void setPwText(EditText view, LoginActivityViewModel model) {
         try {
-            view.setText(model.getPw());
+            view.setText(model.getPw().getValue());
         } catch (Exception e) {
             e.printStackTrace();
         }

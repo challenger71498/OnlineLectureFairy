@@ -5,21 +5,23 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_month"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="@string/menu_home" />
+            android:id="@+id/nav_home"
+            android:title="공지" />
         <item
             android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="@string/menu_gallery" />
+            android:title="성적" />
         <item
             android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="@string/menu_slideshow" />
+            android:title="시간표" />
+    </group>
+
+    <group>
         <item
-            android:id="@+id/nav_tools"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="@string/menu_tools" />
+            android:id="@+id/nav_settings"
+            android:title="설정" />
+        <item
+            android:id="@+id/nav_logout"
+            android:title="로그아웃"/>
     </group>
 
 </menu>

@@ -10,6 +10,8 @@
         <!-- TextView -->
         <item name="android:textColor">@color/white</item>
         <item name="android:textColorHint">@color/textGray</item>
+        <item name="android:textColorSecondary">@color/textGray</item>
+        <item name="android:weekSeparatorLineColor">@color/textGray</item>
 
         <!-- Button -->
         <item name="buttonStyle">@style/Widget.AppCompat.Button.Colored</item>
@@ -22,13 +24,21 @@
 
         <!-- SnackBar -->
         <item name="snackbarStyle">@style/SnackBarStyle</item>
+
+        <!-- Dialog -->
+        <item name="alertDialogTheme">@style/AlertDialogStyle</item>
+
+        <!-- CheckBox -->
+        <item name="checkboxStyle">@style/CheckBoxStyle</item>
+
+        <!-- RadioButton -->
+        <item name="radioButtonStyle">@style/RadioButtonStyle</item>
     </style>
 
     <!-- No action bar -->
-    <style name="AppTheme.NoActionBar">
+    <style name="AppTheme.NoActionBar" parent="AppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:background">@color/colorBackground</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
@@ -41,7 +51,7 @@
 
     <!-- Custom Styles -->
     <style name="SnackBarStyle" parent="Widget.MaterialComponents.Snackbar">
-        <item name="android:background">@color/colorPrimaryDark</item>
+        <item name="android:background">@color/colorPrimary</item>
     </style>
 
     <style name="EditTextStyle" parent="Widget.AppCompat.EditText">
@@ -51,6 +61,30 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:textColorHint">@color/textGray</item>
         <item name="android:textColorHighlight">@color/colorAccent</item>
+    </style>
+
+    <style name="AlertDialogStyle" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:windowMinWidthMajor">70%</item>
+        <item name="android:windowMinWidthMinor">70%</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.MaterialComponents.Button.TextButton</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.MaterialComponents.Button.TextButton</item>
+    </style>
+
+    <style name="CheckBoxStyle" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="android:solidColor">@color/white</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:titleTextColor">@color/white</item>
+        <item name="android:textColorSecondary">@color/textGray</item>
+    </style>
+
+    <style name="RadioButtonStyle" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:solidColor">@color/white</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:colorForeground">@color/white</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/textGray</item>
     </style>
 
     <style name="CalendarDatesTheme">
