@@ -722,7 +722,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                             .userAgent(userAgent)
                             .cookies(loginCookie)
                             .get();
-                    elem = course.select("td");
+                    elem = course.select("tr");
 
                     webLectureName = "";
 
@@ -732,7 +732,6 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                     String strEndDate;
                     for (Element e : elem) {
                         if (e.text().contains("XIN")) {
-                                result+=e.text()+"\n";
                             strStartDate = (e.text().split(" / ")[1]).split(" ~ ")[0];
                             strEndDate = (e.text().split(" / ")[1]).split(" ~ ")[1];
 
@@ -754,14 +753,15 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                             webStartDate.set(java.util.Calendar.HOUR, startHour);
                             webStartDate.set(java.util.Calendar.MINUTE, startMinute);
                             if (today.compareTo(webEndDate) == -1 && today.compareTo(webStartDate) == 1) {
-                                webLectureName = (e.text().split(" / ")[0]).split(" - ")[1];
+                                webLectureName = ((e.text().split(" > ")[0]).split("XIN")[0]).split(">")[1];
+                                String match2 = "\\s{2,}"; webLectureName = webLectureName.replaceAll(match2, " ");
                                 resultStr += "- "+((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0] + ": "+webLectureName + "\n";
-                                resultNum++;
+                                break;
                             }
                         }
                 }
             }
-            result= "이번 주에 총 "+Integer.toString(resultNum)+" 개의 웹강이 있습니다.\n\n";
+            //result= "이번 주에 총 "+Integer.toString(resultNum)+" 개의 웹강이 있습니다.\n\n";
             result+=resultStr;
             }catch (IOException o){
                 o.printStackTrace();
