@@ -12,6 +12,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.preference.PreferenceManager;
 
 public class LoginActivity extends AppCompatActivity {
     private SharedPreferences appData;
@@ -29,7 +30,7 @@ public class LoginActivity extends AppCompatActivity {
         imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 
         //SharedPreferences initialization
-        appData = getSharedPreferences("appData", MODE_PRIVATE);
+        appData = PreferenceManager.getDefaultSharedPreferences(this);
 
         //Model initialization
         model = new LoginActivityViewModel();

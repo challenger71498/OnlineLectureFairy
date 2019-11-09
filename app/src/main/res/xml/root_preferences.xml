@@ -80,4 +80,15 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="동기화 설정">
+
+        <SwitchPreferenceCompat
+            app:dependency="everytimeAddress"
+            app:key="everytimeSync"
+            app:summaryOff="시간표를 동기화하지 않습니다."
+            app:summaryOn="에브리타임의 시간표를 동기화합니다."
+            app:title="에브리타임 동기화" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

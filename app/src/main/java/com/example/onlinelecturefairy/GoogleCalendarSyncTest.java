@@ -65,6 +65,7 @@ import java.util.Random;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -208,34 +209,49 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         mGetEveryTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LayoutInflater li = LayoutInflater.from(context);
-                View promptsView = li.inflate(R.layout.prompts ,null);
+                SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(context);
+                String everytimeAddress = appData.getString("everytimeAddress", "");
+                if(everytimeAddress.equals("")) {
+                    LayoutInflater li = LayoutInflater.from(context);
+                    View promptsView = li.inflate(R.layout.prompts ,null);
 
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
 
-                alertDialogBuilder.setView(promptsView);
-                final EditText userInput = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput);
-                //set dialog message
-                alertDialogBuilder
-                        .setCancelable(false)
-                        .setPositiveButton("OK",
-                                (dialog, id) -> {
-                                    //get user input and set everytime URL.
-                                    String[] temp = userInput.getText().toString().split("@");
-                                    userIdentifier = temp[1];
-                                    CrawlingEveryTime crw = new CrawlingEveryTime();
-                                    crw.execute();
-                                    mGetEveryTime.setEnabled(false);
-                                    mStatusText.setText("");
-                                    mID = 5;        //이벤트 생성
-                                    getResultsFromApi();
-                                    mGetEveryTime.setEnabled(true);
-                                })
-                        .setNegativeButton("Cancel",
-                                (dialog, which) -> dialog.cancel());
-                AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialogBuilder.setView(promptsView);
+                    final EditText userInput = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput);
+                    //set dialog message
+                    alertDialogBuilder
+                            .setCancelable(false)
+                            .setPositiveButton("OK",
+                                    (dialog, id) -> {
+                                        //get user input and set everytime URL.
+                                        String[] temp = userInput.getText().toString().split("@");
+                                        userIdentifier = temp[1];
+                                        CrawlingEveryTime crw = new CrawlingEveryTime();
+                                        crw.execute();
+                                        mGetEveryTime.setEnabled(false);
+                                        mStatusText.setText("");
+                                        mID = 5;        //이벤트 생성
+                                        getResultsFromApi();
+                                        mGetEveryTime.setEnabled(true);
+                                    })
+                            .setNegativeButton("Cancel",
+                                    (dialog, which) -> dialog.cancel());
+                    AlertDialog alertDialog = alertDialogBuilder.create();
 
-                alertDialog.show();
+                    alertDialog.show();
+                }
+                else {
+                    String[] temp = everytimeAddress.split("@");
+                    userIdentifier = temp[1];
+                    CrawlingEveryTime crw = new CrawlingEveryTime();
+                    crw.execute();
+                    mGetEveryTime.setEnabled(false);
+                    mStatusText.setText("");
+                    mID = 5;        //이벤트 생성
+                    getResultsFromApi();
+                    mGetEveryTime.setEnabled(true);
+                }
             }
         });
 
