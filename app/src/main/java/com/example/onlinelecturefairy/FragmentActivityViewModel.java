@@ -91,12 +91,13 @@ public class FragmentActivityViewModel extends ViewModel {
             GregorianCalendar end = new GregorianCalendar();
             end.setTime(new Date(event.getMyEvent().getEnd().getDate().getValue()));
 
-//            Date startDate = event.;
-//            if (startDate == null) {
-//                startDate = event.getStartDate();
-//            }
-//            for()
-//            Objects.requireNonNull(mDays.getValue()).get(event.get)
+            int length = end.get(Calendar.DAY_OF_MONTH) - start.get(Calendar.DAY_OF_MONTH);
+
+            for(int i = 0; i < length; ++i) {
+                GregorianCalendar temp = new GregorianCalendar(start.get(Calendar.YEAR), start.get(Calendar.MONTH), start.get(Calendar.DAY_OF_MONTH) + i);
+                Objects.requireNonNull(Objects.requireNonNull(mDays.getValue()).get(temp)).add(event);
+            }
+
         }
     }
 }

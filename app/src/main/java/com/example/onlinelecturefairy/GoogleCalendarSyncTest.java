@@ -291,41 +291,10 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         mGetBlackBoard_web.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LayoutInflater li = LayoutInflater.from(context);
-                View promptsView = li.inflate(R.layout.prompt2 ,null);
-
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-
-                alertDialogBuilder.setView(promptsView);
-                final EditText userInput1 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput1);
-                final EditText userInput2 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput2);
-                //set dialog message
-                alertDialogBuilder
-                        .setCancelable(false)
-                        .setPositiveButton("OK",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        //get user id and password
-                                        blackboard_user_id = userInput1.getText().toString();
-                                        blackboard_user_password = userInput2.getText().toString();
-
-                                        //비어있으면 자동로그인 해놓음 귀찮아서
-                                        if(blackboard_user_id.matches("")) blackboard_user_id = "12181637";
-                                        if(blackboard_user_password.matches("")) blackboard_user_password = "!dlstjd1105";
-                                        CrawlingBlackBoardWeb crw = new CrawlingBlackBoardWeb();
-                                        crw.execute();
-                                    }
-                                })
-                        .setNegativeButton("Cancel",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.cancel();
-                                    }
-                                });
-                AlertDialog alertDialog = alertDialogBuilder.create();
-
-                alertDialog.show();
+                mGetBlackBoard_web.setEnabled(false);
+                CrawlingBlackBoardWeb crw = new CrawlingBlackBoardWeb();
+                crw.execute();
+                mGetBlackBoard_web.setEnabled(true);
             }
 
         });
@@ -740,40 +709,60 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 }
 
 
-                Document blackboard = Jsoup.connect("https://learn.inha.ac.kr/webapps/portal/execute/tabs/tabAction")
-                        .userAgent(userAgent)
-                        .header("Origin","https://learn.inha.ac.kr")
-                        .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
-                        .header("Content-Type","application/x-www-form-urlencoded")
-                        .cookies(loginCookie) // 위에서 얻은 '로그인 된' 쿠키
-                        .data("action","refreshAjaxModule")
-                        .data("modId","_3_1")
-                        .data("tabId","_1_1")
-                        .data("tab_tab_group_id","_1_1")
-                        .parser(Parser.xmlParser())
-                        .post();
 
-                  //CDATA parsing
-                String temp1 = "";
-                Elements contest = blackboard.select("contents");
-                for(Element e:contest){
-                    temp1+=e.html();
+                int resultNum = 0;
+                String resultStr = "";
+                String webLectureName = "";
+
+                for (int i = 0; i < numOfWeb; i++) {
+                    java.util.Calendar today = java.util.Calendar.getInstance();
+                    java.util.Calendar webStartDate = java.util.Calendar.getInstance();
+                    java.util.Calendar webEndDate = java.util.Calendar.getInstance();
+                    Document course = Jsoup.connect("https://learn.inha.ac.kr/webapps/bbgs-OnlineAttendance-BBLEARN/app/atdView?sortDir=ASCENDING&showAll=true&editPaging=false&course_id=_" + course_id_web[i] + "_1")
+                            .userAgent(userAgent)
+                            .cookies(loginCookie)
+                            .get();
+                    elem = course.select("td");
+
+                    webLectureName = "";
+
+                    int startMonth, startDay, startHour, startMinute;
+                    String strStartDate;
+                    int endMonth, endDay, endHour, endMinute;
+                    String strEndDate;
+                    for (Element e : elem) {
+                        if (e.text().contains("XIN")) {
+                                result+=e.text()+"\n";
+                            strStartDate = (e.text().split(" / ")[1]).split(" ~ ")[0];
+                            strEndDate = (e.text().split(" / ")[1]).split(" ~ ")[1];
+
+                            endMonth = Integer.parseInt((strEndDate.split(" ")[0]).split("-")[1]);
+                            endDay = Integer.parseInt((strEndDate.split(" ")[0]).split("-")[2]);
+                            endHour = Integer.parseInt((strEndDate.split(" ")[1]).split(":")[0]);
+                            endMinute = Integer.parseInt((strEndDate.split(" ")[1]).split(":")[1]);
+                            webEndDate.set(java.util.Calendar.MONTH, endMonth - 1);
+                            webEndDate.set(java.util.Calendar.DAY_OF_MONTH, endDay);
+                            webEndDate.set(java.util.Calendar.HOUR, endHour);
+                            webEndDate.set(java.util.Calendar.MINUTE, endMinute);
+
+                            startMonth = Integer.parseInt((strStartDate.split(" ")[0]).split("-")[1]);
+                            startDay = Integer.parseInt((strStartDate.split(" ")[0]).split("-")[2]);
+                            startHour = Integer.parseInt((strStartDate.split(" ")[1]).split(":")[0]);
+                            startMinute = Integer.parseInt((strStartDate.split(" ")[1]).split(":")[1]);
+                            webStartDate.set(java.util.Calendar.MONTH, startMonth - 1);
+                            webStartDate.set(java.util.Calendar.DAY_OF_MONTH, startDay);
+                            webStartDate.set(java.util.Calendar.HOUR, startHour);
+                            webStartDate.set(java.util.Calendar.MINUTE, startMinute);
+                            if (today.compareTo(webEndDate) == -1 && today.compareTo(webStartDate) == 1) {
+                                webLectureName = (e.text().split(" / ")[0]).split(" - ")[1];
+                                resultStr += "- "+((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0] + ": "+webLectureName + "\n";
+                                resultNum++;
+                            }
+                        }
                 }
-                String[] temp2;
-                temp1 = temp1.replace("<![CDATA[","").replace("]]>","");
-//                temp2 = temp1.split("<!-- Display course/org announcements -->");
-
-
-                Document doc = Jsoup.parse(temp1);
-                //여기부터 다시하자
-                Elements elem = doc.select("a");
-                for(Element e:elem){
-                    String temp = e.text();
-                    if(temp.contains(":")){
-                                
-                    }
-                    result+="\n";
-                }
+            }
+            result= "이번 주에 총 "+Integer.toString(resultNum)+" 개의 웹강이 있습니다.\n\n";
+            result+=resultStr;
             }catch (IOException o){
                 o.printStackTrace();
             }
