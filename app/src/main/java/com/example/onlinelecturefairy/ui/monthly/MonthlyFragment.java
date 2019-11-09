@@ -36,6 +36,7 @@ public class MonthlyFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_monthly, container, false);
     }
 
+        //model.mCalendars
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
