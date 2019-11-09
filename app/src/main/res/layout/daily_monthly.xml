@@ -32,12 +32,11 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp">
 
-            <de.hdodenhof.circleimageview.CircleImageView
+            <ImageView
                 android:id="@+id/todayImage"
                 android:layout_width="28dp"
                 android:layout_height="28dp"
                 android:src="@color/blueberry"
-                setVisibility="@{model.day.calendar}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

@@ -1,16 +1,12 @@
 package com.example.onlinelecturefairy.common;
 
-import android.view.View;
 import android.widget.TextView;
 
 import com.example.onlinelecturefairy.R;
-import com.example.onlinelecturefairy.day.Day;
 import com.example.onlinelecturefairy.ui.monthly.dailymonthly.DailyMonthlyViewModel;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class DailyMonthlyBindingAdapter {
     public static boolean isToday(Calendar calendar) {
@@ -47,20 +43,6 @@ public class DailyMonthlyBindingAdapter {
                 else if (model.getDay().getValue().getCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                     view.setTextColor(view.getResources().getColor(R.color.blueberry));
                 }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @androidx.databinding.BindingAdapter("setVisibility")
-    public static void setVisibility(CircleImageView view, Calendar calendar) {
-        try {
-            if(isToday(calendar)) {
-                view.setImageResource(R.color.blueberry);
-            }
-            else {
-                view.setVisibility(View.INVISIBLE);
             }
         } catch (Exception e) {
             e.printStackTrace();
