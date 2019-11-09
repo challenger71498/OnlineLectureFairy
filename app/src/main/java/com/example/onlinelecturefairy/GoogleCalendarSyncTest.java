@@ -40,6 +40,7 @@ import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
+import com.google.api.services.calendar.model.EventReminder;
 import com.google.api.services.calendar.model.Events;
 
 import org.jsoup.Connection;
@@ -51,8 +52,10 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -122,6 +125,8 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     private boolean user_already_login = false;
     private String[] blackboard_subject;
     private String[] blackboard_notice;
+    private String lectureInfo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -291,9 +296,12 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         mGetBlackBoard_web.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mGetBlackBoard_web.setEnabled(false);
                 CrawlingBlackBoardWeb crw = new CrawlingBlackBoardWeb();
                 crw.execute();
+                mGetBlackBoard_web.setEnabled(false);
+                mStatusText.setText("");
+                mID = 6;
+                getResultsFromApi();
                 mGetBlackBoard_web.setEnabled(true);
             }
 
@@ -711,9 +719,8 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
 
                 int resultNum = 0;
-                String resultStr = "";
                 String webLectureName = "";
-
+                lectureInfo = "";
                 for (int i = 0; i < numOfWeb; i++) {
                     java.util.Calendar today = java.util.Calendar.getInstance();
                     java.util.Calendar webStartDate = java.util.Calendar.getInstance();
@@ -730,6 +737,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                     String strStartDate;
                     int endMonth, endDay, endHour, endMinute;
                     String strEndDate;
+
                     for (Element e : elem) {
                         if (e.text().contains("XIN")) {
                             strStartDate = (e.text().split(" / ")[1]).split(" ~ ")[0];
@@ -753,16 +761,20 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                             webStartDate.set(java.util.Calendar.HOUR, startHour);
                             webStartDate.set(java.util.Calendar.MINUTE, startMinute);
                             if (today.compareTo(webEndDate) == -1 && today.compareTo(webStartDate) == 1) {
+                                webEndDate.add(java.util.Calendar.DATE, +7);
+                                webEndDate.set(java.util.Calendar.DAY_OF_WEEK,java.util.Calendar.SUNDAY);
+                                webEndDate.add(java.util.Calendar.DATE, -7);
                                 webLectureName = ((e.text().split(" > ")[0]).split("XIN")[0]).split(">")[1];
-                                String match2 = "\\s{2,}"; webLectureName = webLectureName.replaceAll(match2, " ");
-                                resultStr += "- "+((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0] + ": "+webLectureName + "\n";
+                                String match2 = "\\s{2,}"; webLectureName = webLectureName.replaceAll(match2, "");
+                                SimpleDateFormat simpledateformat;
+                                simpledateformat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss+09:00", Locale.KOREA);
+                                lectureInfo += ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0] +"@"+webLectureName + "@" + simpledateformat.format(webEndDate.getTime())+"\n";
                                 break;
                             }
                         }
                 }
             }
-            //result= "이번 주에 총 "+Integer.toString(resultNum)+" 개의 웹강이 있습니다.\n\n";
-            result+=resultStr;
+            result = lectureInfo;
             }catch (IOException o){
                 o.printStackTrace();
             }
@@ -1063,6 +1075,9 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 }
                 else if(mID == 5){
                     return addEveryTimeEvent();
+                }
+                else if(mID == 6){
+                    return addBlackBoardEvent();
                 }
             } catch (Exception e) {
                 mLastError = e;
@@ -1432,6 +1447,75 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 //fragment_event.setRecurrence(Arrays.asList(recurrence));
 
 
+                try {
+                    event = mService.events().insert(calendarID, event).execute();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e("Exception", "Exception : " + e.toString());
+                }
+            }
+            String eventStrings = "시간표가 구글 캘린더 이번 주의 일정에 추가되었습니다.";
+
+
+            return eventStrings;
+        }
+
+        /**
+         * crawling 해온 사용자의 웹강 data를
+         * api를 이용하여 event로 추가한다.
+         * @return
+         */
+        private String addBlackBoardEvent() {
+            String subjectName;
+            String week;
+            String endTime;
+            String calendarID = getCalendarID(mCredential.getSelectedAccountName());
+            java.util.Calendar calendar;
+
+
+            SimpleDateFormat simpledateformat;
+            //simpledateformat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ssZ", Locale.KOREA);
+            // Z에 대응하여 +0900이 입력되어 문제 생겨 수작업으로 입력
+            simpledateformat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss+09:00", Locale.KOREA);
+
+            if ( calendarID == null ){
+                return "사용자의 구글 계정이 존재하지 않습니다.";
+
+            }
+            String[] arrLectureInfo = lectureInfo.split("\n");
+            for(String _lectureInfo:arrLectureInfo){
+                calendar = java.util.Calendar.getInstance();
+
+                subjectName = _lectureInfo.split("@")[0];
+                week = _lectureInfo.split("@")[1];
+                endTime = _lectureInfo.split("@")[2];
+
+
+                Event event = new Event()
+                        .setSummary(subjectName)
+                        .setDescription(week);
+
+                DateTime endDateTime = new DateTime(endTime);
+
+                EventDateTime end = new EventDateTime()
+                        .setDateTime(endDateTime)
+                        .setTimeZone("Asia/Seoul");
+                event.setStart(end);
+                event.setEnd(end);
+
+                //set reminder
+                EventReminder[] reminderOverrides = new EventReminder[]{
+                        new EventReminder().setMethod("popup").setMinutes(1080)
+                };
+                Event.Reminders reminders = new Event.Reminders()
+                        .setUseDefault(false)
+                        .setOverrides(Arrays.asList(reminderOverrides));
+
+                event.setReminders(reminders);
+
+                Random random = new Random();
+                int cR = random.nextInt(11)+1;
+                event.setColorId(Integer.toString(cR));
                 try {
                     event = mService.events().insert(calendarID, event).execute();
                 } catch (Exception e) {
