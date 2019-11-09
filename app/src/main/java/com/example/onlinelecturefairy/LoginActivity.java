@@ -1,8 +1,10 @@
 package com.example.onlinelecturefairy;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
@@ -21,6 +23,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText idText;
     private EditText pwText;
+
+    boolean isInfoCorrect;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,6 +51,7 @@ public class LoginActivity extends AppCompatActivity {
             focusId();
         }
         else {
+            //아이디 비밀번호 자동완성
             model.getId().observe(this, id -> {
                 idText.setText(id);
             });
@@ -54,22 +59,14 @@ public class LoginActivity extends AppCompatActivity {
             model.getPw().observe(this, pw -> {
                 pwText.setText(pw);
             });
+
+//          //또는 자동 로그인
+//          login(binding.loginButton.getRootView());
         }
 
         binding.loginButton.setOnClickListener(v -> {
-            boolean isInfoCorrect = true;
-
             imm.hideSoftInputFromWindow(pwText.getWindowToken(), 0);
-
-            if(isInfoCorrect) { //제공한 정보가 일치하면
-                save();
-            }
-            else {
-                Snackbar snackbar = Snackbar.make(v, "아이디 또는 패스워드가 잘못되었습니다.", Snackbar.LENGTH_LONG);
-                snackbar
-                        .setAction("Action", null)
-                        .show();
-            }
+            login(v);
         });
     }
 
@@ -94,5 +91,23 @@ public class LoginActivity extends AppCompatActivity {
             imm.showSoftInput(idText,0);
 
         });
+    }
+
+    //로그인을 시도하는 함수.
+    private void login(View v) {
+        isInfoCorrect = true;   //현재는 무조건 일치하게 해 놓았음.
+        // TODO: isInfoCorrect를 설정하는 함수 만들어야 함.
+
+        if(isInfoCorrect) { //제공한 정보가 일치하면
+            save();
+            Intent intent = new Intent(LoginActivity.this, FragmentActivity.class);
+            startActivity(intent);
+        }
+        else {  //제공한 정보가 일치하지 않으면
+            Snackbar snackbar = Snackbar.make(v, "아이디 또는 패스워드가 잘못되었습니다.", Snackbar.LENGTH_LONG);
+            snackbar
+                    .setAction("Action", null)
+                    .show();
+        }
     }
 }
