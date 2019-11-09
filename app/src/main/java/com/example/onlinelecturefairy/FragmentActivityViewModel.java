@@ -86,7 +86,6 @@ public class FragmentActivityViewModel extends ViewModel {
 
     public void attachEvents() {
         for(CalendarEvent event : Objects.requireNonNull(mEvents.getValue())) {
-
             GregorianCalendar start = new GregorianCalendar();
             start.setTime(new Date(event.getMyEvent().getStart().getDate().getValue()));
             GregorianCalendar end = new GregorianCalendar();
@@ -98,6 +97,7 @@ public class FragmentActivityViewModel extends ViewModel {
                 GregorianCalendar temp = new GregorianCalendar(start.get(Calendar.YEAR), start.get(Calendar.MONTH), start.get(Calendar.DAY_OF_MONTH) + i);
                 Objects.requireNonNull(Objects.requireNonNull(mDays.getValue()).get(temp)).add(event);
             }
+
         }
     }
 }
