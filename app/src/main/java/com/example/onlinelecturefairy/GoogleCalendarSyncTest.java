@@ -214,27 +214,20 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 alertDialogBuilder
                         .setCancelable(false)
                         .setPositiveButton("OK",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        //get user input and set everytime URL.
-                                        String[] temp = userInput.getText().toString().split("@");
-                                        userIdentifier = temp[1];
-                                        CrawlingEveryTime crw = new CrawlingEveryTime();
-                                        crw.execute();
-                                        mGetEveryTime.setEnabled(false);
-                                        mStatusText.setText("");
-                                        mID = 5;        //이벤트 생성
-                                        getResultsFromApi();
-                                        mGetEveryTime.setEnabled(true);
-                                    }
+                                (dialog, id) -> {
+                                    //get user input and set everytime URL.
+                                    String[] temp = userInput.getText().toString().split("@");
+                                    userIdentifier = temp[1];
+                                    CrawlingEveryTime crw = new CrawlingEveryTime();
+                                    crw.execute();
+                                    mGetEveryTime.setEnabled(false);
+                                    mStatusText.setText("");
+                                    mID = 5;        //이벤트 생성
+                                    getResultsFromApi();
+                                    mGetEveryTime.setEnabled(true);
                                 })
                         .setNegativeButton("Cancel",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.cancel();
-                                    }
-                                });
+                                (dialog, which) -> dialog.cancel());
                 AlertDialog alertDialog = alertDialogBuilder.create();
 
                 alertDialog.show();

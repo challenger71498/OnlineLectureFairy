@@ -1,15 +1,9 @@
 package com.example.onlinelecturefairy;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.onlinelecturefairy.databinding.LoginActivityBinding;
@@ -17,7 +11,6 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
 public class LoginActivity extends AppCompatActivity {
@@ -52,10 +45,18 @@ public class LoginActivity extends AppCompatActivity {
         if(model.getId().equals("")) {
             focusId();
         }
+        else {
+            model.getId().observe(this, id -> {
+                idText.setText(id);
+            });
 
+            model.getPw().observe(this, pw -> {
+                pwText.setText(pw);
+            });
+        }
 
         binding.loginButton.setOnClickListener(v -> {
-            boolean isInfoCorrect = false;
+            boolean isInfoCorrect = true;
 
             imm.hideSoftInputFromWindow(pwText.getWindowToken(), 0);
 
@@ -65,7 +66,6 @@ public class LoginActivity extends AppCompatActivity {
             else {
                 Snackbar snackbar = Snackbar.make(v, "아이디 또는 패스워드가 잘못되었습니다.", Snackbar.LENGTH_LONG);
                 snackbar
-                        .setActionTextColor(Color.BLUE)
                         .setAction("Action", null)
                         .show();
             }

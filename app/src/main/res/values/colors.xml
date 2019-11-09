@@ -2,9 +2,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <color name="colorPrimary">#2979FF</color>
     <color name="colorPrimaryDark">#0D47A1</color>
-    <color name="colorAccent">#008577</color>
-    <color name="colorInverse">#DDDDDD</color>
+    <color name="colorAccentReverse">#008577</color>
+    <color name="colorAccent">#F50057</color>
+    <color name="colorBackgroundLight">#DDDDDD</color>
     <color name="colorBackground">#222222</color>
+    <color name="colorBackgroundDarker">#161616</color>
     <color name="transparent">#00ffffff</color>
 
     <color name="textLight">#222222</color>
@@ -23,5 +25,7 @@
     <color name="basil">#51b749</color>
     <color name="tomato">#dc2127</color>
     <color name="foreground">#1d1d1d</color>
+
+    <color name="everytime">#D23E2D</color>
 
 </resources>
