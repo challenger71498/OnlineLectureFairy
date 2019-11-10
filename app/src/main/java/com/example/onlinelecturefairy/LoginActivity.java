@@ -51,17 +51,17 @@ public class LoginActivity extends AppCompatActivity {
             focusId();
         }
         else {
-            //아이디 비밀번호 자동완성
-            model.getId().observe(this, id -> {
-                idText.setText(id);
-            });
+//            //아이디 비밀번호 자동완성
+//            model.getId().observe(this, id -> {
+//                idText.setText(id);
+//            });
+//
+//            model.getPw().observe(this, pw -> {
+//                pwText.setText(pw);
+//            });
 
-            model.getPw().observe(this, pw -> {
-                pwText.setText(pw);
-            });
-
-//          //또는 자동 로그인
-//          login(binding.loginButton.getRootView());
+          //또는 자동 로그인
+          login(binding.loginButton.getRootView());
         }
 
         binding.loginButton.setOnClickListener(v -> {

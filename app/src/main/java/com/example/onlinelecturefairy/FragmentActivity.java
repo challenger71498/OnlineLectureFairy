@@ -3,6 +3,7 @@ package com.example.onlinelecturefairy;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -17,8 +18,10 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 public class FragmentActivity extends AppCompatActivity {
-
     private AppBarConfiguration mAppBarConfiguration;
+
+    private final long INTERNAL_TIME = 1000;
+    private long previousTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,5 +64,17 @@ public class FragmentActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+    @Override
+    public void onBackPressed() {
+        long currentTime = System.currentTimeMillis();
+
+        if(currentTime - previousTime <= INTERNAL_TIME) {
+             finishAffinity();
+        } else {
+            previousTime = currentTime;
+            Toast.makeText(this, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

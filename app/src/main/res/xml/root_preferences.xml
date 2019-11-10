@@ -89,6 +89,11 @@
             app:summaryOn="에브리타임의 시간표를 동기화합니다."
             app:title="에브리타임 동기화" />
 
+        <PreferenceScreen
+            android:title="로그아웃" >
+            <intent android:action="android.provider.Settings.LOGOUT" />
+        </PreferenceScreen>
+
     </PreferenceCategory>
 
 </PreferenceScreen>
