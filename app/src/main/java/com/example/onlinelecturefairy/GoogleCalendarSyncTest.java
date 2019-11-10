@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.onlinelecturefairy.notice.Notice;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -52,12 +53,9 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -66,6 +64,7 @@ import java.util.Random;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
+
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -81,7 +80,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     /**
      * Google Calendar API 호출 관련 메커니즘 및 AsyncTask을 재사용하기 위해 사용
      */
-    private  int mID = 0;
+    private int mID = 0;
 
 
     GoogleAccountCredential mCredential;
@@ -120,12 +119,13 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     /*
     blackboard crawling variable
      */
-    private Map<String,String> loginCookie;
+    private Map<String, String> loginCookie;
     private String blackboard_user_id;
     private String blackboard_user_password;
     private boolean user_already_login = false;
     private String[] blackboard_subject;
-    private String[] blackboard_notice;
+    private String[] blackboard_noticeTitle;
+    private String[] blackboard_noticeLink;
     private String lectureInfo;
 
     @Override
@@ -211,9 +211,9 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             public void onClick(View v) {
                 SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(context);
                 String everytimeAddress = appData.getString("everytimeAddress", "");
-                if(everytimeAddress.equals("")) {
+                if (everytimeAddress.equals("")) {
                     LayoutInflater li = LayoutInflater.from(context);
-                    View promptsView = li.inflate(R.layout.prompts ,null);
+                    View promptsView = li.inflate(R.layout.prompts, null);
 
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
 
@@ -240,8 +240,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                     AlertDialog alertDialog = alertDialogBuilder.create();
 
                     alertDialog.show();
-                }
-                else {
+                } else {
                     String[] temp = everytimeAddress.split("@");
                     userIdentifier = temp[1];
                     CrawlingEveryTime crw = new CrawlingEveryTime();
@@ -255,12 +254,12 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             }
         });
 
-        mGetBlackBoard_login = (Button)findViewById(R.id.blackBoard_login);
+        mGetBlackBoard_login = (Button) findViewById(R.id.blackBoard_login);
         mGetBlackBoard_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 LayoutInflater li = LayoutInflater.from(context);
-                View promptsView = li.inflate(R.layout.prompt2 ,null);
+                View promptsView = li.inflate(R.layout.prompt2, null);
 
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
 
@@ -278,8 +277,10 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                                         blackboard_user_password = userInput2.getText().toString();
 
                                         //비어있으면 자동로그인 해놓음 귀찮아서
-                                        if(blackboard_user_id.matches("")) blackboard_user_id = "12181637";
-                                        if(blackboard_user_password.matches("")) blackboard_user_password = "!dlstjd1105";
+                                        if (blackboard_user_id.matches(""))
+                                            blackboard_user_id = "12181637";
+                                        if (blackboard_user_password.matches(""))
+                                            blackboard_user_password = "!dlstjd1105";
                                         CrawlingBlackBoard crw = new CrawlingBlackBoard();
                                         crw.execute();
                                     }
@@ -301,7 +302,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         /**
          * 블랙보드 웹강 처리 버튼 : CrawlingBlackBoardWeb 실행
          */
-        mGetBlackBoard_web = (Button)findViewById(R.id.blackBoard_web);
+        mGetBlackBoard_web = (Button) findViewById(R.id.blackBoard_web);
         mGetBlackBoard_web.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -319,7 +320,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         /**
          * 구글계정에서 캘린더 가져오기
          */
-        mGetBlackBoard_test = (Button)findViewById(R.id.blackBoard_test);
+        mGetBlackBoard_test = (Button) findViewById(R.id.blackBoard_test);
         mGetBlackBoard_test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -337,27 +338,29 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
      * crawling한 data를 일정화시킨다.
      */
     ProgressDialog progressDialog;
-    private class CrawlingEveryTime extends AsyncTask<Void,Void,Void>{
+
+    private class CrawlingEveryTime extends AsyncTask<Void, Void, Void> {
 
         @Override
-        protected  void onPreExecute(){
+        protected void onPreExecute() {
             super.onPreExecute();
             progressDialog = new ProgressDialog(GoogleCalendarSyncTest.this);
             progressDialog.show();
         }
 
         @Override
-        protected void onPostExecute(Void aVoid){
+        protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             result = "";
-            for(int i=0;i<numOfSubject;i++){
-                result+=arrSubInfo[i];
-                result+="\n";
+            for (int i = 0; i < numOfSubject; i++) {
+                result += arrSubInfo[i];
+                result += "\n";
             }
-            result+=numOfSubject;
+            result += numOfSubject;
             mResultText.setText(result);
             progressDialog.dismiss();
         }
+
         @Override
         protected Void doInBackground(Void... voids) {
             try {
@@ -369,7 +372,6 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                         .post();
 
 
-
                 //initialize information (과목수가 최대 20개라고 가정함.)
                 arrSubId = new String[20];
                 arrSubInfo = new String[20];
@@ -379,7 +381,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 numOfSubject = 0;
                 String target = "subject";
                 Elements selector = doc.select(target);
-                for(Element e:selector){
+                for (Element e : selector) {
                     arrSubId[idx] = e.attr("id");
                     idx++;
                     numOfSubject++;
@@ -388,13 +390,12 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
                 //select subject data name, professor, day, startTime, endTime, place
                 int subIdx = 0;
-                for(int i=0;i<numOfSubject;i++){
-
+                for (int i = 0; i < numOfSubject; i++) {
 
 
                     //get subject name
                     target = "subject#" + arrSubId[i];
-                    target+=" name";
+                    target += " name";
                     selector = doc.select(target);
                     String subject_name = selector.attr("value");
 
@@ -409,10 +410,10 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                     //get subject data = (day, startTime, endTime, place)
                     target = "subject#" + arrSubId[i] + " data";
                     selector = doc.select(target);
-                    for(Element e:selector) {
-                        arrSubInfo[subIdx]="";
-                        arrSubInfo[subIdx]+=subject_name+"@";
-                        arrSubInfo[subIdx]+=professor_name+"@";
+                    for (Element e : selector) {
+                        arrSubInfo[subIdx] = "";
+                        arrSubInfo[subIdx] += subject_name + "@";
+                        arrSubInfo[subIdx] += professor_name + "@";
                         //get day
                         int intDay = Integer.parseInt(e.attr("day"));
                         if (intDay == 0) { // 0 == Monday
@@ -435,39 +436,36 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                         //get startTime
                         String Hour;
                         String Minute;
-                        int calHour =  Integer.parseInt(e.attr("starttime"));
-                        Hour = Integer.toString(calHour/12);
-                        if(calHour%12==0){
-                           Minute = "00";
+                        int calHour = Integer.parseInt(e.attr("starttime"));
+                        Hour = Integer.toString(calHour / 12);
+                        if (calHour % 12 == 0) {
+                            Minute = "00";
+                        } else {
+                            Minute = Integer.toString((calHour % 12) * 5);
                         }
-                        else{
-                            Minute = Integer.toString((calHour%12)*5);
-                        }
-                        arrSubInfo[subIdx]+= Hour+":"+Minute;
-                        arrSubInfo[subIdx]+="@";
+                        arrSubInfo[subIdx] += Hour + ":" + Minute;
+                        arrSubInfo[subIdx] += "@";
 
                         //get endTime
                         calHour = Integer.parseInt(e.attr("endtime"));
-                        Hour = Integer.toString(calHour/12);
-                        if(calHour%12==0){
+                        Hour = Integer.toString(calHour / 12);
+                        if (calHour % 12 == 0) {
                             Minute = "00";
+                        } else {
+                            Minute = Integer.toString((calHour % 12) * 5);
                         }
-                        else{
-                            Minute = Integer.toString((calHour%12)*5);
-                        }
-                        arrSubInfo[subIdx]+= Hour+":"+Minute;
+                        arrSubInfo[subIdx] += Hour + ":" + Minute;
 
                         //get place
-                        arrSubInfo[subIdx]+="@"+e.attr("place");
-                        arrSubInfo[subIdx]+="\n";
+                        arrSubInfo[subIdx] += "@" + e.attr("place");
+                        arrSubInfo[subIdx] += "\n";
                         subIdx++;
                     }
 
 
-
                 }
                 numOfSubject = subIdx;
-            }catch (IOException o){
+            } catch (IOException o) {
                 o.printStackTrace();
             }
             return null;
@@ -476,12 +474,12 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
     /**
      * 다음 사전 조건을 모두 만족해야 Google Calendar API를 사용할 수 있다.
-     *
+     * <p>
      * 사전 조건
-     *     - Google Play Services 설치
-     *     - 유효한 구글 계정 선택
-     *     - 안드로이드 디바이스에서 인터넷 사용 가능
-     *
+     * - Google Play Services 설치
+     * - 유효한 구글 계정 선택
+     * - 안드로이드 디바이스에서 인터넷 사용 가능
+     * <p>
      * 하나라도 만족하지 않으면 해당 사항을 사용자에게 알림.
      */
     private String getResultsFromApi() {
@@ -502,24 +500,26 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         }
         return null;
     }
+
     /**
      * crawling blackboard url
      */
-    private class CrawlingBlackBoard extends AsyncTask<Void,Void,Void>{
+    private class CrawlingBlackBoard extends AsyncTask<Void, Void, Void> {
 
         @Override
-        protected  void onPreExecute(){
+        protected void onPreExecute() {
             super.onPreExecute();
             progressDialog = new ProgressDialog(GoogleCalendarSyncTest.this);
             progressDialog.show();
         }
 
         @Override
-        protected void onPostExecute(Void aVoid){
+        protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             mResultText.setText(result);
             progressDialog.dismiss();
         }
+
         @Override
         protected Void doInBackground(Void... voids) {
             try {
@@ -528,64 +528,58 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
                 Connection.Response loginPageResponse = Jsoup.connect("https://learn.inha.ac.kr/webapps/login/")
                         .timeout(3000)
-                        .header("Origin","https://learn.inha.ac.kr")
-                        .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
-                        .header("Content-Type","application/x-www-form-urlencoded")
-                        .data("user_id",blackboard_user_id,"password",blackboard_user_password)
+                        .header("Origin", "https://learn.inha.ac.kr")
+                        .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+                        .header("Content-Type", "application/x-www-form-urlencoded")
+                        .data("user_id", blackboard_user_id, "password", blackboard_user_password)
                         .method(Connection.Method.POST)
                         .execute();
-                Map<String,String> loginTryCookie = loginPageResponse.cookies();
+                Map<String, String> loginTryCookie = loginPageResponse.cookies();
 
-                Map<String,String> userData = new HashMap<>();
-                userData.put("user_id",blackboard_user_id);
-                userData.put("password",blackboard_user_password);
+                Map<String, String> userData = new HashMap<>();
+                userData.put("user_id", blackboard_user_id);
+                userData.put("password", blackboard_user_password);
 
-                Connection.Response res =  Jsoup.connect("https://learn.inha.ac.kr/webapps/login/")
+                Connection.Response res = Jsoup.connect("https://learn.inha.ac.kr/webapps/login/")
                         .userAgent(userAgent)
                         .timeout(3000)
-                        .header("Origin","https://learn.inha.ac.kr")
-                        .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
-                        .header("Content-Type","application/x-www-form-urlencoded")
+                        .header("Origin", "https://learn.inha.ac.kr")
+                        .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+                        .header("Content-Type", "application/x-www-form-urlencoded")
                         .cookies(loginTryCookie)
                         .data(userData)
                         .method(Connection.Method.POST)
                         .execute();
                 loginCookie = res.cookies();
-                //dlstjd
+                if (loginCookie.isEmpty()) {
+                    result = "로그인 실패";
+                    return null;
+                }
                 Document blackBoard = Jsoup.connect("https://learn.inha.ac.kr/webapps/portal/execute/tabs/tabAction")
                         .userAgent(userAgent)
-                        .header("Origin","https://learn.inha.ac.kr")
-                        .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
-                        .header("Content-Type","application/x-www-form-urlencoded")
+                        .header("Origin", "https://learn.inha.ac.kr")
+                        .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+                        .header("Content-Type", "application/x-www-form-urlencoded")
                         .cookies(loginCookie) // 위에서 얻은 '로그인 된' 쿠키
-                        .data("action","refreshAjaxModule")
-                        .data("modId","_1_1")
-                        .data("tabId","_1_1")
-                        .data("tab_tab_group_id","_1_1")
+                        .data("action", "refreshAjaxModule")
+                        .data("modId", "_1_1")
+                        .data("tabId", "_1_1")
+                        .data("tab_tab_group_id", "_1_1")
                         .parser(Parser.xmlParser())
                         .post();
                 String temp1 = "";
                 Element contest = blackBoard.select("contents").first();
                 Document doc = Jsoup.parse(contest.text().split("<!-- Display course/org announcements -->")[1]);
-
-//                for(Element e:contest){
-//                    temp1+=e.html();
-//                }
-//                String[] temp2;
-//                temp1 = temp1.replace("<![CDATA[","").replace("]]>","");
-//                temp2 = temp1.split("<!-- Display course/org announcements -->");
-//                temp1  = temp2[1];
-//
                 result = "";
-                int idx=0;
+                int idx = 0;
                 int numOfSub;
                 blackboard_subject = new String[10];
-                blackboard_notice = new String[10];
-
+                blackboard_noticeTitle = new String[10];
+                blackboard_noticeLink = new String[10];
                 //selecting subject name
 
                 Elements elem = doc.select("h3");
-                for(Element e:elem){
+                for (Element e : elem) {
                     blackboard_subject[idx] = e.text().split("\\)")[1];
                     idx++;
                 }
@@ -593,22 +587,68 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
                 //selecting notice of each subject
                 String[] temp2 = doc.html().split("</div>");
-                for(int i=0;i<temp2.length;i++){
+                for (int i = 0; i < temp2.length; i++) {
                     doc = Jsoup.parse(temp2[i]);
                     elem = doc.select("li");
-                    blackboard_notice[i] = "";
-                    for(Element e:elem){
-                        blackboard_notice[i] += e.text();
-                        blackboard_notice[i] +="\n";
+                    blackboard_noticeTitle[i] = "";
+                    for (Element e : elem) {
+                        blackboard_noticeTitle[i] += e.text();
+                        blackboard_noticeTitle[i] += "\n";
                     }
 
+                    blackboard_noticeLink[i] = "";
+                    elem = doc.select("a");
+                    for (Element e : elem) {
+                        blackboard_noticeLink[i] = e.attr("href");
+                    }
                 }
-                String t="";
+//                for (int i = 0; i < numOfSub; i++) {
+//                    result += blackboard_subject[i] + "\n";
+//                    result += blackboard_noticeTitle[i] + "\n";
+//                    result += blackboard_noticeLink[i] + "\n";
+//                }
+
+                //TODO 하다 말음
+                    String[] arrTitle;
+                result="";
+                ArrayList<Notice> arrNotice = new ArrayList<>();
+                String lecture;
+                String title;
+                String calendar;
+                String description;
                 for(int i=0;i<numOfSub;i++){
-                    result+=blackboard_subject[i]+"\n";
-                    result+=blackboard_notice[i]+"\n";
+                    arrTitle = blackboard_noticeTitle[i].split("\n");
+                    Document course = Jsoup.connect("https://learn.inha.ac.kr/"+blackboard_noticeLink[i])
+                            .userAgent(userAgent)
+                            .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+                            .cookies(loginCookie)
+                            .get();
+                    Document docNotice = Jsoup.parse(course.select("ul#announcementList").html());
+
+                    for(String s:arrTitle){
+                        elem = docNotice.select("li");
+                        for(Element e:elem){
+                            if(e.text().contains(s)){
+                                title = e.text().split("게시 날짜:")[0];
+                                calendar = (e.text().split("게시 날짜:")[1]).split("KST")[0];
+                                lecture = e.text().split("게시한 곳:")[1];
+                                description = (e.text().split("KST")[2]).split("작성자:")[0];
+                                arrNotice.add(new Notice(lecture,title,calendar,description));
+                            }
+                        }
+
+
+                    }
                 }
-            }catch (IOException o){
+                result="";
+                for(Notice n:arrNotice){
+                    result+="과목명 : " + n.getLecture() + "\n";
+                    result+="제목 : " + n.getTitle() + "\n";
+                    result+="게시 날짜: " + n.getCalendar() + "\n";
+                    result+="내용: "+n.getDescription()+"\n";
+                    result+="-------------------\n";
+                }
+            } catch (IOException o) {
                 o.printStackTrace();
             }
             return null;
@@ -617,25 +657,25 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     }
 
 
-
     /**
      * 웹강 요정의 화룡점정!!
      */
-    private class CrawlingBlackBoardWeb extends AsyncTask<Void,Void,Void>{
+    private class CrawlingBlackBoardWeb extends AsyncTask<Void, Void, Void> {
 
         @Override
-        protected  void onPreExecute(){
+        protected void onPreExecute() {
             super.onPreExecute();
             progressDialog = new ProgressDialog(GoogleCalendarSyncTest.this);
             progressDialog.show();
         }
 
         @Override
-        protected void onPostExecute(Void aVoid){
+        protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             mResultText.setText(result);
             progressDialog.dismiss();
         }
+
         @Override
         protected Void doInBackground(Void... voids) {
             try {
@@ -726,7 +766,6 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 }
 
 
-
                 int resultNum = 0;
                 String webLectureName = "";
                 lectureInfo = "";
@@ -771,28 +810,27 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                             webStartDate.set(java.util.Calendar.MINUTE, startMinute);
                             if (today.compareTo(webEndDate) == -1 && today.compareTo(webStartDate) == 1) {
                                 webEndDate.add(java.util.Calendar.DATE, +7);
-                                webEndDate.set(java.util.Calendar.DAY_OF_WEEK,java.util.Calendar.SUNDAY);
+                                webEndDate.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
                                 webEndDate.add(java.util.Calendar.DATE, -7);
                                 webLectureName = ((e.text().split(" > ")[0]).split("XIN")[0]).split(">")[1];
-                                String match2 = "\\s{2,}"; webLectureName = webLectureName.replaceAll(match2, "");
+                                String match2 = "\\s{2,}";
+                                webLectureName = webLectureName.replaceAll(match2, "");
                                 SimpleDateFormat simpledateformat;
-                                simpledateformat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss+09:00", Locale.KOREA);
-                                lectureInfo += ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0] +"@"+webLectureName + "@" + simpledateformat.format(webEndDate.getTime())+"\n";
+                                simpledateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss+09:00", Locale.KOREA);
+                                lectureInfo += ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0] + "@" + webLectureName + "@" + simpledateformat.format(webEndDate.getTime()) + "\n";
                                 break;
                             }
                         }
+                    }
                 }
-            }
-            result = lectureInfo;
-            }catch (IOException o){
+                result = lectureInfo;
+            } catch (IOException o) {
                 o.printStackTrace();
             }
             return null;
         }
 
     }
-
-
 
 
     /**
@@ -805,7 +843,6 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         final int connectionStatusCode = apiAvailability.isGooglePlayServicesAvailable(this);
         return connectionStatusCode == ConnectionResult.SUCCESS;
     }
-
 
 
     /*
@@ -824,7 +861,6 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     }
 
 
-
     /*
      * 안드로이드 디바이스에 Google Play Services가 설치 안되어 있거나 오래된 버전인 경우 보여주는 대화상자
      */
@@ -841,7 +877,6 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         );
         dialog.show();
     }
-
 
 
     /*
@@ -875,14 +910,13 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             }
 
 
-
             // GET_ACCOUNTS 권한을 가지고 있지 않다면
         } else {
 
 
             // 사용자에게 GET_ACCOUNTS 권한을 요구하는 다이얼로그를 보여준다.(주소록 권한 요청함)
             EasyPermissions.requestPermissions(
-                    (Activity)this,
+                    (Activity) this,
                     "This app needs to access your Google account (via Contacts).",
                     REQUEST_PERMISSION_GET_ACCOUNTS,
                     Manifest.permission.GET_ACCOUNTS);
@@ -910,8 +944,8 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
                 if (resultCode != RESULT_OK) {
 
-                    mStatusText.setText( " 앱을 실행시키려면 구글 플레이 서비스가 필요합니다."
-                            + "구글 플레이 서비스를 설치 후 다시 실행하세요." );
+                    mStatusText.setText(" 앱을 실행시키려면 구글 플레이 서비스가 필요합니다."
+                            + "구글 플레이 서비스를 설치 후 다시 실행하세요.");
                 } else {
 
                     getResultsFromApi();
@@ -994,7 +1028,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     /*
      * 캘린더 이름에 대응하는 캘린더 ID를 리턴
      */
-    private String getCalendarID(String calendarTitle){
+    private String getCalendarID(String calendarTitle) {
 
         String id = null;
 
@@ -1006,7 +1040,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 calendarList = mService.calendarList().list().setPageToken(pageToken).execute();
             } catch (UserRecoverableAuthIOException e) {
                 startActivityForResult(e.getIntent(), REQUEST_AUTHORIZATION);
-            }catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             List<CalendarListEntry> items = calendarList.getItems();
@@ -1014,7 +1048,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
             for (CalendarListEntry calendarListEntry : items) {
 
-                if ( calendarListEntry.getSummary().toString().equals(calendarTitle)) {
+                if (calendarListEntry.getSummary().toString().equals(calendarTitle)) {
 
                     id = calendarListEntry.getId().toString();
                 }
@@ -1066,26 +1100,22 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         protected String doInBackground(Void... params) {
             try {
 
-                if ( mID == 1) {
+                if (mID == 1) {
 
                     return createCalendar();
 
-                }else if (mID == 2) {
+                } else if (mID == 2) {
 
                     return addEvent();
-                }
-                else if (mID == 3) {
+                } else if (mID == 3) {
 
                     return getEvent();
-                }
-                else if(mID == 4){
+                } else if (mID == 4) {
 
                     return getEventById(mCredential.getSelectedAccountName());
-                }
-                else if(mID == 5){
+                } else if (mID == 5) {
                     return addEveryTimeEvent();
-                }
-                else if(mID == 6){
+                } else if (mID == 6) {
                     return addBlackBoardEvent();
                 }
             } catch (Exception e) {
@@ -1107,7 +1137,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             DateTime now = new DateTime(System.currentTimeMillis());
 
             String calendarID = getCalendarID("CalendarTitle");
-            if ( calendarID == null ){
+            if (calendarID == null) {
 
                 return "캘린더를 먼저 생성하세요.";
             }
@@ -1141,6 +1171,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
         /**
          * api event를 project 내의 event로 변환하여 관리
+         *
          * @param calendarId
          * @return
          * @throws IOException
@@ -1151,7 +1182,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             DateTime now = new DateTime(System.currentTimeMillis());
 
             String calendarID = getCalendarID(calendarId);
-            if ( calendarID == null ){
+            if (calendarID == null) {
 
                 return "캘린더를 먼저 생성하세요.";
             }
@@ -1174,7 +1205,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                     // 모든 이벤트가 시작 시간을 갖고 있지는 않다. 그런 경우 시작 날짜만 사용
                     start = event.getStart().getDate();
                 }
-                if(end == null){
+                if (end == null) {
                     // 모든 이벤트가 시작 시간을 갖고 있지는 않다. 그런 경우 시작 날짜만 사용
                     end = event.getEnd().getDate();
                 }
@@ -1183,13 +1214,12 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
             }
 
-            for(Event event : ourEventArray){
+            for (Event event : ourEventArray) {
                 //시작 시간을 가지고 있는 경우
-                if(event.getEnd().getDateTime()==null){
-                    eventStrings.add(String.format("%s \n (%s) ~ (%s)",event.getSummary(), event.getStart().getDate(),event.getEnd().getDate()));
-                }
-                else{
-                    eventStrings.add(String.format("%s \n (%s) ~ (%s)",event.getSummary(), event.getStart().getDateTime(),event.getEnd().getDateTime()));
+                if (event.getEnd().getDateTime() == null) {
+                    eventStrings.add(String.format("%s \n (%s) ~ (%s)", event.getSummary(), event.getStart().getDate(), event.getEnd().getDate()));
+                } else {
+                    eventStrings.add(String.format("%s \n (%s) ~ (%s)", event.getSummary(), event.getStart().getDateTime(), event.getEnd().getDateTime()));
                 }
             }
             return eventStrings.size() + "개의 데이터를 가져왔습니다.";
@@ -1202,7 +1232,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
             String ids = getCalendarID("CalendarTitle");
 
-            if ( ids != null ){
+            if (ids != null) {
 
                 return "이미 캘린더가 생성되어 있습니다. ";
             }
@@ -1248,9 +1278,9 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             mProgress.hide();
             mStatusText.setText(output);
 
-            if ( mID == 3)   mResultText.setText(TextUtils.join("\n\n", eventStrings));
-            if ( mID == 4)   mResultText.setText(TextUtils.join("\n\n", eventStrings));
-            if ( mID == 5)   mResultText.setText(TextUtils.join("\n\n", eventStrings));
+            if (mID == 3) mResultText.setText(TextUtils.join("\n\n", eventStrings));
+            if (mID == 4) mResultText.setText(TextUtils.join("\n\n", eventStrings));
+            if (mID == 5) mResultText.setText(TextUtils.join("\n\n", eventStrings));
         }
 
 
@@ -1281,7 +1311,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
             String calendarID = getCalendarID("CalendarTitle");
 
-            if ( calendarID == null ){
+            if (calendarID == null) {
 
                 return "캘린더를 먼저 생성하세요.";
 
@@ -1299,7 +1329,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             SimpleDateFormat simpledateformat;
             //simpledateformat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ssZ", Locale.KOREA);
             // Z에 대응하여 +0900이 입력되어 문제 생겨 수작업으로 입력
-            simpledateformat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss+09:00", Locale.KOREA);
+            simpledateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss+09:00", Locale.KOREA);
             String datetime = simpledateformat.format(calander.getTime());
 
             DateTime startDateTime = new DateTime(datetime);
@@ -1308,10 +1338,10 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                     .setTimeZone("Asia/Seoul");
             event.setStart(start);
 
-            Log.d( "@@@", datetime );
+            Log.d("@@@", datetime);
 
 
-            DateTime endDateTime = new  DateTime(datetime);
+            DateTime endDateTime = new DateTime(datetime);
             EventDateTime end = new EventDateTime()
                     .setDateTime(endDateTime)
                     .setTimeZone("Asia/Seoul");
@@ -1355,9 +1385,9 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             SimpleDateFormat simpledateformat;
             //simpledateformat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ssZ", Locale.KOREA);
             // Z에 대응하여 +0900이 입력되어 문제 생겨 수작업으로 입력
-            simpledateformat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss+09:00", Locale.KOREA);
+            simpledateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss+09:00", Locale.KOREA);
 
-            if ( calendarID == null ){
+            if (calendarID == null) {
 
                 return "캘린더를 먼저 생성하세요.";
 
@@ -1366,7 +1396,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             int tYear = calendar.get(calendar.YEAR);
             int tMonth = calendar.get(calendar.MONTH);
             int tDate = calendar.get(calendar.DATE);
-            for(int i=0;i<numOfSubject;i++) {
+            for (int i = 0; i < numOfSubject; i++) {
                 calendar = java.util.Calendar.getInstance();
                 temp = arrSubInfo[i].split("@");
                 subjectName = temp[0];
@@ -1381,25 +1411,19 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                         .setDescription(professorName);
 
 
-                if(week==1){
+                if (week == 1) {
                     calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
-                }
-                else if(week==2){
+                } else if (week == 2) {
                     calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
-                }
-                else if(week==3){
+                } else if (week == 3) {
                     calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.TUESDAY);
-                }
-                else if(week==4){
+                } else if (week == 4) {
                     calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.WEDNESDAY);
-                }
-                else if(week==5){
+                } else if (week == 5) {
                     calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.THURSDAY);
-                }
-                else if(week==6){
+                } else if (week == 6) {
                     calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.FRIDAY);
-                }
-                else if(week==7){
+                } else if (week == 7) {
                     calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SATURDAY);
                 }
                 //set start time
@@ -1407,7 +1431,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 int startHour = Integer.parseInt(temp[0]);
                 int startMinute = Integer.parseInt(temp[1]);
                 calendar.set(calendar.HOUR_OF_DAY, startHour);
-                calendar.set(calendar.MINUTE, + startMinute);
+                calendar.set(calendar.MINUTE, +startMinute);
                 String datetime = simpledateformat.format(calendar.getTime());
                 DateTime startDateTime = new DateTime(datetime);
                 EventDateTime start = new EventDateTime()
@@ -1417,32 +1441,26 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
                 //set start time  default한 시간을 위해 다시 초기화
                 calendar = java.util.Calendar.getInstance();
-                if(week==1){
+                if (week == 1) {
                     calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
-                }
-                else if(week==2){
+                } else if (week == 2) {
                     calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
-                }
-                else if(week==3){
+                } else if (week == 3) {
                     calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.TUESDAY);
-                }
-                else if(week==4){
+                } else if (week == 4) {
                     calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.WEDNESDAY);
-                }
-                else if(week==5){
+                } else if (week == 5) {
                     calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.THURSDAY);
-                }
-                else if(week==6){
+                } else if (week == 6) {
                     calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.FRIDAY);
-                }
-                else if(week==7){
+                } else if (week == 7) {
                     calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SATURDAY);
                 }
                 temp = endTime.split(":");
                 int endHour = Integer.parseInt(temp[0]);
                 int endMinute = Integer.parseInt(temp[1]);
                 calendar.set(calendar.HOUR_OF_DAY, endHour);
-                calendar.set(calendar.MINUTE, + endMinute);
+                calendar.set(calendar.MINUTE, +endMinute);
                 datetime = simpledateformat.format(calendar.getTime());
                 DateTime endDateTime = new DateTime(datetime);
                 EventDateTime end = new EventDateTime()
@@ -1450,7 +1468,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                         .setTimeZone("Asia/Seoul");
                 event.setEnd(end);
                 Random random = new Random();
-                int cR = random.nextInt(11)+1;
+                int cR = random.nextInt(11) + 1;
                 event.setColorId(Integer.toString(cR));
                 //String[] recurrence = new String[]{"RRULE:FREQ=DAILY;COUNT=2"};
                 //fragment_event.setRecurrence(Arrays.asList(recurrence));
@@ -1472,6 +1490,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         /**
          * crawling 해온 사용자의 웹강 data를
          * api를 이용하여 event로 추가한다.
+         *
          * @return
          */
         private String addBlackBoardEvent() {
@@ -1485,14 +1504,14 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             SimpleDateFormat simpledateformat;
             //simpledateformat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ssZ", Locale.KOREA);
             // Z에 대응하여 +0900이 입력되어 문제 생겨 수작업으로 입력
-            simpledateformat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss+09:00", Locale.KOREA);
+            simpledateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss+09:00", Locale.KOREA);
 
-            if ( calendarID == null ){
+            if (calendarID == null) {
                 return "사용자의 구글 계정이 존재하지 않습니다.";
 
             }
             String[] arrLectureInfo = lectureInfo.split("\n");
-            for(String _lectureInfo:arrLectureInfo){
+            for (String _lectureInfo : arrLectureInfo) {
                 calendar = java.util.Calendar.getInstance();
 
                 subjectName = _lectureInfo.split("@")[0];
@@ -1523,7 +1542,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 event.setReminders(reminders);
 
                 Random random = new Random();
-                int cR = random.nextInt(11)+1;
+                int cR = random.nextInt(11) + 1;
                 event.setColorId(Integer.toString(cR));
                 try {
                     event = mService.events().insert(calendarID, event).execute();
@@ -1538,7 +1557,6 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             return eventStrings;
         }
     }
-
 
 
 }
