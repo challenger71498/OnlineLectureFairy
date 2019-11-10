@@ -7,7 +7,7 @@
     <data class="CardViewBinding">
         <variable
             name="model"
-            type="com.example.onlinelecturefairy.ui.home.NoticeViewModel" />
+            type="com.example.onlinelecturefairy.ui.notice.NoticeViewModel" />
     </data>
 
     <androidx.cardview.widget.CardView

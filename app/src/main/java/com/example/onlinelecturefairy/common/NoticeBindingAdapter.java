@@ -2,7 +2,7 @@ package com.example.onlinelecturefairy.common;
 
 import android.widget.TextView;
 
-import com.example.onlinelecturefairy.ui.home.NoticeViewModel;
+import com.example.onlinelecturefairy.ui.notice.NoticeViewModel;
 
 import androidx.databinding.BindingAdapter;
 

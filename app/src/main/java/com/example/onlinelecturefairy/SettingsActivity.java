@@ -1,21 +1,12 @@
 package com.example.onlinelecturefairy;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.EditTextPreference;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
 
@@ -43,7 +34,7 @@ public class SettingsActivity extends AppCompatActivity {
             // 로그아웃 버튼 기능 추가
             PreferenceScreen logoutPreference = getPreferenceManager().findPreference("logout");
             logoutPreference.setOnPreferenceClickListener(preference -> {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertLightDialogStyle);
                 //set dialog message
                 alertDialogBuilder
                         .setCancelable(false)
