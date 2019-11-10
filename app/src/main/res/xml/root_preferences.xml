@@ -90,8 +90,8 @@
             app:title="에브리타임 동기화" />
 
         <PreferenceScreen
-            android:title="로그아웃" >
-            <intent android:action="android.provider.Settings.LOGOUT" />
+            android:title="로그아웃"
+            app:key="logout">
         </PreferenceScreen>
 
     </PreferenceCategory>

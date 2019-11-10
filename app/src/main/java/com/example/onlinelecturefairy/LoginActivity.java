@@ -51,17 +51,19 @@ public class LoginActivity extends AppCompatActivity {
             focusId();
         }
         else {
-//            //아이디 비밀번호 자동완성
-//            model.getId().observe(this, id -> {
-//                idText.setText(id);
-//            });
-//
-//            model.getPw().observe(this, pw -> {
-//                pwText.setText(pw);
-//            });
+            //아이디 비밀번호 자동완성
+            model.getId().observe(this, id -> {
+                idText.setText(id);
+            });
 
-          //또는 자동 로그인
-          login(binding.loginButton.getRootView());
+            model.getPw().observe(this, pw -> {
+                pwText.setText(pw);
+            });
+
+            // 자동 로그인이 켜져 있을 경우 자동으로 로그인 시도.
+            if(appData.getBoolean("autoLogin", false)) {
+                login(binding.loginButton.getRootView());
+            }
         }
 
         binding.loginButton.setOnClickListener(v -> {
@@ -109,5 +111,10 @@ public class LoginActivity extends AppCompatActivity {
                     .setAction("Action", null)
                     .show();
         }
+
+        // 제공한 정보의 일치 여부에 따라 향후 자동 로그인 판단.
+        appData.edit()
+                .putBoolean("autoLogin", isInfoCorrect)
+                .apply();
     }
 }

@@ -2,6 +2,8 @@ package com.example.onlinelecturefairy;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceScreen;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -37,32 +40,33 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
 
-//            EditTextPreference everytimePreference = getPreferenceManager().findPreference("everytimeAddress");
-//            everytimePreference.setOnPreferenceClickListener(preference -> {
-//                View promptsView = LayoutInflater.from(getActivity()).inflate(R.layout.prompts ,null);
-//
-//                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
-//
-//                alertDialogBuilder.setView(promptsView);
-//                final EditText userInput = promptsView.findViewById(R.id.editTextDialogUserInput);
-//                //set dialog message
-//                alertDialogBuilder
-//                        .setCancelable(false)
-//                        .setPositiveButton("OK",
-//                                (dialog, id) -> {
-//                                    //get user input and set everytime URL.
-//                                    String[] temp = userInput.getText().toString().split("@");
-//                                    getPreferenceManager().getSharedPreferences().edit()
-//                                            .putString("everytimeId", temp[1])
-//                                            .apply();
-//                                })
-//                        .setNegativeButton("Cancel",
-//                                (dialog, which) -> dialog.cancel());
-//                AlertDialog alertDialog = alertDialogBuilder.create();
-//
-//                alertDialog.show();
-//                return false;
-//            });
+            // 로그아웃 버튼 기능 추가
+            PreferenceScreen logoutPreference = getPreferenceManager().findPreference("logout");
+            logoutPreference.setOnPreferenceClickListener(preference -> {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                //set dialog message
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setTitle("로그아웃 하시겠습니까?")
+                        .setPositiveButton("확인",
+                                (dialog, id) -> {
+                                    // 자동 로그인을 해제 (로그아웃했으므로)
+                                    SharedPreferences pref = getPreferenceManager().getSharedPreferences();
+                                    pref.edit()
+                                            .putBoolean("autoLogin", false)
+                                            .apply();
+
+                                    // LoginActivity로 이동
+                                    Intent intent = new Intent(getActivity(), LoginActivity.class);
+                                    startActivity(intent);
+                                })
+                        .setNegativeButton("취소",
+                                (dialog, which) -> dialog.cancel());
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                alertDialog.show();
+                return false;
+            });
         }
     }
 }
