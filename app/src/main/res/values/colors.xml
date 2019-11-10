@@ -5,8 +5,8 @@
     <color name="colorAccentReverse">#008577</color>
     <color name="colorAccent">#F50057</color>
     <color name="colorBackgroundLight">#DDDDDD</color>
-    <color name="colorBackground">#222222</color>
-    <color name="colorBackgroundDarker">#161616</color>
+    <color name="colorBackground">#333333</color>
+    <color name="colorBackgroundDarker">#262626</color>
     <color name="transparent">#00ffffff</color>
 
     <color name="textLight">#222222</color>

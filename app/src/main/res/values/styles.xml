@@ -51,7 +51,7 @@
 
     <!-- Custom Styles -->
     <style name="SnackBarStyle" parent="Widget.MaterialComponents.Snackbar">
-        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:background">@color/colorBackgroundDarker</item>
     </style>
 
     <style name="EditTextStyle" parent="Widget.AppCompat.EditText">
