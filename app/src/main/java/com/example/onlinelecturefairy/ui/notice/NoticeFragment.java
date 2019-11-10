@@ -1,4 +1,4 @@
-package com.example.onlinelecturefairy.ui.home;
+package com.example.onlinelecturefairy.ui.notice;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,20 +18,20 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     SwipeRefreshLayout swipe;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        return inflater.inflate(R.layout.fragment_notice, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        HomeViewModel model = ViewModelProviders.of(this).get(HomeViewModel.class);
+        NoticesViewModel model = ViewModelProviders.of(this).get(NoticesViewModel.class);
 
         //테스트 초기값 설정
         ArrayList<Notice> ntc = new ArrayList<>();
@@ -55,12 +55,12 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         model.getNotices().observe(this, notices -> {
             //UI updates.
             RecyclerView recyclerView = getView().findViewById(R.id.homeRecyclerView);
-            HomeRecyclerAdapter adapter = (HomeRecyclerAdapter) recyclerView.getAdapter();
+            NoticeRecyclerAdapter adapter = (NoticeRecyclerAdapter) recyclerView.getAdapter();
             if(adapter != null) {
                 adapter.setNotices(notices);
             } else {
                 LinearLayoutManager manager = new LinearLayoutManager(getActivity());
-                adapter = new HomeRecyclerAdapter(notices);
+                adapter = new NoticeRecyclerAdapter(notices);
                 recyclerView.setAdapter(adapter);
                 recyclerView.setLayoutManager(manager);
             }

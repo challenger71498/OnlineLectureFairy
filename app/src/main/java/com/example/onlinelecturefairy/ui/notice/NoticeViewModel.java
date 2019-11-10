@@ -1,4 +1,4 @@
-package com.example.onlinelecturefairy.ui.home;
+package com.example.onlinelecturefairy.ui.notice;
 
 import com.example.onlinelecturefairy.notice.Notice;
 import androidx.lifecycle.MutableLiveData;

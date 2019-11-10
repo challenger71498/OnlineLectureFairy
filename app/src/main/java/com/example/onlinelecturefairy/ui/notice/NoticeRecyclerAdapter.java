@@ -1,4 +1,4 @@
-package com.example.onlinelecturefairy.ui.home;
+package com.example.onlinelecturefairy.ui.notice;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -13,10 +13,10 @@ import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapter.ViewHolder> {
+public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAdapter.ViewHolder> {
     List<Notice> notices;
 
-    public HomeRecyclerAdapter(List<Notice> notices) {
+    public NoticeRecyclerAdapter(List<Notice> notices) {
         this.notices = notices;
     }
 
@@ -36,7 +36,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
         Notice notice = notices.get(position);
         NoticeViewModel model = new NoticeViewModel();
         model.setNotices(notice);
-        HomeRecyclerAdapter.ViewHolder holder = viewHolder;
+        NoticeRecyclerAdapter.ViewHolder holder = viewHolder;
         holder.setViewModel(model);
     }
 

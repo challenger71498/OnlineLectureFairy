@@ -3,43 +3,25 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_home">
+    app:startDestination="@+id/nav_notice">
 
     <fragment
-        android:id="@+id/nav_home"
-        android:name="com.example.onlinelecturefairy.ui.home.HomeFragment"
-        android:label="@string/menu_home"
+        android:id="@+id/nav_notice"
+        android:name="com.example.onlinelecturefairy.ui.notice.NoticeFragment"
+        android:label="@string/menu_notice"
         tools:layout="@layout/fragment_monthly" />
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="com.example.onlinelecturefairy.ui.gallery.GalleryFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        android:id="@+id/nav_grade"
+        android:name="com.example.onlinelecturefairy.ui.grade.GradeFragment"
+        android:label="@string/menu_grade"
+        tools:layout="@layout/fragment_grade" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.example.onlinelecturefairy.ui.monthly.MonthlyFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_monthly" />
-
-    <fragment
-        android:id="@+id/nav_tools"
-        android:name="com.example.onlinelecturefairy.ui.tools.ToolsFragment"
-        android:label="@string/menu_tools"
-        tools:layout="@layout/fragment_tools" />
-
-    <fragment
-        android:id="@+id/nav_share"
-        android:name="com.example.onlinelecturefairy.ui.share.ShareFragment"
-        android:label="@string/menu_share"
-        tools:layout="@layout/fragment_share" />
-
-    <fragment
-        android:id="@+id/nav_send"
-        android:name="com.example.onlinelecturefairy.ui.send.SendFragment"
-        android:label="@string/menu_send"
-        tools:layout="@layout/fragment_send" />
+        android:id="@+id/nav_timetable"
+        android:name="com.example.onlinelecturefairy.ui.timetable.TimetableFragment"
+        android:label="@string/menu_timetable"
+        tools:layout="@layout/fragment_timetable" />
 
     <activity
         android:id="@+id/nav_settings"
