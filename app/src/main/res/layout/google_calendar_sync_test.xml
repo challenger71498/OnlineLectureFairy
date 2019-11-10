@@ -9,7 +9,7 @@
     android:paddingRight="16dp"
     android:paddingTop="16dp"
     android:orientation="vertical"
-    tools:context=".FragmentActivity"
+    tools:context=".MainActivity"
     android:background="@color/colorBackground">
 
     <TextView

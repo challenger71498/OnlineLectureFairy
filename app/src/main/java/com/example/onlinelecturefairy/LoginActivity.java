@@ -23,10 +23,6 @@ import androidx.preference.PreferenceManager;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.parser.Parser;
-import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -145,7 +141,7 @@ public class LoginActivity extends AppCompatActivity {
 //        }
 //        if (isInfoCorrect) { //제공한 정보가 일치하면
 //            save();
-//            Intent intent = new Intent(LoginActivity.this, FragmentActivity.class);
+//            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 //            startActivity(intent);
 //        } else {  //제공한 정보가 일치하지 않으면
 //            Snackbar snackbar = Snackbar.make(v, "아이디 또는 패스워드가 잘못되었습니다.", Snackbar.LENGTH_LONG);
@@ -164,7 +160,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onSuccess() {  //로그인 성공 시
                 isInfoCorrect = true;
                 save();
-                Intent intent = new Intent(LoginActivity.this, FragmentActivity.class);
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 intent.putExtra("isInfoCorrect", isInfoCorrect);
                 startActivity(intent);
             }
