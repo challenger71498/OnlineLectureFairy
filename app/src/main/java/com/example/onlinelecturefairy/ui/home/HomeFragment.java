@@ -85,4 +85,6 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         //Should stop refreshing.
         swipe.setRefreshing(false);
     }
+
+
 }

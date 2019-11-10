@@ -26,13 +26,13 @@
         <item name="snackbarStyle">@style/SnackBarStyle</item>
 
         <!-- Dialog -->
-        <item name="alertDialogTheme">@style/AlertDialogStyle</item>
+        <item name="alertDialogTheme">@style/AlertLightDialogStyle</item>
 
         <!-- CheckBox -->
-        <item name="checkboxStyle">@style/CheckBoxStyle</item>
+<!--        <item name="checkboxStyle">@style/CheckBoxStyle</item>-->
 
         <!-- RadioButton -->
-        <item name="radioButtonStyle">@style/RadioButtonStyle</item>
+<!--        <item name="radioButtonStyle">@style/RadioButtonStyle</item>-->
     </style>
 
     <!-- No action bar -->
@@ -63,12 +63,24 @@
         <item name="android:textColorHighlight">@color/colorAccent</item>
     </style>
 
-    <style name="AlertDialogStyle" parent="Theme.AppCompat.Light.Dialog">
+    <style name="AlertLightDialogStyle" parent="Theme.AppCompat.Light.Dialog">
         <item name="colorAccent">@color/transparent</item>
         <item name="android:windowBackground">@color/colorBackground</item>
         <item name="android:windowMinWidthMajor">70%</item>
         <item name="android:windowMinWidthMinor">70%</item>
         <item name="android:textColorPrimary">@color/white</item>
+        <item name="buttonBarNegativeButtonStyle">@style/buttonBarButtonStyle.Negative</item>
+        <item name="buttonBarNeutralButtonStyle">@style/buttonBarButtonStyle.Neutral</item>
+        <item name="buttonBarPositiveButtonStyle">@style/buttonBarButtonStyle.Positive</item>
+    </style>
+
+    <style name="AlertDialogStyle" parent="Theme.AppCompat.Dialog">
+        <item name="colorAccent">@color/transparent</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:windowMinWidthMajor">70%</item>
+        <item name="android:windowMinWidthMinor">70%</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:progressBarStyle">@style/progressBarStyle</item>
         <item name="buttonBarNegativeButtonStyle">@style/buttonBarButtonStyle.Negative</item>
         <item name="buttonBarNeutralButtonStyle">@style/buttonBarButtonStyle.Neutral</item>
         <item name="buttonBarPositiveButtonStyle">@style/buttonBarButtonStyle.Positive</item>
@@ -89,19 +101,8 @@
         <item name="android:textColorPrimary">@color/colorAccent</item>
     </style>
 
-    <style name="CheckBoxStyle" parent="Widget.AppCompat.CompoundButton.CheckBox">
-        <item name="android:solidColor">@color/white</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:titleTextColor">@color/white</item>
-        <item name="android:textColorSecondary">@color/textGray</item>
-    </style>
-
-    <style name="RadioButtonStyle" parent="Widget.AppCompat.CompoundButton.RadioButton">
-        <item name="android:solidColor">@color/white</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:colorForeground">@color/white</item>
-        <item name="android:textColorPrimary">@color/white</item>
-        <item name="android:textColorSecondary">@color/textGray</item>
+    <style name="progressBarStyle" parent="Widget.AppCompat.ProgressBar">
+        <item name="android:color">@color/white</item>
     </style>
 
     <style name="CalendarDatesTheme">

@@ -54,6 +54,15 @@ public class FragmentActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        //Snackbar for login success.
+        Intent intent = getIntent();
+        if(intent.getBooleanExtra("isInfoCorrect", false)) {
+            Snackbar snackbar = Snackbar.make(this.getWindow().getDecorView(), "로그인 성공!", Snackbar.LENGTH_LONG);
+            snackbar
+                    .setAction("Action", null)
+                    .show();
+        }
     }
 
     @Override
