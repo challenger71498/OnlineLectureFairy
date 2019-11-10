@@ -1,14 +1,13 @@
-package com.example.onlinelecturefairy.ui.home;
+package com.example.onlinelecturefairy.ui.notice;
 
 import com.example.onlinelecturefairy.notice.Notice;
 
 import java.util.List;
 
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class HomeViewModel extends ViewModel {
+public class NoticesViewModel extends ViewModel {
     private MutableLiveData<List<Notice>> mNotices;
 
     public MutableLiveData<List<Notice>> getNotices() {
