@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.onlinelecturefairy.common.AsyncTaskCallBack;
 import com.example.onlinelecturefairy.databinding.LoginActivityBinding;
@@ -42,6 +43,10 @@ public class LoginActivity extends AppCompatActivity {
     ProgressDialog progressDialog;
     boolean isInfoCorrect;
     private Map<String, String> loginCookie;
+
+    // for double back button to exit function.
+    private final long INTERNAL_TIME = 1000;
+    private long previousTime = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,7 +95,17 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        long currentTime = System.currentTimeMillis();
 
+        if(currentTime - previousTime <= INTERNAL_TIME) {
+            finishAffinity();
+        } else {
+            previousTime = currentTime;
+            Toast.makeText(this, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     private void save() {
         appData.edit()

@@ -24,6 +24,7 @@ import androidx.navigation.ui.NavigationUI;
 public class FragmentActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
 
+    // for double back to exit function.
     private final long INTERNAL_TIME = 1000;
     private long previousTime = 0;
 
@@ -35,13 +36,8 @@ public class FragmentActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show());
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each

@@ -35,20 +35,20 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
         //테스트 초기값 설정
         ArrayList<Notice> ntc = new ArrayList<>();
-        ntc.add(new Notice("test", "test", "test", "테스트 설명 항목입니다."));
-        ntc.add(new Notice("test", "test", "test", "테스트 설명 항목입니다. 이 곳에 공지사항의 설명이 들어갈 예정입니다. 항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
-        ntc.add(new Notice("test", "test", "test", "이 곳에 공지사항의 설명이 들어갈 예정입니다."));
-        ntc.add(new Notice("test", "test", "test", "항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
-        ntc.add(new Notice("test", "test", "test", "이 곳에 공지사항의 설명이 들어갈 예정입니다. 항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
-        ntc.add(new Notice("test", "test", "test", "테스트 설명 항목입니다."));
-        ntc.add(new Notice("test", "test", "test", "테스트 설명 항목입니다. 이 곳에 공지사항의 설명이 들어갈 예정입니다. 항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
-        ntc.add(new Notice("test", "test", "test", "테스트 설명 항목입니다."));
-        ntc.add(new Notice("test", "test", "test", "항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
-        ntc.add(new Notice("test", "test", "test", "항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
-        ntc.add(new Notice("test", "test", "test", "테스트 설명 항목입니다. 이 곳에 공지사항의 설명이 들어갈 예정입니다. 항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
-        ntc.add(new Notice("test", "test", "test", "이 곳에 공지사항의 설명이 들어갈 예정입니다. 항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
-        ntc.add(new Notice("test", "test", "test", "이 곳에 공지사항의 설명이 들어갈 예정입니다."));
-        ntc.add(new Notice("test", "test", "test", "테스트 설명 항목입니다. 이 곳에 공지사항의 설명이 들어갈 예정입니다. 항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
+        ntc.add(new Notice("test", "공지", "test", "테스트 설명 항목입니다."));
+        ntc.add(new Notice("test", "공지", "test", "테스트 설명 항목입니다. 이 곳에 공지사항의 설명이 들어갈 예정입니다. 항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
+        ntc.add(new Notice("test", "공지", "test", "이 곳에 공지사항의 설명이 들어갈 예정입니다."));
+        ntc.add(new Notice("test", "공지", "test", "항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
+        ntc.add(new Notice("test", "공지", "test", "이 곳에 공지사항의 설명이 들어갈 예정입니다. 항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
+        ntc.add(new Notice("test", "공지", "test", "테스트 설명 항목입니다."));
+        ntc.add(new Notice("test", "공지", "test", "테스트 설명 항목입니다. 이 곳에 공지사항의 설명이 들어갈 예정입니다. 항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
+        ntc.add(new Notice("test", "공지", "test", "테스트 설명 항목입니다."));
+        ntc.add(new Notice("test", "공지", "test", "항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
+        ntc.add(new Notice("test", "공지", "test", "항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
+        ntc.add(new Notice("test", "공지", "test", "테스트 설명 항목입니다. 이 곳에 공지사항의 설명이 들어갈 예정입니다. 항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
+        ntc.add(new Notice("test", "공지", "test", "이 곳에 공지사항의 설명이 들어갈 예정입니다. 항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
+        ntc.add(new Notice("test", "공지", "test", "이 곳에 공지사항의 설명이 들어갈 예정입니다."));
+        ntc.add(new Notice("test", "공지", "test", "테스트 설명 항목입니다. 이 곳에 공지사항의 설명이 들어갈 예정입니다. 항목이 너무 길어질 경우 사이즈가 자동으로 늘어납니다."));
 
         model.setNotices(ntc);
 
