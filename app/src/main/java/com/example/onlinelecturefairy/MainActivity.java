@@ -64,14 +64,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //JobInfo initialization.
-        long period = 10;  //minutes
+        long period = 1;  //minutes
         JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         assert scheduler != null;
         scheduler.schedule(
                 new JobInfo.Builder(getResources().getInteger(R.integer.REFRESH_JOB_SERVICE), new ComponentName(this, RefreshJobService.class))
-                        .setPeriodic(period * 60 * 1000)
+                        .setOverrideDeadline(period * 1000 * 60)
                         .setPersisted(true)
-                        .setOverrideDeadline()
                         .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                         .build());
     }
