@@ -64,12 +64,29 @@
     </style>
 
     <style name="AlertDialogStyle" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/transparent</item>
         <item name="android:windowBackground">@color/colorBackground</item>
         <item name="android:windowMinWidthMajor">70%</item>
         <item name="android:windowMinWidthMinor">70%</item>
-        <item name="buttonBarNegativeButtonStyle">@style/Widget.MaterialComponents.Button.TextButton</item>
-        <item name="buttonBarPositiveButtonStyle">@style/Widget.MaterialComponents.Button.TextButton</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="buttonBarNegativeButtonStyle">@style/buttonBarButtonStyle.Negative</item>
+        <item name="buttonBarNeutralButtonStyle">@style/buttonBarButtonStyle.Neutral</item>
+        <item name="buttonBarPositiveButtonStyle">@style/buttonBarButtonStyle.Positive</item>
+    </style>
+
+    <style name="buttonBarButtonStyle" parent="Widget.AppCompat.Button.Borderless.Colored">
+    </style>
+
+    <style name="buttonBarButtonStyle.Neutral">
+        <item name="android:textColorPrimary">@color/white</item>
+    </style>
+
+    <style name="buttonBarButtonStyle.Negative">
+        <item name="android:textColorPrimary">@color/colorAccentReverse</item>
+    </style>
+
+    <style name="buttonBarButtonStyle.Positive">
+        <item name="android:textColorPrimary">@color/colorAccent</item>
     </style>
 
     <style name="CheckBoxStyle" parent="Widget.AppCompat.CompoundButton.CheckBox">

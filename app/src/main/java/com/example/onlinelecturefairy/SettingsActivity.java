@@ -43,11 +43,12 @@ public class SettingsActivity extends AppCompatActivity {
             // 로그아웃 버튼 기능 추가
             PreferenceScreen logoutPreference = getPreferenceManager().findPreference("logout");
             logoutPreference.setOnPreferenceClickListener(preference -> {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
                 //set dialog message
                 alertDialogBuilder
                         .setCancelable(false)
-                        .setTitle("로그아웃 하시겠습니까?")
+                        .setTitle("로그아웃")
+                        .setMessage("로그아웃 하시겠습니까?")
                         .setPositiveButton("확인",
                                 (dialog, id) -> {
                                     // 자동 로그인을 해제 (로그아웃했으므로)
