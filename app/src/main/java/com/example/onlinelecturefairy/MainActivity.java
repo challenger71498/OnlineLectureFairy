@@ -1,10 +1,13 @@
 package com.example.onlinelecturefairy;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.widget.Toast;
@@ -16,6 +19,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -28,9 +32,6 @@ public class MainActivity extends AppCompatActivity {
     // for double back to exit function.
     private final long INTERNAL_TIME = 1000;
     private long previousTime = 0;
-
-    // for job scheduling.
-    JobInfo jobInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,26 @@ public class MainActivity extends AppCompatActivity {
                         .setPersisted(true)
                         .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                         .build());
+
+        //Notification
+        createNotificationChannel();
+    }
+
+    //channeling
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Refresh";
+            String description = "Refreshing";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("0417", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     @Override
