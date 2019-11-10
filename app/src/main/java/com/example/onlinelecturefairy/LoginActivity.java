@@ -78,22 +78,19 @@ public class LoginActivity extends AppCompatActivity {
 
             // 자동 로그인이 켜져 있을 경우 자동으로 로그인 시도.
             if (appData.getBoolean("autoLogin", false)) {
-                try {
-                    Thread.sleep(1000); //1초 대기
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                login(binding.loginButton.getRootView(), model.getId().toString(), model.getPw().toString());
+                login(binding.loginButton.getRootView(), model.getId().getValue(), model.getPw().getValue());
             }
         }
 
         binding.loginButton.setOnClickListener(v -> {
             imm.hideSoftInputFromWindow(pwText.getWindowToken(), 0);
-            final EditText inputId = (EditText) findViewById(R.id.idInput);
-            final EditText inputPw = (EditText) findViewById(R.id.pwInput);
+            final EditText inputId = findViewById(R.id.idInput);
+            final EditText inputPw = findViewById(R.id.pwInput);
             login(v, inputId.getText().toString(), inputPw.getText().toString());
         });
     }
+
+
 
     private void save() {
         appData.edit()
