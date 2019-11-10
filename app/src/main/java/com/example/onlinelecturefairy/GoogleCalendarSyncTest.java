@@ -1406,7 +1406,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 temp = startTime.split(":");
                 int startHour = Integer.parseInt(temp[0]);
                 int startMinute = Integer.parseInt(temp[1]);
-                calendar.set(calendar.HOUR, + startHour);
+                calendar.set(calendar.HOUR_OF_DAY, startHour);
                 calendar.set(calendar.MINUTE, + startMinute);
                 String datetime = simpledateformat.format(calendar.getTime());
                 DateTime startDateTime = new DateTime(datetime);
@@ -1441,7 +1441,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 temp = endTime.split(":");
                 int endHour = Integer.parseInt(temp[0]);
                 int endMinute = Integer.parseInt(temp[1]);
-                calendar.set(calendar.HOUR, + endHour);
+                calendar.set(calendar.HOUR_OF_DAY, endHour);
                 calendar.set(calendar.MINUTE, + endMinute);
                 datetime = simpledateformat.format(calendar.getTime());
                 DateTime endDateTime = new DateTime(datetime);
