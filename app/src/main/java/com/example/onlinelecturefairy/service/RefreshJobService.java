@@ -48,8 +48,8 @@ public class RefreshJobService extends JobService {
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
                     .setSmallIcon(R.drawable.web_fairy_short)
-                    .setContentTitle("작업 완료!")
-                    .setContentText("작업을 완료했습니다!")
+                    .setContentTitle("작업 완료! " + Math.random())
+                    .setContentText("작업을 완료했습니다! " + Math.random())
                     .setStyle(new NotificationCompat.BigTextStyle()
                             .bigText("자세한 텍스트는 여기에 작성됩니다. 작업을 완료했습니다."))
                     .setContentIntent(pendingIntent)

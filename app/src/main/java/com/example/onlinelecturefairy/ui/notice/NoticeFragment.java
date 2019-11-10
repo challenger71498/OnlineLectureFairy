@@ -56,9 +56,6 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
 
         model = ViewModelProviders.of(this).get(NoticesViewModel.class);
 
-        CrawlingBlackBoard crw =  new CrawlingBlackBoard();
-        crw.execute();
-
 //        Log.e(TAG, "arrNotice size : " + arrNotice.size());
 
         //당겨서 새로고침
@@ -71,6 +68,10 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light
         );
+
+        //Crawling
+        CrawlingBlackBoard crw =  new CrawlingBlackBoard();
+        crw.execute();
     }
 
     @Override
@@ -78,8 +79,6 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
 
         CrawlingBlackBoard crw =  new CrawlingBlackBoard();
         crw.execute();
-        //Should stop refreshing.
-        swipe.setRefreshing(false);
     }
 
     /**
@@ -91,8 +90,10 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = new ProgressDialog(getActivity());
-            progressDialog.show();
+            //Set refresh ui to true.
+            if(!swipe.isRefreshing()) {
+                swipe.setRefreshing(true);
+            }
         }
 
         @Override
@@ -114,8 +115,8 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
                 }
                 Log.e(TAG, "Adapter size : " + adapter.getItemCount());
             });
-
-            progressDialog.dismiss();
+            //Should stop refreshing.
+            swipe.setRefreshing(false);
         }
 
         @Override
