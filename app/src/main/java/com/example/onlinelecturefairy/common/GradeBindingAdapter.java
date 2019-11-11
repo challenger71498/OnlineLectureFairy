@@ -30,6 +30,6 @@ public class GradeBindingAdapter {
 
     @BindingAdapter("setGradeColor")
     public static void setGradeColor(ImageView v, GradeViewModel m) {
-        v.setImageResource(ColorPicker.getColorByLectureId(m.getGrade().getValue().getId()));
+        v.setImageResource(ColorPicker.getColorByLectureId(m.getGrade().getValue().getLecture()));
     }
 }
