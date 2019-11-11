@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.onlinelecturefairy.grade.Grade;
 import com.example.onlinelecturefairy.notice.Notice;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -669,6 +670,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
     }
 
+    private ArrayList<Grade> arrGrade;
     //TODO 함수 정의
     /**
      * get grade from blackboard after login
@@ -705,20 +707,14 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                         .data("tab_tab_group_id", "_1_1")
                         .parser(Parser.xmlParser())
                         .post();
-
-//                //CDATA parsing
-//                String temp1 = "";
-//                Elements contest = blackboard.select("contents");
-//                for (Element e : contest) {
-//                    temp1 += e.html();
-//                }
-//                temp1 = temp1.replace("<![CDATA[", "").replace("]]>", "");
-////                temp2 = temp1.split("<!-- Display course/org announcements -->");
-//
-//
-//                Document doc = Jsoup.parse(temp1);
                 Element contest = blackboard.select("contents").first();
                 Document doc = Jsoup.parse(contest.text());
+
+
+                /**
+                 * TODO: Calendar를 이용해서 현재 학기에 해당하는 과목의 주소만 들고오는 논리 구현
+                 *
+                 */
                 //현재 수강중인 과목들의 course_id를 파싱
                 Elements elem = doc.select("a");
                 result = "";
@@ -734,17 +730,13 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                         numOfCourse++;
                     }
                 }
-
-                int numOfWeb_temp = 0;
-                int numOfWeb = 0;
-                String[] course_id_web_temp = new String[100];
-                String[] course_id_web = new String[100];
                 result = "";
 
-                //각 성적마다 '나의 성적'으로 들어가는 a태그의 href 값 저장
+                //각 성적마다 '나의 성적'으로 들어가는 a 태그의 href 값 저장
                 //'나의 성적' 의 href 값에 tool_id=_158_1 이 들어가있는 규칙성 확인
 
-                ArrayList<String> gradeLink = new ArrayList<>();
+
+                ArrayList<String> arrGradeLink = new ArrayList<>();
                 // "온라인 출결 확인"이 존재하는 과목 parsing
                 for (int i = 0; i < numOfCourse; i++) {
                     Document course = Jsoup.connect("https://learn.inha.ac.kr/webapps/blackboard/execute/modulepage/view?course_id=_" + course_id[i] + "_1")
@@ -752,13 +744,57 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                             .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
                             .cookies(loginCookie)
                             .get();
-                    elem = course.select("span");
-                    for (Element e : elem) {
-                        if (e.text().contains("온라인 출결 확인")) {
-                            course_id_web_temp[numOfWeb_temp] = course_id[i];
-                            numOfWeb_temp++;
+                    elem = course.select("a");
+                    for(Element e:elem){
+                        if(e.attr("href").contains("tool_id=_158_1")){
+                            arrGradeLink.add(e.attr("href"));
                         }
                     }
+                }
+                result="";
+                arrGrade = new ArrayList<>();
+                for(String gradeLink:arrGradeLink){
+                    Document gradePage = Jsoup.connect("https://learn.inha.ac.kr"+gradeLink)
+                            .userAgent(userAgent)
+                            .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+                            .cookies(loginCookie)
+                            .get();
+                    elem = gradePage.select("div.sortable_item_row.graded_item_row.row.expanded");
+                    for(Element e:elem){
+                        String lecture = ((gradePage.select("a.comboLink").text()).split("\\)")[1]).split("-")[0];
+                        Document tempDoc = Jsoup.parse(e.html());
+                        Element elem2;
+
+                        String score="";
+                        elem2 = tempDoc.select("span.grade").first();
+                        if(elem2!=null) score = elem2.text();
+
+                        String scoreSub="";
+                        elem2 = tempDoc.select("span.pointsPossible.clearfloats").first();
+                        if(elem2!=null) scoreSub = elem2.text();
+
+                        String description="";
+                        String des_temp = "none";
+                        elem2 = tempDoc.select("div.cell.gradable").first();
+                        if(elem2!=null) description = elem2.text();
+                        elem2 = tempDoc.select("div.itemCat").first();
+                        if(elem2!=null) des_temp = elem2.text();
+                        if(des_temp!="none") description = description.replaceFirst(des_temp,"");
+
+                        des_temp = "none";
+                        elem2 = tempDoc.select("div.activityType").first();
+                        if(elem2!=null) des_temp = elem2.text();
+                        if(des_temp!="none") description = description.replaceFirst(des_temp,"");
+
+                        if(scoreSub=="") scoreSub = "none";
+
+                        arrGrade.add(new Grade(lecture,score,scoreSub,description));
+                    }
+
+                }
+
+                for(Grade g:arrGrade){
+                    result+=g.getLecture()+"@"+g.getDescription()+"@"+g.getScore()+"@"+g.getScoreSub()+"\n";
                 }
             } catch (IOException o) {
                 o.printStackTrace();
