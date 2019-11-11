@@ -1,6 +1,7 @@
 package com.example.onlinelecturefairy.ui.grade;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,11 +10,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.onlinelecturefairy.R;
+import com.example.onlinelecturefairy.common.ColorPicker;
 import com.example.onlinelecturefairy.grade.Grade;
 import com.example.onlinelecturefairy.notice.Notice;
+import com.example.onlinelecturefairy.ui.notice.NoticeRecyclerAdapter;
 
 import java.util.ArrayList;
 
@@ -31,7 +36,32 @@ public class GradeFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        grades = new ArrayList<>();
+        grades.add(new Grade("(2019-02)동화의이해-001(이러닝)", "12.3", "/30", "중간고사 성적"));
+        grades.add(new Grade("인성학개론", "55.5", "/60", "기말고사 성적"));
+        grades.add(new Grade("(2019-02)동화의이해-001(이러닝)", "12.3", "/30", "중간고사 성적"));
+        grades.add(new Grade("민석이의 안드로이드 스튜디오 강의", "12.3", "/30", "중간고사 성적"));
+        grades.add(new Grade("(2019-02)동화의이해-001(이러닝)", "12.3", "/30", "중간고사 성적"));
+        for(Grade g : grades) {
+            ColorPicker.addLectureId(g.getLecture());
+        }
+
         model = ViewModelProviders.of(this).get(GradeFragmentViewModel.class);
+
+        model.setGrades(grades);
+        model.getGrades().observe(getActivity(), notices -> {
+            //UI updates.
+            RecyclerView recyclerView = getView().findViewById(R.id.gradeRecyclerView);
+            GradeRecyclerAdapter adapter = (GradeRecyclerAdapter) recyclerView.getAdapter();
+            if(adapter != null) {
+                adapter.setGrades(grades);
+            } else {
+                LinearLayoutManager manager = new LinearLayoutManager(getActivity());
+                adapter = new GradeRecyclerAdapter(grades);
+                recyclerView.setAdapter(adapter);
+                recyclerView.setLayoutManager(manager);
+            }
+        });
 
         //당겨서 새로고침
         swipe = getView().findViewById(R.id.gradeSwipeRefresh);
