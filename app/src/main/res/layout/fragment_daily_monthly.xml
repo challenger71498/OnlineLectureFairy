@@ -5,7 +5,7 @@
 
     <fragment
         android:id="@+id/dailyMonthlyFragment"
-        android:name="com.example.onlinelecturefairy.ui.monthly.dailymonthly.DailyMonthlyFragment"
+        android:name="com.example.onlinelecturefairy.legacy.monthly.dailymonthly.DailyMonthlyFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </LinearLayout>

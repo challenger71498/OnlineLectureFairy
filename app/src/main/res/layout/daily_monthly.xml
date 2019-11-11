@@ -8,7 +8,7 @@
 
         <variable
             name="model"
-            type="com.example.onlinelecturefairy.ui.monthly.dailymonthly.DailyMonthlyViewModel" />
+            type="com.example.onlinelecturefairy.legacy.monthly.dailymonthly.DailyMonthlyViewModel" />
         <variable
             name="date"
             type="String" />

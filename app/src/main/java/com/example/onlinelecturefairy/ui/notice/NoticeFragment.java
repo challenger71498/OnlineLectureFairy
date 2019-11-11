@@ -1,7 +1,6 @@
 package com.example.onlinelecturefairy.ui.notice;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,15 +9,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.onlinelecturefairy.GoogleCalendarSyncTest;
 import com.example.onlinelecturefairy.R;
+import com.example.onlinelecturefairy.common.ColorPicker;
 import com.example.onlinelecturefairy.notice.Notice;
+
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,18 +34,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.parser.Parser;
-import org.jsoup.select.Elements;
-
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     SwipeRefreshLayout swipe;
-    NoticesViewModel model;
+    NoticeFragmentViewModel model;
     private ArrayList<Notice> arrNotice;
     @Nullable
     @Override
@@ -54,12 +52,12 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        model = ViewModelProviders.of(this).get(NoticesViewModel.class);
+        model = ViewModelProviders.of(this).get(NoticeFragmentViewModel.class);
 
 //        Log.e(TAG, "arrNotice size : " + arrNotice.size());
 
         //당겨서 새로고침
-        swipe = getView().findViewById(R.id.swipeRefresh);
+        swipe = getView().findViewById(R.id.noticeSwipeRefresh);
         swipe.setOnRefreshListener(this);
         //Color changes by each color.
         swipe.setColorSchemeResources(
@@ -84,7 +82,6 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
     /**
      * crawling blackboard url
      */
-    ProgressDialog progressDialog;
     private class CrawlingBlackBoard extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -99,11 +96,11 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            //model.setNotices(arrNotice);
+
             model.setNotices(arrNotice);
             model.getNotices().observe(getActivity(), notices -> {
                 //UI updates.
-                RecyclerView recyclerView = getView().findViewById(R.id.homeRecyclerView);
+                RecyclerView recyclerView = getView().findViewById(R.id.noticeRecyclerView);
                 NoticeRecyclerAdapter adapter = (NoticeRecyclerAdapter) recyclerView.getAdapter();
                 if(adapter != null) {
                     adapter.setNotices(notices);
@@ -203,7 +200,13 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
                 }
 
                 String[] arrTitle;
-                arrNotice = new ArrayList<>();
+
+                if(arrNotice == null) {
+                    arrNotice = new ArrayList<>();
+                } else {
+                    arrNotice.clear();
+                }
+
                 String lecture;
                 String title;
                 String calendar;
@@ -217,6 +220,7 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
                             .get();
                     Document docNotice = Jsoup.parse(course.select("ul#announcementList").html());
 
+                    //String formatting.
                     for(String s:arrTitle){
                         elem = docNotice.select("li");
                         for(Element e:elem){
@@ -226,6 +230,7 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
                                 lecture = e.text().split("게시한 곳:")[1];
                                 description = (e.text().split("KST")[2]).split("작성자:")[0];
                                 arrNotice.add(new Notice(lecture,title,calendar,description));
+                                ColorPicker.addLectureId("title");
                             }
                         }
 

@@ -1,11 +1,8 @@
 package com.example.onlinelecturefairy;
 
-import com.example.onlinelecturefairy.day.Day;
+import com.example.onlinelecturefairy.legacy.day.Day;
 import com.example.onlinelecturefairy.event.CalendarEvent;
-import com.example.onlinelecturefairy.event.Event;
-import com.google.api.client.util.DateTime;
 
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
