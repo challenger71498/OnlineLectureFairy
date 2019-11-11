@@ -5,7 +5,7 @@ public class Notice {
     String title;
     String calendar;
     String description;
-
+    String subId;
     public String getLecture() {
         return lecture;
     }
@@ -38,10 +38,20 @@ public class Notice {
         this.description = description;
     }
 
+    public String getSubId() {
+        return subId;
+    }
+
+    public void setSubId(String subId) {
+        this.subId = subId;
+    }
+
     public Notice(String lecture, String title, String calendar, String description) {
         this.lecture = lecture;
         this.title = title;
         this.calendar = calendar;
         this.description = description;
     }
+
+
 }

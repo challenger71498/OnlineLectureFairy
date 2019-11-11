@@ -1,5 +1,6 @@
 package com.example.onlinelecturefairy.ui.notice;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -12,6 +13,8 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
+
+import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAdapter.ViewHolder> {
     List<Notice> notices;
@@ -42,7 +45,7 @@ public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAd
 
     @Override
     public int getItemCount() {
-        return notices.size();
+        return notices == null ? 0 : notices.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

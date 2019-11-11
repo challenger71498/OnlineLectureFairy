@@ -602,14 +602,8 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                         blackboard_noticeLink[i] = e.attr("href");
                     }
                 }
-//                for (int i = 0; i < numOfSub; i++) {
-//                    result += blackboard_subject[i] + "\n";
-//                    result += blackboard_noticeTitle[i] + "\n";
-//                    result += blackboard_noticeLink[i] + "\n";
-//                }
 
-                //TODO 하다 말음
-                    String[] arrTitle;
+                String[] arrTitle;
                 result="";
                 ArrayList<Notice> arrNotice = new ArrayList<>();
                 String lecture;
