@@ -27,7 +27,7 @@ public class GradeRecyclerAdapter extends RecyclerView.Adapter<GradeRecyclerAdap
     @NonNull
     @Override
     public GradeRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        GradeCardViewBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.notice_card_view, parent, false);
+        GradeCardViewBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.grade_card_view, parent, false);
         return new ViewHolder(binding);
     }
 
