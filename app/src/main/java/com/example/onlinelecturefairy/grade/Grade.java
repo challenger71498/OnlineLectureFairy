@@ -30,6 +30,7 @@ public class Grade {
     }
 
     public String getScoreSub() {
+        if(scoreSub == "none") return "";
         return scoreSub;
     }
 
