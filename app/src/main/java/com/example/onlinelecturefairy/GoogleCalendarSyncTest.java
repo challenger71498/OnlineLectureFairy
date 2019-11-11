@@ -93,6 +93,8 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     private Button mGetBlackBoard_login;
     private Button mGetBlackBoard_test;
     private Button mGetBlackBoard_web;
+    private Button mGetBlackBoard_grade;
+
     ProgressDialog mProgress;
 
 
@@ -330,6 +332,23 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 getResultsFromApi();
                 mAddCalendarButton.setEnabled(true);
             }
+        });
+
+        /**
+         * 블랙보드 웹강 처리 버튼 : CrawlingBlackBoardWeb 실행
+         */
+        mGetBlackBoard_grade = (Button) findViewById(R.id.blackBoard_grade);
+        mGetBlackBoard_grade.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CrawlingBlackBoardGrade crw = new CrawlingBlackBoardGrade();
+                crw.execute();
+                mGetBlackBoard_grade.setEnabled(false);
+                mStatusText.setText("");
+                getResultsFromApi();
+                mGetBlackBoard_grade.setEnabled(true);
+            }
+
         });
     }
 
@@ -650,6 +669,104 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
     }
 
+    //TODO 함수 정의
+    /**
+     * get grade from blackboard after login
+     */
+    private class CrawlingBlackBoardGrade extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(GoogleCalendarSyncTest.this);
+            progressDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            mResultText.setText(result);
+            progressDialog.dismiss();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36";
+                Document blackboard = Jsoup.connect("https://learn.inha.ac.kr/webapps/portal/execute/tabs/tabAction")
+                        .userAgent(userAgent)
+                        .header("Origin", "https://learn.inha.ac.kr")
+                        .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+                        .header("Content-Type", "application/x-www-form-urlencoded")
+                        .cookies(loginCookie) // 위에서 얻은 '로그인 된' 쿠키
+                        .data("action", "refreshAjaxModule")
+                        .data("modId", "_3_1")
+                        .data("tabId", "_1_1")
+                        .data("tab_tab_group_id", "_1_1")
+                        .parser(Parser.xmlParser())
+                        .post();
+
+//                //CDATA parsing
+//                String temp1 = "";
+//                Elements contest = blackboard.select("contents");
+//                for (Element e : contest) {
+//                    temp1 += e.html();
+//                }
+//                temp1 = temp1.replace("<![CDATA[", "").replace("]]>", "");
+////                temp2 = temp1.split("<!-- Display course/org announcements -->");
+//
+//
+//                Document doc = Jsoup.parse(temp1);
+                Element contest = blackboard.select("contents").first();
+                Document doc = Jsoup.parse(contest.text());
+                //현재 수강중인 과목들의 course_id를 파싱
+                Elements elem = doc.select("a");
+                result = "";
+                int numOfCourse = 0;
+                //수강하는 과목의 수가 최대 100개라고 가정함.
+                String[] course_id = new String[100];
+                for (Element e : elem) {
+                    String temp = e.text();
+                    if (temp.contains(":")) {
+                        temp = e.attr("href");
+                        temp = temp.split("_")[1];
+                        course_id[numOfCourse] = temp;
+                        numOfCourse++;
+                    }
+                }
+
+                int numOfWeb_temp = 0;
+                int numOfWeb = 0;
+                String[] course_id_web_temp = new String[100];
+                String[] course_id_web = new String[100];
+                result = "";
+
+                //각 성적마다 '나의 성적'으로 들어가는 a태그의 href 값 저장
+                //'나의 성적' 의 href 값에 tool_id=_158_1 이 들어가있는 규칙성 확인
+
+                ArrayList<String> gradeLink = new ArrayList<>();
+                // "온라인 출결 확인"이 존재하는 과목 parsing
+                for (int i = 0; i < numOfCourse; i++) {
+                    Document course = Jsoup.connect("https://learn.inha.ac.kr/webapps/blackboard/execute/modulepage/view?course_id=_" + course_id[i] + "_1")
+                            .userAgent(userAgent)
+                            .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+                            .cookies(loginCookie)
+                            .get();
+                    elem = course.select("span");
+                    for (Element e : elem) {
+                        if (e.text().contains("온라인 출결 확인")) {
+                            course_id_web_temp[numOfWeb_temp] = course_id[i];
+                            numOfWeb_temp++;
+                        }
+                    }
+                }
+            } catch (IOException o) {
+                o.printStackTrace();
+            }
+            return null;
+        }
+
+    }
 
     /**
      * 웹강 요정의 화룡점정!!
