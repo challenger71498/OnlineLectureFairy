@@ -4,14 +4,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto">
 
-    <data class="NoticeCardViewBinding">
+    <data class="GradeCardViewBinding">
         <variable
             name="model"
-            type="com.example.onlinelecturefairy.ui.notice.NoticeViewModel" />
+            type="com.example.onlinelecturefairy.ui.grade.GradeViewModel" />
     </data>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/noticeCardView"
+        android:id="@+id/gradeCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
@@ -23,84 +23,94 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/noticeAccentImage"
+                android:id="@+id/gradeAccentImage"
                 android:layout_width="10dp"
                 android:layout_height="0dp"
                 android:src="@color/colorAccent"
-                setNoticeColor="@{model}"
+                setGradeColor="@{model}"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/noticeContent"
+                app:layout_constraintEnd_toStartOf="@+id/gradeContent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/noticeContent"
+                android:id="@+id/gradeContent"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:background="@color/colorBackgroundDarker"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/noticeAccentImage"
+                app:layout_constraintStart_toEndOf="@id/gradeAccentImage"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.0">
 
                 <TextView
-                    android:id="@+id/noticeSub"
-                    setNoticeCalendar="@{model}"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="2019/04/17"
-                    android:textAlignment="textEnd"
-                    android:textSize="12sp"
-                    app:layout_constraintVertical_bias="0.0"
-                    card_view:layout_constraintBottom_toTopOf="@+id/noticeLecture"
-                    card_view:layout_constraintEnd_toEndOf="parent"
-                    card_view:layout_constraintStart_toStartOf="parent"
-                    card_view:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/noticeLecture"
-                    setNoticeTitle="@{model}"
-                    android:layout_width="200dp"
+                    android:id="@+id/gradeLecture"
+                    setGradeLecture="@{model}"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    android:text="Title"
+                    android:text="Lecture"
                     android:textAlignment="textStart"
                     android:textSize="12sp"
+                    app:layout_constraintEnd_toStartOf="@+id/gradeScore"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/noticeScore"
-                    setNoticeLecture="@{model}"
-                    android:layout_width="match_parent"
+                    android:id="@+id/gradeScore"
+                    android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
                     android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
-                    android:text="Lecture"
+                    android:text="38.4"
+                    setGradeScore="@{model}"
+                    android:textStyle="bold"
+                    android:textAlignment="textEnd"
                     android:textSize="20dp"
-                    card_view:layout_constraintBottom_toTopOf="@+id/noticeDescription"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintTop_toTopOf="parent"
                     card_view:layout_constraintEnd_toEndOf="parent"
                     card_view:layout_constraintStart_toStartOf="parent"
-                    card_view:layout_constraintTop_toBottomOf="@+id/noticeSub" />
+                    card_view:layout_constraintTop_toBottomOf="@id/gradeLecture" />
 
                 <TextView
-                    android:id="@+id/noticeDescription"
-                    setNoticeDescription="@{model}"
-                    android:layout_width="match_parent"
+                    android:id="@+id/gradeSub"
+                    setGradeScoreSub="@{model}"
+                    android:layout_width="40dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="/30"
+                    android:textAlignment="textEnd"
+                    android:textColor="@color/textGray"
+                    android:textSize="12dp"
+                    android:textStyle="italic"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/gradeScore"
+                    app:layout_constraintVertical_bias="0.0"
+                    card_view:layout_constraintEnd_toEndOf="parent" />
+
+                <TextView
+                    android:id="@+id/gradeDescription"
+                    setGradeDescription="@{model}"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginBottom="8dp"
                     android:text="description"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintVertical_bias="1.0"
                     card_view:layout_constraintBottom_toBottomOf="parent"
-                    card_view:layout_constraintEnd_toEndOf="parent"
+                    card_view:layout_constraintEnd_toStartOf="@id/gradeSub"
                     card_view:layout_constraintStart_toStartOf="parent"
-                    card_view:layout_constraintTop_toBottomOf="@+id/noticeScore" />
+                    card_view:layout_constraintTop_toBottomOf="@+id/gradeScore" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 

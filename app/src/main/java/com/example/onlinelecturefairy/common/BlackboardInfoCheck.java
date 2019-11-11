@@ -35,24 +35,6 @@ public class BlackboardInfoCheck {
         private Boolean isInfoCorrect;
 
         private String blackboard_user_password;
-//        private AsyncTaskCallBack callBack = new AsyncTaskCallBack() {
-//            @Override
-//            public void onSuccess() {  //로그인 성공 시
-//                isInfoCorrect = true;
-//                save();
-//                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-//                intent.putExtra("isInfoCorrect", isInfoCorrect);
-//                startActivity(intent);
-//            }
-//
-//            @Override
-//            public void onFailure() {    //로그인 실패 시
-//                Snackbar snackbar = Snackbar.make(v, "아이디 또는 패스워드가 잘못되었습니다.", Snackbar.LENGTH_LONG);
-//                snackbar
-//                        .setAction("Action", null)
-//                        .show();
-//            }
-//        };
 
         public CheckBlackBoard(Context context, String id, String pw, Boolean isInfoCorrect, AsyncTaskCallBack callBack) {
             this.callBack = callBack;

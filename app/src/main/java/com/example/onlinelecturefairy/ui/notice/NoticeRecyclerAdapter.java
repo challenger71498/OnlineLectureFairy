@@ -1,11 +1,10 @@
 package com.example.onlinelecturefairy.ui.notice;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.example.onlinelecturefairy.R;
-import com.example.onlinelecturefairy.databinding.CardViewBinding;
+import com.example.onlinelecturefairy.databinding.NoticeCardViewBinding;
 import com.example.onlinelecturefairy.notice.Notice;
 
 import java.util.List;
@@ -13,8 +12,6 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
-
-import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAdapter.ViewHolder> {
     List<Notice> notices;
@@ -30,7 +27,7 @@ public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAd
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        CardViewBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.notice_card_view, parent, false);
+        NoticeCardViewBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.notice_card_view, parent, false);
         return new ViewHolder(binding);
     }
 
@@ -38,9 +35,8 @@ public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAd
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
         Notice notice = notices.get(position);
         NoticeViewModel model = new NoticeViewModel();
-        model.setNotices(notice);
-        NoticeRecyclerAdapter.ViewHolder holder = viewHolder;
-        holder.setViewModel(model);
+        model.setNotice(notice);
+        viewHolder.setViewModel(model);
     }
 
     @Override
@@ -49,9 +45,9 @@ public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAd
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        CardViewBinding binding;
+        NoticeCardViewBinding binding;
 
-        public ViewHolder(@NonNull CardViewBinding binding) {
+        public ViewHolder(@NonNull NoticeCardViewBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }

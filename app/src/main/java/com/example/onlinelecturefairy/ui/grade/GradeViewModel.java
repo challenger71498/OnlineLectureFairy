@@ -1,19 +1,25 @@
 package com.example.onlinelecturefairy.ui.grade;
 
-import androidx.lifecycle.LiveData;
+import com.example.onlinelecturefairy.grade.Grade;
+
+import java.util.ArrayList;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 public class GradeViewModel extends ViewModel {
+    private MutableLiveData<Grade> mGrade;
 
-    private MutableLiveData<String> mText;
-
-    public GradeViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is gallery fragment");
+    public MutableLiveData<Grade> getGrade() {
+        return mGrade;
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    public void setGrade(Grade grade) {
+        if(mGrade == null) {
+            mGrade = new MutableLiveData<>();
+        }
+        mGrade.setValue(grade);
     }
 }

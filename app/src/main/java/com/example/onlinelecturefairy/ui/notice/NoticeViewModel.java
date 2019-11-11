@@ -7,14 +7,14 @@ import androidx.lifecycle.ViewModel;
 public class NoticeViewModel extends ViewModel {
     private MutableLiveData<Notice> mNotice;
 
-    public MutableLiveData<Notice> getNotices() {
+    public MutableLiveData<Notice> getNotice() {
         return mNotice;
     }
 
-    public void setNotices(Notice notices) {
+    public void setNotice(Notice notice) {
         if(mNotice == null) {
             mNotice = new MutableLiveData<>();
         }
-        mNotice.setValue(notices);
+        mNotice.setValue(notice);
     }
 }

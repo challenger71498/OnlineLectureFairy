@@ -4,7 +4,7 @@
     <data>
         <variable
             name="model"
-            type="com.example.onlinelecturefairy.ui.event.EventViewModel" />
+            type="com.example.onlinelecturefairy.legacy.event.EventViewModel" />
     </data>
 
     <LinearLayout
