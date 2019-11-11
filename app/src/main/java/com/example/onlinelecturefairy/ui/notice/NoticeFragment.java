@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -230,7 +231,7 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
                                 lecture = e.text().split("게시한 곳:")[1];
                                 description = (e.text().split("KST")[2]).split("작성자:")[0];
                                 arrNotice.add(new Notice(lecture,title,calendar,description));
-                                ColorPicker.addLectureId("title");
+                                ColorPicker.addLectureId(lecture);
                             }
                         }
 

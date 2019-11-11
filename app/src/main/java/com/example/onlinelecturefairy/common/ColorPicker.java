@@ -1,7 +1,11 @@
 package com.example.onlinelecturefairy.common;
 
+import android.util.Log;
+
 import com.example.onlinelecturefairy.R;
 import com.google.common.collect.HashBiMap;
+
+import static android.content.ContentValues.TAG;
 
 public class ColorPicker {
     private static final HashBiMap<String, Integer> colorMap = HashBiMap.create();
@@ -28,11 +32,19 @@ public class ColorPicker {
         }
     }
 
-    private static HashBiMap<String, Integer> lectureMap = HashBiMap.create();
+    private static HashBiMap<String, String> lectureMap = HashBiMap.create();
+
+    static {
+        lectureMap.put("defaultLectureString", "0");
+    }
 
     public static void addLectureId(String id) {
         if(!lectureMap.containsKey(id)) {
-            lectureMap.put(id, lectureMap.size());
+            lectureMap.put(id, String.valueOf(lectureMap.size() % colorMap.size()));
         }
+        // debug: to show every pair of lecturemap.
+//        for(String s : lectureMap.keySet()) {
+//            Log.e(TAG, s + " " + lectureMap.get(s));
+//        }
     }
 }
