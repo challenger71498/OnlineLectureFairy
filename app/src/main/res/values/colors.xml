@@ -11,6 +11,7 @@
 
     <color name="textLight">#222222</color>
     <color name="textGray">#999999</color>
+    <color name="textLightGray">#bbbbbb</color>
     <color name="white">#FFFFFF</color>
 
     <color name="lavender">#a4bdfc</color>

@@ -37,6 +37,6 @@ public class NoticeBindingAdapter {
 
     @BindingAdapter("setNoticeColor")
     public static void setNoticeColor(ImageView v, NoticeViewModel model) {
-        v.setImageResource(ColorPicker.getColorByLectureId(model.getNotice().getValue().getSubId()));
+        v.setImageResource(ColorPicker.getColorByLectureId(model.getNotice().getValue().getLecture()));
     }
 }
