@@ -5,14 +5,12 @@ public class Grade {
     private String score;
     private String scoreSub;
     private String description;
-    private String id;
 
-    public Grade(String lecture, String score, String scoreSub, String description, String id) {
+    public Grade(String lecture, String score, String scoreSub, String description) {
         this.lecture = lecture;
         this.score = score;
         this.scoreSub = scoreSub;
         this.description = description;
-        this.id = id;
     }
 
     public String getLecture() {
@@ -47,11 +45,4 @@ public class Grade {
         this.description = description;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 }
