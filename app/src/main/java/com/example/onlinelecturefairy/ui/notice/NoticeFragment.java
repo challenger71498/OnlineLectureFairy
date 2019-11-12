@@ -233,6 +233,7 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
                                 title = e.text().split("게시 날짜:")[0];
                                 calendar = (e.text().split("게시 날짜:")[1]).split("KST")[0];
                                 lecture = e.text().split("게시한 곳:")[1];
+                                lecture = lecture.replace(" ", "");
                                 description = (e.text().split("KST")[2]).split("작성자:")[0];
                                 Notice notice = new Notice(lecture,title,calendar,description);
                                 noticesWaiting.add(notice);
