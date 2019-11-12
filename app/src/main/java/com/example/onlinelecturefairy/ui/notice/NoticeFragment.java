@@ -2,6 +2,7 @@ package com.example.onlinelecturefairy.ui.notice;
 
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +25,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -55,12 +57,30 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
 
         model = ViewModelProviders.of(this).get(NoticeFragmentViewModel.class);
 
-//        Log.e(TAG, "arrNotice size : " + arrNotice.size());
+        model.getNotices().observe(getActivity(), notices -> {
+            //UI updates.
+            // 로딩 중 화면을 빠져나갔을 경우 예외처리 해 주어야 함.
+            if(getView() != null) {
+                RecyclerView recyclerView = getView().findViewById(R.id.noticeRecyclerView);
+                NoticeRecyclerAdapter adapter = (NoticeRecyclerAdapter) recyclerView.getAdapter();
+                if(adapter != null) {
+                    adapter.setNotices(notices);
+                    adapter.notifyDataSetChanged();
+                } else {
+                    LinearLayoutManager manager = new LinearLayoutManager(getActivity());
+                    adapter = new NoticeRecyclerAdapter(notices);
+                    recyclerView.setAdapter(adapter);
+                    recyclerView.setLayoutManager(manager);
+                }
+                Log.e(TAG, "Adapter size : " + adapter.getItemCount());
+            }
+        });
 
         //당겨서 새로고침
         swipe = getView().findViewById(R.id.noticeSwipeRefresh);
         swipe.setOnRefreshListener(this);
         //Color changes by each color.
+        swipe.setProgressBackgroundColorSchemeColor(Color.BLACK);
         swipe.setColorSchemeResources(
                 android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
@@ -84,6 +104,9 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
      * crawling blackboard url
      */
     private class CrawlingBlackBoard extends AsyncTask<Void, Void, Void> {
+        // 로딩이 되기 이전에 스크롤링을 하고 있으면 꺼지는 문제 발생
+        // 이를 방지하기 위해 arrayList에 새로운 데이터를 완전히 덮어써야 함.
+        ArrayList<Notice> noticesWaiting = new ArrayList<>();
 
         @Override
         protected void onPreExecute() {
@@ -98,21 +121,6 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-            model.setNotices(arrNotice);
-            model.getNotices().observe(getActivity(), notices -> {
-                //UI updates.
-                RecyclerView recyclerView = getView().findViewById(R.id.noticeRecyclerView);
-                NoticeRecyclerAdapter adapter = (NoticeRecyclerAdapter) recyclerView.getAdapter();
-                if(adapter != null) {
-                    adapter.setNotices(notices);
-                } else {
-                    LinearLayoutManager manager = new LinearLayoutManager(getActivity());
-                    adapter = new NoticeRecyclerAdapter(notices);
-                    recyclerView.setAdapter(adapter);
-                    recyclerView.setLayoutManager(manager);
-                }
-                Log.e(TAG, "Adapter size : " + adapter.getItemCount());
-            });
             //Should stop refreshing.
             swipe.setRefreshing(false);
         }
@@ -204,8 +212,6 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
 
                 if(arrNotice == null) {
                     arrNotice = new ArrayList<>();
-                } else {
-                    arrNotice.clear();
                 }
 
                 String lecture;
@@ -230,12 +236,13 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
                                 calendar = (e.text().split("게시 날짜:")[1]).split("KST")[0];
                                 lecture = e.text().split("게시한 곳:")[1];
                                 description = (e.text().split("KST")[2]).split("작성자:")[0];
-                                arrNotice.add(new Notice(lecture,title,calendar,description));
+                                noticesWaiting.add(new Notice(lecture,title,calendar,description));
                                 ColorPicker.addLectureId(lecture);
+
+                                //Should use postValue because it is on background thread.
+                                model.postNotices(noticesWaiting);
                             }
                         }
-
-
                     }
                 }
 
