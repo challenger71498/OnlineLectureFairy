@@ -9,17 +9,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.widget.Toast;
 
+import com.example.onlinelecturefairy.common.StringParser;
+import com.example.onlinelecturefairy.common.KomoranLoader;
 import com.example.onlinelecturefairy.service.RefreshJobService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NotificationCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -58,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         //Snackbar for login success.
         Intent intent = getIntent();
         if (intent.getBooleanExtra("isInfoCorrect", false)) {
-            Snackbar snackbar = Snackbar.make(this.getWindow().getDecorView(), "로그인 성공!", Snackbar.LENGTH_LONG);
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "로그인 성공!", Snackbar.LENGTH_SHORT);
             snackbar
                     .setAction("Action", null)
                     .show();
@@ -76,7 +81,19 @@ public class MainActivity extends AppCompatActivity {
                         .build());
 
         //Notification
-        createNotificationChannel();
+        //createNotificationChannel();
+
+        //debug
+        String str = "5/24(목) 19:00~19:50 에 실시됩니다. 10월 31일은 할로윈데이!";
+        ArrayList<Date> d = StringParser.findDateAtString(KomoranLoader.komoran.analyze(str), 0);
+        if(d.size() != 0) {
+            for(Date ds : d) {
+                Log.e("aaa", "You've got " + ds.toString());
+            }
+        }
+        else {
+            Log.e("aaa", "Nope.");
+        }
     }
 
     //channeling

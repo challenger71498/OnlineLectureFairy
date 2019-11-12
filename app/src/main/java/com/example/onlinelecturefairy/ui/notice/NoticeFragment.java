@@ -1,12 +1,10 @@
 package com.example.onlinelecturefairy.ui.notice;
 
-import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +23,6 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -43,6 +40,7 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
     SwipeRefreshLayout swipe;
     NoticeFragmentViewModel model;
     private ArrayList<Notice> arrNotice;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -236,11 +234,15 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
                                 calendar = (e.text().split("게시 날짜:")[1]).split("KST")[0];
                                 lecture = e.text().split("게시한 곳:")[1];
                                 description = (e.text().split("KST")[2]).split("작성자:")[0];
-                                noticesWaiting.add(new Notice(lecture,title,calendar,description));
+                                Notice notice = new Notice(lecture,title,calendar,description);
+                                noticesWaiting.add(notice);
                                 ColorPicker.addLectureId(lecture);
 
                                 //Should use postValue because it is on background thread.
                                 model.postNotices(noticesWaiting);
+
+                                //If description or title contains critical information, notify it.
+
                             }
                         }
                     }

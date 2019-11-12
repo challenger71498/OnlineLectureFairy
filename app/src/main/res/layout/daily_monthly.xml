@@ -10,7 +10,7 @@
             name="model"
             type="com.example.onlinelecturefairy.legacy.monthly.dailymonthly.DailyMonthlyViewModel" />
         <variable
-            name="date"
+            name="endDate"
             type="String" />
         <variable
             name="dayColor"
