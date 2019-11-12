@@ -38,10 +38,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static androidx.constraintlayout.widget.Constraints.TAG;
+
 public class GradeFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     SwipeRefreshLayout swipe;
     GradeFragmentViewModel model;
     private ArrayList<Grade> grades;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -57,19 +60,17 @@ public class GradeFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         model = ViewModelProviders.of(this).get(GradeFragmentViewModel.class);
 
 
-
-
-        model.getGrades().observe(getActivity(), notices -> {
+        model.getGrades().observe(getActivity(), grades -> {
             //UI updates.
-            if(getView() !=null) {
+            if (getView() != null) {
                 RecyclerView recyclerView = getView().findViewById(R.id.gradeRecyclerView);
                 GradeRecyclerAdapter adapter = (GradeRecyclerAdapter) recyclerView.getAdapter();
                 if (adapter != null) {
-                    adapter.setGrades(notices);
+                    adapter.setGrades(grades);
                     adapter.notifyDataSetChanged();
                 } else {
                     LinearLayoutManager manager = new LinearLayoutManager(getActivity());
-                    adapter = new GradeRecyclerAdapter(notices);
+                    adapter = new GradeRecyclerAdapter(grades);
                     recyclerView.setAdapter(adapter);
                     recyclerView.setLayoutManager(manager);
                 }
@@ -103,6 +104,7 @@ public class GradeFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     private class CrawlingBlackBoardGrade extends AsyncTask<Void, Void, Void> {
 
         ArrayList<Grade> gradesWaiting = new ArrayList<>();
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -217,7 +219,7 @@ public class GradeFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     }
                 }
 
-                if(grades == null){
+                if (grades == null) {
                     grades = new ArrayList<>();
                 }
                 for (String gradeLink : arrGradeLink) {
@@ -233,8 +235,13 @@ public class GradeFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                         Element elem2;
 
                         String score = "";
+                        String score_temp = "";
                         elem2 = tempDoc.select("span.grade").first();
                         if (elem2 != null) score = elem2.text();
+                        if(score.contains("000")) {
+                            score = score.replaceAll("00000", "00");
+                        }
+
 
                         String scoreSub = "";
                         elem2 = tempDoc.select("span.pointsPossible.clearfloats").first();
