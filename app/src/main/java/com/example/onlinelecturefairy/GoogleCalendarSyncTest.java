@@ -25,6 +25,8 @@ import android.widget.TextView;
 
 import com.example.onlinelecturefairy.grade.Grade;
 import com.example.onlinelecturefairy.notice.Notice;
+import com.example.onlinelecturefairy.onlinelecture.OnlineLecture;
+import com.example.onlinelecturefairy.ui.onlinelecture.OnlineLectureAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -53,6 +55,7 @@ import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,6 +72,7 @@ import androidx.preference.PreferenceManager;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import static androidx.constraintlayout.widget.Constraints.TAG;
 public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
 
@@ -311,11 +315,13 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             public void onClick(View v) {
                 CrawlingBlackBoardWeb crw = new CrawlingBlackBoardWeb();
                 crw.execute();
-                mGetBlackBoard_web.setEnabled(false);
-                mStatusText.setText("");
-                mID = 6;
-                getResultsFromApi();
-                mGetBlackBoard_web.setEnabled(true);
+
+
+//                mGetBlackBoard_web.setEnabled(false);
+//                mStatusText.setText("");
+//                mID = 6;
+//                getResultsFromApi();
+//                mGetBlackBoard_web.setEnabled(true);
             }
 
         });
@@ -819,6 +825,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
     /**
      * 웹강 요정의 화룡점정!!
      */
+    private List<OnlineLecture> lectures;
     private class CrawlingBlackBoardWeb extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -859,7 +866,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 //                    temp1 += e.html();
 //                }
 //                temp1 = temp1.replace("<![CDATA[", "").replace("]]>", "");
-////                temp2 = temp1.split("<!-- Display course/org announcements -->");
+//                temp2 = temp1.split("<!-- Display course/org announcements -->");
 //
 //
 //                Document doc = Jsoup.parse(temp1);
@@ -928,6 +935,8 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 int resultNum = 0;
                 String webLectureName = "";
                 lectureInfo = "";
+                lectures = new ArrayList<>();
+                ArrayList<OnlineLecture> child;
                 for (int i = 0; i < numOfWeb; i++) {
                     java.util.Calendar today = java.util.Calendar.getInstance();
                     java.util.Calendar webStartDate = java.util.Calendar.getInstance();
@@ -945,10 +954,26 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                     int endMonth, endDay, endHour, endMinute;
                     String strEndDate;
 
+                    String lecture;
+                    String week;
+                    String date="";
+                    String pass;
+
+                    String lecture_header="";
+                    String week_header="";
+                    String date_header="";
+                    String pass_header="";
+
+                    child = new ArrayList<>();
                     for (Element e : elem) {
+                        date="";
                         if (e.text().contains("XIN")) {
                             strStartDate = (e.text().split(" / ")[1]).split(" ~ ")[0];
                             strEndDate = (e.text().split(" / ")[1]).split(" ~ ")[1];
+
+                            date+= (strEndDate.split(" ")[0]).split("-")[0] + "년 "
+                                    +(strEndDate.split(" ")[0]).split("-")[1] + "월 "
+                                    +(strEndDate.split(" ")[0]).split("-")[2]+" 일";
 
                             endMonth = Integer.parseInt((strEndDate.split(" ")[0]).split("-")[1]);
                             endDay = Integer.parseInt((strEndDate.split(" ")[0]).split("-")[2]);
@@ -967,22 +992,58 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                             webStartDate.set(java.util.Calendar.DAY_OF_MONTH, startDay);
                             webStartDate.set(java.util.Calendar.HOUR, startHour);
                             webStartDate.set(java.util.Calendar.MINUTE, startMinute);
-                            if (today.compareTo(webEndDate) == -1 && today.compareTo(webStartDate) == 1) {
-                                webEndDate.add(java.util.Calendar.DATE, +7);
-                                webEndDate.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
-                                webEndDate.add(java.util.Calendar.DATE, -7);
+
+                            if (today.compareTo(webEndDate) == -1 && (today.compareTo(webStartDate) == 1)) {
+//                                webEndDate.add(java.util.Calendar.DATE, +7);
+//                                webEndDate.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
+//                                webEndDate.add(java.util.Calendar.DATE, -7);
+//                                SimpleDateFormat simpledateformat;
+//                                simpledateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss+09:00", Locale.KOREA);
+
                                 webLectureName = ((e.text().split(" > ")[0]).split("XIN")[0]).split(">")[1];
                                 String match2 = "\\s{2,}";
                                 webLectureName = webLectureName.replaceAll(match2, "");
-                                SimpleDateFormat simpledateformat;
-                                simpledateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss+09:00", Locale.KOREA);
-                                lectureInfo += ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0] + "@" + webLectureName + "@" + simpledateformat.format(webEndDate.getTime()) + "\n";
+
+
+                                lecture_header = ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0];
+                                week_header = webLectureName;
+                                date_header = date;
+                                pass_header = Character.toString(e.text().charAt(e.text().length()-1));
+
+                                lecture = ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0];
+                                Log.e(TAG, "lecture :" + lecture+"@"+date);
+                                week = (e.text().split("XIN -")[1]).split("/")[0];
+                                pass = Character.toString(e.text().charAt(e.text().length()-1));
+                                child.add(new OnlineLecture(lecture,week,date,pass, OnlineLectureAdapter.CHILD));
+                                //lectureInfo += ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0] + "@" + webLectureName + "@" + simpledateformat.format(webEndDate.getTime()) + "\n";
+                            }
+                            else if((today.compareTo(webStartDate) == 1)){
+
+                                webLectureName = ((e.text().split(" > ")[0]).split("XIN")[0]).split(">")[1];
+                                String match2 = "\\s{2,}";
+                                webLectureName = webLectureName.replaceAll(match2, "");
+
+                                lecture = ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0];
+                                Log.e(TAG, "lecture :" + lecture);
+                                week = (e.text().split("XIN - ")[1]).split("/")[0];
+                                pass = Character.toString(e.text().charAt(e.text().length()-1));
+                                child.add(new OnlineLecture(lecture,week,date,pass, OnlineLectureAdapter.CHILD));
+                            }
+                            else{
                                 break;
                             }
                         }
                     }
+                    lectures.add(new OnlineLecture(lecture_header,week_header,date_header,pass_header,OnlineLectureAdapter.HEADER,child));
                 }
-                result = lectureInfo;
+                result="";
+                for(OnlineLecture lec:lectures){
+                    result+="Header: "+lec.getLecture()+" "+lec.getWeek()+" "+lec.getDate()+" "+lec.getPass()+"\n";
+                    for(OnlineLecture lec2:lec.invisibleChildren){
+                        result+="Child: "+lec2.getLecture()+" "+lec2.getWeek()+" "+lec2.getDate()+" "+lec2.getPass()+"\n";
+                    }
+                    result+="---------------------------------------\n";
+                }
             } catch (IOException o) {
                 o.printStackTrace();
             }
