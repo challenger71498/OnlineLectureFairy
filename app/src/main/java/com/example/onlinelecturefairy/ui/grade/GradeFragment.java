@@ -1,5 +1,6 @@
 package com.example.onlinelecturefairy.ui.grade;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,11 +37,12 @@ public class GradeFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        //성적 샘플 데이터
         grades = new ArrayList<>();
         grades.add(new Grade("(2019-02)동화의이해-001(이러닝)", "12.3", "/30", "중간고사 성적"));
         grades.add(new Grade("인성학개론", "55.5", "/60", "기말고사 성적"));
         grades.add(new Grade("(2019-02)동화의이해-001(이러닝)", "12.3", "/30", "중간고사 성적"));
-        grades.add(new Grade("민석이의 안드로이드 스튜디오 강의", "12.3", "/30", "중간고사 성적"));
+        grades.add(new Grade("신나고 재밌는 안드로이드 스튜디오", "12.3", "/30", "중간고사 성적"));
         grades.add(new Grade("(2019-02)동화의이해-001(이러닝)", "12.3", "/30", "중간고사 성적"));
         for(Grade g : grades) {
             ColorPicker.addLectureId(g.getLecture());
@@ -67,6 +69,7 @@ public class GradeFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         swipe = getView().findViewById(R.id.gradeSwipeRefresh);
         swipe.setOnRefreshListener(this);
         //Color changes by each color.
+        swipe.setProgressBackgroundColorSchemeColor(Color.BLACK);
         swipe.setColorSchemeResources(
                 android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
