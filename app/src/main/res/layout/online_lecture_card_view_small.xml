@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto">
+
+    <data class="OnlineLectureSmallBinding">
+        <variable
+            name="model"
+            type="com.example.onlinelecturefairy.ui.onlinelecture.OnlineLectureViewModel" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/onlineLectureSmallCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        card_view:cardCornerRadius="5dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/onlineLectureSmallAccentImage"
+                android:layout_width="10dp"
+                android:layout_height="0dp"
+                android:src="@color/colorAccent"
+                setOnlineLectureColor="@{model}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/onlineLectureSmallContent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/onlineLectureSmallContent"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/colorBackgroundDarker"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/onlineLectureSmallAttendanceImage"
+                app:layout_constraintStart_toEndOf="@id/onlineLectureSmallAccentImage"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0">
+
+                <TextView
+                    android:id="@+id/onlineLectureSmallTitle"
+                    setOnlinePassText="@{model}"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="미수강"
+                    android:textAlignment="textEnd"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toTopOf="parent"
+                    card_view:layout_constraintBottom_toBottomOf="parent"
+                    card_view:layout_constraintEnd_toEndOf="parent" />
+
+                <TextView
+                    android:id="@+id/onlineLectureSmallWeek"
+                    setOnlineWeek="@{model}"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="11주차"
+                    android:textColor="@color/textLightGray"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toStartOf="@+id/onlineLectureSmallTitle"
+                    app:layout_constraintTop_toTopOf="parent"
+                    card_view:layout_constraintBottom_toBottomOf="parent"
+                    card_view:layout_constraintStart_toStartOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <ImageView
+                android:id="@+id/onlineLectureSmallAttendanceImage"
+                setOnlinePass="@{model}"
+                android:layout_width="36dp"
+                android:layout_height="0dp"
+                android:src="@color/tomato"
+                app:layout_constraintHorizontal_bias="1.0"
+                card_view:layout_constraintBottom_toBottomOf="parent"
+                card_view:layout_constraintEnd_toEndOf="parent"
+                card_view:layout_constraintStart_toStartOf="@id/onlineLectureSmallContent"
+                card_view:layout_constraintTop_toTopOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+</layout>
