@@ -22,6 +22,7 @@ public class Grade {
     }
 
     public String getScore() {
+        if(score.contains("-")) return "0";
         return score;
     }
 
