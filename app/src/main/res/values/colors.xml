@@ -14,17 +14,17 @@
     <color name="textLightGray">#bbbbbb</color>
     <color name="white">#FFFFFF</color>
 
-    <color name="lavender">#a4bdfc</color>
-    <color name="sage">#7ae7bf</color>
-    <color name="grape">#dbadff</color>
-    <color name="flamingo">#ff887c</color>
-    <color name="banana">#fbd75b</color>
-    <color name="mandarin">#ffb878</color>
-    <color name="peacock">#46d6db</color>
-    <color name="graphite">#e1e1e1</color>
-    <color name="blueberry">#5484ed</color>
-    <color name="basil">#51b749</color>
-    <color name="tomato">#dc2127</color>
+    <color name="lavender">#2663FC</color>
+    <color name="sage">#1EE89E</color>
+    <color name="grape">#AF47FF</color>
+    <color name="flamingo">#FF4230</color>
+    <color name="banana">#FACC28</color>
+    <color name="mandarin">#FF8E2B</color>
+    <color name="peacock">#1AD5DB</color>
+    <color name="graphite">#949494</color>
+    <color name="blueberry">#2463ED</color>
+    <color name="basil">#2FB825</color>
+    <color name="tomato">#DC2127</color>
     <color name="foreground">#1d1d1d</color>
 
     <color name="everytime">#D23E2D</color>
