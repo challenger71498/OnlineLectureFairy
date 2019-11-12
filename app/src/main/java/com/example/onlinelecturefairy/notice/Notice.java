@@ -1,11 +1,31 @@
 package com.example.onlinelecturefairy.notice;
 
+import com.example.onlinelecturefairy.LoginActivity;
+import com.example.onlinelecturefairy.common.KomoranLoader;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import kr.co.shineware.nlp.komoran.model.Token;
+
+import static com.example.onlinelecturefairy.common.KomoranLoader.komoran;
+
 public class Notice {
-    String lecture;
-    String title;
-    String calendar;
-    String description;
-    String subId;
+    private String lecture;
+    private String title;
+    private String calendar;
+    private String description;
+    private String subId;
+    private List<Token> tokens; //for NLPx
+
+    public Notice(String lecture, String title, String calendar, String description) {
+        this.lecture = lecture;
+        this.title = title;
+        this.calendar = calendar;
+        this.description = description;
+        tokens = analyze(description);
+    }
+
     public String getLecture() {
         return lecture;
     }
@@ -36,6 +56,7 @@ public class Notice {
 
     public void setDescription(String description) {
         this.description = description;
+        tokens = analyze(description);
     }
 
     public String getSubId() {
@@ -46,12 +67,20 @@ public class Notice {
         this.subId = subId;
     }
 
-    public Notice(String lecture, String title, String calendar, String description) {
-        this.lecture = lecture;
-        this.title = title;
-        this.calendar = calendar;
-        this.description = description;
+    public List<Token> getTokens() {
+        return tokens;
     }
 
+    public void setTokens(List<Token> tokens) {
+        this.tokens = tokens;
+    }
+
+    public List<Token> analyze(String str) {
+        return komoran == null ? null : komoran.analyze(str).getTokenList();
+    }
+
+    public String toStringToken(List<Token> tokens) {
+        return komoran == null ? "" : komoran.analyze(getDescription()).getPlainText();
+    }
 
 }

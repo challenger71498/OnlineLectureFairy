@@ -18,8 +18,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     dataBinding {
         enabled = true
@@ -50,6 +50,9 @@ dependencies {
     implementation('com.google.apis:google-api-services-calendar:v3-rev235-1.22.0') {
         exclude group: 'org.apache.httpcomponents'
     }
-    implementation 'com.github.prolificinteractive:material-calendarview:1.6.0'
+    implementation('com.github.shin285:KOMORAN:3.3.6') {
+        exclude group: 'com.github.shineware', module: 'commons'
+        exclude group: 'com.github.shineware', module: 'aho-corasick'
+    }
     implementation project(path: ':jsoup-1.10.3')
 }

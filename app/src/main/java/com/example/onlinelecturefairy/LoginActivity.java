@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +13,7 @@ import android.widget.Toast;
 
 import com.example.onlinelecturefairy.common.AsyncTaskCallBack;
 import com.example.onlinelecturefairy.common.BlackboardInfoCheck;
+import com.example.onlinelecturefairy.common.KomoranLoader;
 import com.example.onlinelecturefairy.databinding.LoginActivityBinding;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -22,11 +22,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.preference.PreferenceManager;
 
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
@@ -47,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+
         //Activity initialization
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
@@ -64,6 +60,10 @@ public class LoginActivity extends AppCompatActivity {
 
         idText = binding.idInput;
         pwText = binding.pwInput;
+
+        //Komoran load.
+        KomoranLoader.Loader loader = new KomoranLoader.Loader();
+        loader.execute();
 
         //Focuses ID if id is empty.
         if (model.getId().equals("")) {
@@ -96,7 +96,7 @@ public class LoginActivity extends AppCompatActivity {
     public void onBackPressed() {
         long currentTime = System.currentTimeMillis();
 
-        if(currentTime - previousTime <= INTERNAL_TIME) {
+        if (currentTime - previousTime <= INTERNAL_TIME) {
             finishAffinity();
         } else {
             previousTime = currentTime;
