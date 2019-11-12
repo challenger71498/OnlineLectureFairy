@@ -128,6 +128,7 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
             try {
                 String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36";
 
+                //TODO: 개발 완료 후 defValue 수정
                 SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 String blackboard_user_id = appData.getString("ID", "12181637");
                 String blackboard_user_password = appData.getString("PW","!dlstjd1105");
@@ -233,7 +234,7 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
                                 title = e.text().split("게시 날짜:")[0];
                                 calendar = (e.text().split("게시 날짜:")[1]).split("KST")[0];
                                 lecture = e.text().split("게시한 곳:")[1];
-                                lecture = lecture.replace(" ", "");
+                                lecture = lecture.replaceFirst(" ", "");
                                 description = (e.text().split("KST")[2]).split("작성자:")[0];
                                 Notice notice = new Notice(lecture,title,calendar,description);
                                 noticesWaiting.add(notice);
