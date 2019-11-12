@@ -5,6 +5,9 @@ import android.util.Log;
 import com.example.onlinelecturefairy.R;
 import com.google.common.collect.HashBiMap;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static android.content.ContentValues.TAG;
 
 public class ColorPicker {
@@ -32,7 +35,7 @@ public class ColorPicker {
         }
     }
 
-    private static HashBiMap<String, String> lectureMap = HashBiMap.create();
+    private static HashMap<String, String> lectureMap = new HashMap<>();
 
     static {
         lectureMap.put("defaultLectureString", "0");
@@ -40,7 +43,7 @@ public class ColorPicker {
 
     public static void addLectureId(String id) {
         if(!lectureMap.containsKey(id)) {
-            lectureMap.put(id, String.valueOf(lectureMap.size() % colorMap.size()));
+            lectureMap.put(id, String.valueOf(lectureMap.size() % (colorMap.size())));
         }
         // debug: to show every pair of lecturemap.
 //        for(String s : lectureMap.keySet()) {
