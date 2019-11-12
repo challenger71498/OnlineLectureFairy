@@ -38,11 +38,11 @@ public class RefreshJobService extends JobService {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            Log.e(TAG, "JOB FINISHED!");
+
 
             //Notifications
             //TODO: 여러 개의 알림이 겹치지 않고 떠야 함.
-            if(true) {  //조건을 만족할 때, 일단 true로 박아놓음
+            if(false) {  //조건을 만족할 때, 일단 true로 박아놓음
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
