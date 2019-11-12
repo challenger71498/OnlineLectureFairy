@@ -49,7 +49,7 @@ public class BlackboardInfoCheck {
             super.onPreExecute();
             progressDialog = new ProgressDialog(context, ProgressDialog.STYLE_SPINNER);
             progressDialog.getWindow().setBackgroundDrawableResource(R.color.colorBackground);
-            progressDialog.setMessage("로그인 중..");
+            progressDialog.setMessage("블랙보드에 로그인 중..");
             progressDialog.show();
         }
 

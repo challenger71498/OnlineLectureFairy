@@ -4,7 +4,7 @@
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <!-- Base Theme -->
         <item name="colorPrimary">@color/colorBackgroundDarker</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/colorBackgroundDarker</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:colorBackground">@color/colorBackground</item>
 
@@ -45,10 +45,6 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark" />
-
-    <style name="CalendarDateTextTheme" parent="TextAppearance.MaterialCalendarWidget.Date">
-        <item name="android:text">5dp</item>
-    </style>
 
     <!-- Custom Styles -->
     <style name="SnackBarStyle" parent="Widget.MaterialComponents.Snackbar">
