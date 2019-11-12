@@ -715,6 +715,18 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                  * TODO: Calendar를 이용해서 현재 학기에 해당하는 과목의 주소만 들고오는 논리 구현
                  *
                  */
+
+                //현재가 무슨학기인지 알아내자.
+                String current_semester="";
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                current_semester +=cal.get(java.util.Calendar.YEAR);
+                if(cal.get(java.util.Calendar.MONTH)>=8){
+                    current_semester+="02";
+                }
+                else{
+                    current_semester+="01";
+                }
+
                 //현재 수강중인 과목들의 course_id를 파싱
                 Elements elem = doc.select("a");
                 result = "";
@@ -723,7 +735,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 String[] course_id = new String[100];
                 for (Element e : elem) {
                     String temp = e.text();
-                    if (temp.contains(":")) {
+                    if (temp.contains(":")&&temp.contains(current_semester)) {
                         temp = e.attr("href");
                         temp = temp.split("_")[1];
                         course_id[numOfCourse] = temp;
