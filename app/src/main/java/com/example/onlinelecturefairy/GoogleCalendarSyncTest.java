@@ -73,6 +73,7 @@ import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
+
 public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
 
@@ -340,7 +341,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 mAddCalendarButton.setEnabled(true);
             }
         });
-
+        //todo 디버깅 버튼 여기있음
         /**
          * 블랙보드 웹강 처리 버튼 : CrawlingBlackBoardWeb 실행
          */
@@ -348,16 +349,33 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         mGetBlackBoard_grade.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CrawlingBlackBoardGrade crw = new CrawlingBlackBoardGrade();
-                crw.execute();
                 mGetBlackBoard_grade.setEnabled(false);
-                mStatusText.setText("");
-                getResultsFromApi();
+                deleteCalendar();
                 mGetBlackBoard_grade.setEnabled(true);
             }
 
         });
     }
+
+    private void deleteCalendar() {
+
+        if (!isGooglePlayServicesAvailable()) { // Google Play Services를 사용할 수 없는 경우
+
+            acquireGooglePlayServices();
+        } else if (mCredential.getSelectedAccountName() == null) { // 유효한 Google 계정이 선택되어 있지 않은 경우
+
+            chooseAccount();
+        } else if (!isDeviceOnline()) {    // 인터넷을 사용할 수 없는 경우
+
+            mStatusText.setText("No network connection available.");
+        } else {
+
+            // Google Calendar API 호출
+            new deleteCal(this, mCredential).execute();
+        }
+        return;
+    }
+
 
     /**
      * crawling everyTime url
@@ -630,43 +648,43 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 }
 
                 String[] arrTitle;
-                result="";
+                result = "";
                 ArrayList<Notice> arrNotice = new ArrayList<>();
                 String lecture;
                 String title;
                 String calendar;
                 String description;
-                for(int i=0;i<numOfSub;i++){
+                for (int i = 0; i < numOfSub; i++) {
                     arrTitle = blackboard_noticeTitle[i].split("\n");
-                    Document course = Jsoup.connect("https://learn.inha.ac.kr/"+blackboard_noticeLink[i])
+                    Document course = Jsoup.connect("https://learn.inha.ac.kr/" + blackboard_noticeLink[i])
                             .userAgent(userAgent)
                             .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
                             .cookies(loginCookie)
                             .get();
                     Document docNotice = Jsoup.parse(course.select("ul#announcementList").html());
 
-                    for(String s:arrTitle){
+                    for (String s : arrTitle) {
                         elem = docNotice.select("li");
-                        for(Element e:elem){
-                            if(e.text().contains(s)){
+                        for (Element e : elem) {
+                            if (e.text().contains(s)) {
                                 title = e.text().split("게시 날짜:")[0];
                                 calendar = (e.text().split("게시 날짜:")[1]).split("KST")[0];
                                 lecture = e.text().split("게시한 곳:")[1];
                                 description = (e.text().split("KST")[2]).split("작성자:")[0];
-                                arrNotice.add(new Notice(lecture,title,calendar,description));
+                                arrNotice.add(new Notice(lecture, title, calendar, description));
                             }
                         }
 
 
                     }
                 }
-                result="";
-                for(Notice n:arrNotice){
-                    result+="과목명 : " + n.getLecture() + "\n";
-                    result+="제목 : " + n.getTitle() + "\n";
-                    result+="게시 날짜: " + n.getCalendar() + "\n";
-                    result+="내용: "+n.getDescription()+"\n";
-                    result+="-------------------\n";
+                result = "";
+                for (Notice n : arrNotice) {
+                    result += "과목명 : " + n.getLecture() + "\n";
+                    result += "제목 : " + n.getTitle() + "\n";
+                    result += "게시 날짜: " + n.getCalendar() + "\n";
+                    result += "내용: " + n.getDescription() + "\n";
+                    result += "-------------------\n";
                 }
             } catch (IOException o) {
                 o.printStackTrace();
@@ -678,6 +696,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
     private ArrayList<Grade> arrGrade;
     //TODO 함수 정의
+
     /**
      * get grade from blackboard after login
      */
@@ -723,14 +742,13 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                  */
 
                 //현재가 무슨학기인지 알아내자.
-                String current_semester="";
+                String current_semester = "";
                 java.util.Calendar cal = java.util.Calendar.getInstance();
-                current_semester +=cal.get(java.util.Calendar.YEAR);
-                if(cal.get(java.util.Calendar.MONTH)>=8){
-                    current_semester+="02";
-                }
-                else{
-                    current_semester+="01";
+                current_semester += cal.get(java.util.Calendar.YEAR);
+                if (cal.get(java.util.Calendar.MONTH) >= 8) {
+                    current_semester += "02";
+                } else {
+                    current_semester += "01";
                 }
 
                 //현재 수강중인 과목들의 course_id를 파싱
@@ -741,7 +759,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                 String[] course_id = new String[100];
                 for (Element e : elem) {
                     String temp = e.text();
-                    if (temp.contains(":")&&temp.contains(current_semester)) {
+                    if (temp.contains(":") && temp.contains(current_semester)) {
                         temp = e.attr("href");
                         temp = temp.split("_")[1];
                         course_id[numOfCourse] = temp;
@@ -763,56 +781,58 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                             .cookies(loginCookie)
                             .get();
                     elem = course.select("a");
-                    for(Element e:elem){
-                        if(e.attr("href").contains("tool_id=_158_1")){
+                    for (Element e : elem) {
+                        if (e.attr("href").contains("tool_id=_158_1")) {
                             arrGradeLink.add(e.attr("href"));
                         }
                     }
                 }
-                result="";
+                result = "";
                 arrGrade = new ArrayList<>();
-                for(String gradeLink:arrGradeLink){
-                    Document gradePage = Jsoup.connect("https://learn.inha.ac.kr"+gradeLink)
+                for (String gradeLink : arrGradeLink) {
+                    Document gradePage = Jsoup.connect("https://learn.inha.ac.kr" + gradeLink)
                             .userAgent(userAgent)
                             .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
                             .cookies(loginCookie)
                             .get();
                     elem = gradePage.select("div.sortable_item_row.graded_item_row.row.expanded");
-                    for(Element e:elem){
+                    for (Element e : elem) {
                         String lecture = ((gradePage.select("a.comboLink").text()).split("\\)")[1]).split("-")[0];
                         Document tempDoc = Jsoup.parse(e.html());
                         Element elem2;
 
-                        String score="";
+                        String score = "";
                         elem2 = tempDoc.select("span.grade").first();
-                        if(elem2!=null) score = elem2.text();
+                        if (elem2 != null) score = elem2.text();
 
-                        String scoreSub="";
+                        String scoreSub = "";
                         elem2 = tempDoc.select("span.pointsPossible.clearfloats").first();
-                        if(elem2!=null) scoreSub = elem2.text();
+                        if (elem2 != null) scoreSub = elem2.text();
 
-                        String description="";
+                        String description = "";
                         String des_temp = "none";
                         elem2 = tempDoc.select("div.cell.gradable").first();
-                        if(elem2!=null) description = elem2.text();
+                        if (elem2 != null) description = elem2.text();
                         elem2 = tempDoc.select("div.itemCat").first();
-                        if(elem2!=null) des_temp = elem2.text();
-                        if(des_temp!="none") description = description.replaceFirst(des_temp,"");
+                        if (elem2 != null) des_temp = elem2.text();
+                        if (des_temp != "none")
+                            description = description.replaceFirst(des_temp, "");
 
                         des_temp = "none";
                         elem2 = tempDoc.select("div.activityType").first();
-                        if(elem2!=null) des_temp = elem2.text();
-                        if(des_temp!="none") description = description.replaceFirst(des_temp,"");
+                        if (elem2 != null) des_temp = elem2.text();
+                        if (des_temp != "none")
+                            description = description.replaceFirst(des_temp, "");
 
-                        if(scoreSub=="") scoreSub = "none";
+                        if (scoreSub == "") scoreSub = "none";
 
-                        arrGrade.add(new Grade(lecture,score,scoreSub,description));
+                        arrGrade.add(new Grade(lecture, score, scoreSub, description));
                     }
 
                 }
 
-                for(Grade g:arrGrade){
-                    result+=g.getLecture()+"@"+g.getDescription()+"@"+g.getScore()+"@"+g.getScoreSub()+"\n";
+                for (Grade g : arrGrade) {
+                    result += g.getLecture() + "@" + g.getDescription() + "@" + g.getScore() + "@" + g.getScoreSub() + "\n";
                 }
             } catch (IOException o) {
                 o.printStackTrace();
@@ -826,6 +846,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
      * 웹강 요정의 화룡점정!!
      */
     private List<OnlineLecture> lectures;
+
     private class CrawlingBlackBoardWeb extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -956,24 +977,24 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
 
                     String lecture;
                     String week;
-                    String date="";
+                    String date = "";
                     String pass;
 
-                    String lecture_header="";
-                    String week_header="";
-                    String date_header="";
-                    String pass_header="";
+                    String lecture_header = "";
+                    String week_header = "";
+                    String date_header = "";
+                    String pass_header = "";
 
                     child = new ArrayList<>();
                     for (Element e : elem) {
-                        date="";
+                        date = "";
                         if (e.text().contains("XIN")) {
                             strStartDate = (e.text().split(" / ")[1]).split(" ~ ")[0];
                             strEndDate = (e.text().split(" / ")[1]).split(" ~ ")[1];
 
-                            date+= (strEndDate.split(" ")[0]).split("-")[0] + "년 "
-                                    +(strEndDate.split(" ")[0]).split("-")[1] + "월 "
-                                    +(strEndDate.split(" ")[0]).split("-")[2]+" 일";
+                            date += (strEndDate.split(" ")[0]).split("-")[0] + "년 "
+                                    + (strEndDate.split(" ")[0]).split("-")[1] + "월 "
+                                    + (strEndDate.split(" ")[0]).split("-")[2] + " 일";
 
                             endMonth = Integer.parseInt((strEndDate.split(" ")[0]).split("-")[1]);
                             endDay = Integer.parseInt((strEndDate.split(" ")[0]).split("-")[2]);
@@ -1008,16 +1029,15 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                                 lecture_header = ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0];
                                 week_header = webLectureName;
                                 date_header = date;
-                                pass_header = Character.toString(e.text().charAt(e.text().length()-1));
+                                pass_header = Character.toString(e.text().charAt(e.text().length() - 1));
 
                                 lecture = ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0];
-                                Log.e(TAG, "lecture :" + lecture+"@"+date);
+                                Log.e(TAG, "lecture :" + lecture + "@" + date);
                                 week = (e.text().split("XIN -")[1]).split("/")[0];
-                                pass = Character.toString(e.text().charAt(e.text().length()-1));
-                                child.add(new OnlineLecture(lecture,week,date,pass, OnlineLectureAdapter.CHILD));
+                                pass = Character.toString(e.text().charAt(e.text().length() - 1));
+                                child.add(new OnlineLecture(lecture, week, date, pass, OnlineLectureAdapter.CHILD));
                                 //lectureInfo += ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0] + "@" + webLectureName + "@" + simpledateformat.format(webEndDate.getTime()) + "\n";
-                            }
-                            else if((today.compareTo(webStartDate) == 1)){
+                            } else if ((today.compareTo(webStartDate) == 1)) {
 
                                 webLectureName = ((e.text().split(" > ")[0]).split("XIN")[0]).split(">")[1];
                                 String match2 = "\\s{2,}";
@@ -1026,23 +1046,22 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                                 lecture = ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0];
                                 Log.e(TAG, "lecture :" + lecture);
                                 week = (e.text().split("XIN - ")[1]).split("/")[0];
-                                pass = Character.toString(e.text().charAt(e.text().length()-1));
-                                child.add(new OnlineLecture(lecture,week,date,pass, OnlineLectureAdapter.CHILD));
-                            }
-                            else{
+                                pass = Character.toString(e.text().charAt(e.text().length() - 1));
+                                child.add(new OnlineLecture(lecture, week, date, pass, OnlineLectureAdapter.CHILD));
+                            } else {
                                 break;
                             }
                         }
                     }
-                    lectures.add(new OnlineLecture(lecture_header,week_header,date_header,pass_header,OnlineLectureAdapter.HEADER,child));
+                    lectures.add(new OnlineLecture(lecture_header, week_header, date_header, pass_header, OnlineLectureAdapter.HEADER, child));
                 }
-                result="";
-                for(OnlineLecture lec:lectures){
-                    result+="Header: "+lec.getLecture()+" "+lec.getWeek()+" "+lec.getDate()+" "+lec.getPass()+"\n";
-                    for(OnlineLecture lec2:lec.invisibleChildren){
-                        result+="Child: "+lec2.getLecture()+" "+lec2.getWeek()+" "+lec2.getDate()+" "+lec2.getPass()+"\n";
+                result = "";
+                for (OnlineLecture lec : lectures) {
+                    result += "Header: " + lec.getLecture() + " " + lec.getWeek() + " " + lec.getDate() + " " + lec.getPass() + "\n";
+                    for (OnlineLecture lec2 : lec.invisibleChildren) {
+                        result += "Child: " + lec2.getLecture() + " " + lec2.getWeek() + " " + lec2.getDate() + " " + lec2.getPass() + "\n";
                     }
-                    result+="---------------------------------------\n";
+                    result += "---------------------------------------\n";
                 }
             } catch (IOException o) {
                 o.printStackTrace();
@@ -1277,6 +1296,55 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         } while (pageToken != null);
 
         return id;
+    }
+
+    private class deleteCal extends AsyncTask<Void, Void, String> {
+
+        private Exception mLastError = null;
+        private GoogleCalendarSyncTest mActivity;
+        List<String> eventStrings = new ArrayList<String>();
+        List<Event> ourEventArray = new ArrayList<Event>();
+
+        public deleteCal(GoogleCalendarSyncTest activity, GoogleAccountCredential credential) {
+
+            mActivity = activity;
+
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+
+            mService = new com.google.api.services.calendar.Calendar
+                    .Builder(transport, jsonFactory, credential)
+                    .setApplicationName("Google Calendar API Android Quickstart")
+                    .build();
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+            // mStatusText.setText("");
+            mProgress.show();
+            mStatusText.setText("데이터 가져오는 중...");
+            mResultText.setText("");
+        }
+
+
+        /*
+         * 백그라운드에서 Google Calendar API 호출 처리
+         */
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                String calendarID = getCalendarID("CalendarTitle");
+                mService.calendarList().delete(calendarID).execute();
+            } catch (Exception e) {
+                mLastError = e;
+                cancel(true);
+                return null;
+            }
+
+            return null;
+        }
     }
 
     /*
@@ -1777,6 +1845,5 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
             return eventStrings;
         }
     }
-
-
 }
+

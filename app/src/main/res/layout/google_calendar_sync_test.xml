@@ -95,7 +95,7 @@
         android:id="@+id/blackBoard_grade"
         android:layout_width="122dp"
         android:layout_height="wrap_content"
-        android:text="GET GRADE AFTER LOGIN" />
+        android:text="DELETE CALENDAR" />
 
 
 </LinearLayout>
