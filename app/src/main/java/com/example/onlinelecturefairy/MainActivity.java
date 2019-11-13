@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.example.onlinelecturefairy.common.StringParser;
 import com.example.onlinelecturefairy.common.KomoranLoader;
+import com.example.onlinelecturefairy.service.BackgroundService;
 import com.example.onlinelecturefairy.service.RefreshJobService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -70,28 +71,27 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //JobInfo initialization.
-        long period = 1;  //minutes
+        long period = 15;  //minutes
         JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         assert scheduler != null;
         scheduler.schedule(
-                new JobInfo.Builder(getResources().getInteger(R.integer.REFRESH_JOB_SERVICE), new ComponentName(this, RefreshJobService.class))
-                        .setOverrideDeadline(period * 1000 * 60)
+                new JobInfo.Builder(getResources().getInteger(R.integer.REFRESH_BACKGROUND_TASK), new ComponentName(this, BackgroundService.class))
+                        .setPeriodic(period * 1000 * 60)
                         .setPersisted(true)
                         .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                         .build());
 
         //Notification
-        //createNotificationChannel();
+        createNotificationChannel();
 
         //debug
         String str = "5/24(목) 19:00~19:50 에 실시됩니다. 10월 31일은 할로윈데이!";
         ArrayList<Date> d = StringParser.findDateAtString(KomoranLoader.komoran.analyze(str), 0);
-        if(d.size() != 0) {
-            for(Date ds : d) {
+        if (d.size() != 0) {
+            for (Date ds : d) {
                 Log.e("aaa", "You've got " + ds.toString());
             }
-        }
-        else {
+        } else {
             Log.e("aaa", "Nope.");
         }
     }

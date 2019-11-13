@@ -63,7 +63,6 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
                 NoticeRecyclerAdapter adapter = (NoticeRecyclerAdapter) recyclerView.getAdapter();
                 if(adapter != null) {
                     adapter.setNotices(notices);
-                    adapter.notifyDataSetChanged();
                 } else {
                     LinearLayoutManager manager = new LinearLayoutManager(getActivity());
                     adapter = new NoticeRecyclerAdapter(notices);

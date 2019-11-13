@@ -71,6 +71,7 @@ public class OnlineLectureAdapter extends RecyclerView.Adapter<RecyclerView.View
                         }
                         notifyItemRangeRemoved(pos + 1, count);
                         lecture.isClicked = false;
+                        notifyItemChanged(pos); // 데이터 수정 명시
                     } else {    //리스트에 children 제거
                         int pos = lectures.indexOf(holder.lecture);
                         int index = pos + 1;
@@ -80,6 +81,7 @@ public class OnlineLectureAdapter extends RecyclerView.Adapter<RecyclerView.View
                         }
                         notifyItemRangeInserted(pos + 1, index - pos - 1);
                         lecture.isClicked = true;
+                        notifyItemChanged(pos); // 데이터 수정 명시
                         lecture.invisibleChildren = null;
                     }
                 });
