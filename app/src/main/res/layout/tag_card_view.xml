@@ -19,7 +19,9 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/colorAccent">
+            android:background="@color/colorBackgroundDarker"
+            android:alpha="0.8"
+            setTagColor="@{model}">
 
             <TextView
                 android:layout_width="wrap_content"
