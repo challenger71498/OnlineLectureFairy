@@ -11,6 +11,14 @@ public class OnlineLecture {
     private String date;
     private String pass;
 
+    public List<OnlineLecture> getInvisibleChildren() {
+        return invisibleChildren;
+    }
+
+    public void setInvisibleChildren(List<OnlineLecture> invisibleChildren) {
+        this.invisibleChildren = invisibleChildren;
+    }
+
     public int type;
     public List<OnlineLecture> invisibleChildren;
     public boolean isClicked;
@@ -22,6 +30,16 @@ public class OnlineLecture {
         this.pass = pass;
         this.type = type;
     }
+
+    public OnlineLecture(String lecture, String week, String date, String pass, int type, List<OnlineLecture> child) {
+        this.lecture = lecture;
+        this.week = week;
+        this.date = date;
+        this.pass = pass;
+        this.type = type;
+        this.invisibleChildren = child;
+    }
+
 
     public String getLecture() {
         return lecture;

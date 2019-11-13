@@ -20,6 +20,16 @@ public class OnlineLectureFragmentViewModel extends ViewModel {
     }
 
     public MutableLiveData<List<OnlineLecture>> getLectures() {
+        if(mLectures == null){
+            mLectures = new MutableLiveData<>();
+        }
         return mLectures;
+    }
+
+    public void postLectures(List<OnlineLecture> lectures){
+        if(mLectures == null){
+            mLectures = new MutableLiveData<>();
+        }
+        mLectures.postValue(lectures);
     }
 }
