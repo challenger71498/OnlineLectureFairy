@@ -1322,7 +1322,7 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         protected void onPostExecute(String result) {
 
             mProgress.hide();
-            mResultText.setText(result);
+            mResultText.setText("지웠음");
         }
 
         @Override

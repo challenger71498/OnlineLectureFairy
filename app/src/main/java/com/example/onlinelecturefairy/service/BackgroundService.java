@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
 
+import com.example.onlinelecturefairy.GoogleCalendarSyncTest;
 import com.example.onlinelecturefairy.LoginActivity;
 import com.example.onlinelecturefairy.R;
 import com.example.onlinelecturefairy.common.AsyncTaskCallBack;
@@ -56,7 +57,7 @@ public class BackgroundService extends JobService {
         JobParameters params;
         Boolean isInfoCorrect;
         Boolean readyToCrawling = false;
-
+        GoogleCalendarSyncTest apiService;
         String id;
         String pw;
 
@@ -75,6 +76,14 @@ public class BackgroundService extends JobService {
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             id = pref.getString("ID", "");
             pw = pref.getString("PW", "");
+
+            int month_temp = pref.getInt("MONTH",-1);
+            int day_temp = pref.getInt("DAY",-1);
+
+            //시간표 첫 추가인지 확인
+            if(month_temp == -1 && day_temp == -1){
+
+            }
 
             BlackboardInfoCheckBackground.CheckBlackBoard board
                     = new BlackboardInfoCheckBackground.CheckBlackBoard(getApplicationContext(), id, pw, isInfoCorrect, new AsyncTaskCallBack() {
