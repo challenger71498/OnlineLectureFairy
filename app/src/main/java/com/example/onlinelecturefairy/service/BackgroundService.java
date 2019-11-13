@@ -33,6 +33,8 @@ public class BackgroundService extends JobService {
         String id;
         String pw;
 
+        Boolean isDone = false;
+
         BackgroundTask(JobParameters params) {
             this.params = params;
         }
@@ -52,11 +54,16 @@ public class BackgroundService extends JobService {
                 public void onSuccess() {
                     // 로그인에 성공했을 때의 작업 작성.
                     Log.e(TAG, "done");
+                    isInfoCorrect = true;
+                    isDone = true;
                 }
 
                 @Override
                 public void onFailure() {
                     // 로그인에 실패했을 때의 작업 작성.
+                    Log.e(TAG, "failed");
+                    isInfoCorrect = false;
+                    isDone = true;
                 }
             });
             board.execute();
@@ -66,17 +73,29 @@ public class BackgroundService extends JobService {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-            // 웹강 조건을 check
-
-            // 시간표 바꾸어야 하는지 조건을 check
-
-
             jobFinished(params,true);   // true로 놓아야 계속 job을 돌림
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
             //여기에 함수를 실행.
+            // TODO: 10초 이상 빠져나가지 않는 경우 오류 내뿜기
+            while(!isDone) {
+                ;
+            }
+            if(isInfoCorrect) {
+                Log.e(TAG, "Hey, what up!");
+
+                // 웹강 조건을 check
+//                if(isWebOK) {
+//                    crawling = true;
+//                }
+
+                // 시간표 바꾸어야 하는지 조건을 check
+//                if(isWebOK) {
+//                    crawling;
+//                }
+            }
 
             return null;
         }
