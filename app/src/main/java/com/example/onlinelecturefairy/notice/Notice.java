@@ -1,9 +1,5 @@
 package com.example.onlinelecturefairy.notice;
 
-import com.example.onlinelecturefairy.LoginActivity;
-import com.example.onlinelecturefairy.common.KomoranLoader;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import kr.co.shineware.nlp.komoran.model.Token;
@@ -17,6 +13,7 @@ public class Notice {
     private String description;
     private String subId;
     private List<Token> tokens; //for NLPx
+    private List<String> tags;  //for tagging
 
     public Notice(String lecture, String title, String calendar, String description) {
         this.lecture = lecture;
@@ -73,6 +70,14 @@ public class Notice {
 
     public void setTokens(List<Token> tokens) {
         this.tokens = tokens;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 
     public List<Token> analyze(String str) {
