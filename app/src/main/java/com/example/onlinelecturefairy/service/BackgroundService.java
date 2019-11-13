@@ -1,18 +1,25 @@
 package com.example.onlinelecturefairy.service;
 
+import android.app.PendingIntent;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
 
+import com.example.onlinelecturefairy.LoginActivity;
+import com.example.onlinelecturefairy.R;
 import com.example.onlinelecturefairy.common.AsyncTaskCallBack;
 import com.example.onlinelecturefairy.common.BlackboardInfoCheckBackground;
 import com.example.onlinelecturefairy.common.ColorPicker;
 import com.example.onlinelecturefairy.onlinelecture.OnlineLecture;
 import com.example.onlinelecturefairy.ui.onlinelecture.OnlineLectureAdapter;
+import com.google.api.services.calendar.Calendar;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -130,12 +137,43 @@ public class BackgroundService extends JobService {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             temp = 0;
+            String noneList = "";
             Log.e(TAG, "numberOfLecture: " + lecturesOfWeek.size());
             //이미 들은 웹강 counting
             for (OnlineLecture lecture : lecturesOfWeek) {
-                if (lecture.getPass().matches(".*P.*")) temp++;
+                if (lecture.getPass().matches(".*P.*")){
+                    temp++;
+                }
+                else{
+                    noneList += lecture.getLecture()+" "+lecture.getWeek()+"\n";
+                }
             }
-            Log.e(TAG, "onPostExecute (crawling): " + temp);
+
+
+            //TODO: 여러 개의 알림이 겹치지 않고 떠야 함.
+            //TODO: 정해진 시간부터 알림하도록 (일단 default한 값을 씀)
+            java.util.Calendar today = java.util.Calendar.getInstance();
+
+
+            if(temp!=lecturesOfWeek.size()) {  //조건을 만족할 때, 일단 true로 박아놓음
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
+                        .setSmallIcon(R.drawable.web_fairy_short)
+                        .setContentTitle("다 안들음 ㅡㅡ " + PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("ID", "default"))
+                        .setContentText("빨리 들어라 ㅡㅡ ")
+                        .setStyle(new NotificationCompat.BigTextStyle()
+                                .bigText(noneList))
+                        .setContentIntent(pendingIntent)
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+
+                // notificationId is a unique int for each notification that you must define
+                notificationManager.notify(417, builder.build());
+            }
         }
 
         @Override
