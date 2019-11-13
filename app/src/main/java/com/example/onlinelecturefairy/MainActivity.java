@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.widget.Toast;
 
@@ -21,15 +20,10 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.onlinelecturefairy.common.KomoranLoader;
-import com.example.onlinelecturefairy.common.StringParser;
 import com.example.onlinelecturefairy.service.BackgroundService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
@@ -82,17 +76,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Notification
         createNotificationChannel();
-
-        //debug
-        String str = "5/24(목) 19:00~19:50 에 실시됩니다. 10월 31일은 할로윈데이!";
-        ArrayList<Date> d = StringParser.findDateAtString(KomoranLoader.komoran.analyze(str), 0);
-        if (d.size() != 0) {
-            for (Date ds : d) {
-                Log.e("aaa", "You've got " + ds.toString());
-            }
-        } else {
-            Log.e("aaa", "Nope.");
-        }
     }
 
     //channeling
