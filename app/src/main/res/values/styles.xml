@@ -65,7 +65,10 @@
         <item name="android:windowBackground">@color/colorBackground</item>
         <item name="android:windowMinWidthMajor">70%</item>
         <item name="android:windowMinWidthMinor">70%</item>
+        <item name="colorControlNormal">@android:color/white</item>
+        <item name="colorControlActivated">@color/colorAccent</item>
         <item name="android:textColorPrimary">@color/white</item>
+        <item name="textColorAlertDialogListItem">@color/white</item>
         <item name="buttonBarNegativeButtonStyle">@style/buttonBarButtonStyle.Negative</item>
         <item name="buttonBarNeutralButtonStyle">@style/buttonBarButtonStyle.Neutral</item>
         <item name="buttonBarPositiveButtonStyle">@style/buttonBarButtonStyle.Positive</item>
@@ -77,6 +80,9 @@
         <item name="android:windowMinWidthMajor">70%</item>
         <item name="android:windowMinWidthMinor">70%</item>
         <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:buttonTint">@color/white</item>
+        <item name="colorControlNormal">@android:color/white</item>
+        <item name="colorControlActivated">@android:color/holo_red_light</item>
         <item name="android:progressBarStyle">@style/progressBarStyle</item>
         <item name="buttonBarNegativeButtonStyle">@style/buttonBarButtonStyle.Negative</item>
         <item name="buttonBarNeutralButtonStyle">@style/buttonBarButtonStyle.Neutral</item>

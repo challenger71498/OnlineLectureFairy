@@ -1,6 +1,8 @@
 package com.example.onlinelecturefairy;
 
 import android.app.AlertDialog;
+import android.app.job.JobScheduler;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -46,7 +48,13 @@ public class SettingsActivity extends AppCompatActivity {
                                     SharedPreferences pref = getPreferenceManager().getSharedPreferences();
                                     pref.edit()
                                             .putBoolean("autoLogin", false)
+                                            .putString("everytimeAddress", "")
+                                            .putString("PW", "")
                                             .apply();
+
+                                    // Background Service 종료
+                                    JobScheduler scheduler = (JobScheduler) getActivity().getSystemService(Context.JOB_SCHEDULER_SERVICE);
+                                    scheduler.cancelAll();
 
                                     // LoginActivity로 이동
                                     Intent intent = new Intent(getActivity(), LoginActivity.class);
