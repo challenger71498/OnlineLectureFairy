@@ -22,6 +22,7 @@ public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAd
 
     public void setNotices(List<Notice> notices) {
         this.notices = notices;
+        notifyDataSetChanged();
     }
 
     @NonNull

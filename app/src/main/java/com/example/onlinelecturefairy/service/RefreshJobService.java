@@ -12,6 +12,7 @@ import com.example.onlinelecturefairy.R;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.preference.PreferenceManager;
 
 import static android.content.ContentValues.TAG;
 
@@ -39,17 +40,16 @@ public class RefreshJobService extends JobService {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-
-            //Notifications
+            // notification
             //TODO: 여러 개의 알림이 겹치지 않고 떠야 함.
-            if(false) {  //조건을 만족할 때, 일단 true로 박아놓음
+            if(true) {  //조건을 만족할 때, 일단 true로 박아놓음
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
                         .setSmallIcon(R.drawable.web_fairy_short)
-                        .setContentTitle("작업 완료! " + Math.random())
+                        .setContentTitle("작업 완료! " + PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("ID", "default"))
                         .setContentText("작업을 완료했습니다! " + Math.random())
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText("자세한 텍스트는 여기에 작성됩니다. 작업을 완료했습니다."))
