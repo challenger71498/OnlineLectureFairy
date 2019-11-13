@@ -95,6 +95,7 @@ public class BlackboardInfoCheckBackground {
                 isInfoCorrect = true;
             } catch (IOException o) {
                 o.printStackTrace();
+                isInfoCorrect = false;
             }
             return null;
         }
