@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TreeSet;
 
 import kr.co.shineware.nlp.komoran.model.KomoranResult;
 import kr.co.shineware.nlp.komoran.model.Token;
@@ -20,7 +21,7 @@ public class Notice {
     private String description;
     private String subId;
     private List<Token> tokens; //for NLPx
-    private List<String> tags;  //for tagging
+    private TreeSet<String> tags;  //for tagging
 
     public Notice(String lecture, String title, String calendar, String description) {
         this.lecture = lecture;
@@ -79,26 +80,36 @@ public class Notice {
         this.tokens = tokens;
     }
 
-    public List<String> getTags() {
+    public TreeSet<String> getTags() {
         return tags;
     }
 
-    public void setTags(List<String> tags) {
+    public void setTags(TreeSet<String> tags) {
         this.tags = tags;
     }
 
     public void setTagsByDescription() {
         if (description != null) {
-            KomoranResult res = komoran.analyze(description);
+            tags = new TreeSet<>();
+
+            KomoranResult res;
+
+            res = komoran.analyze(title);
+            tags.addAll(StringParser.findTestAtString(res, 0));
+
+            res = komoran.analyze(description);
+
+            tags.addAll(StringParser.findTestAtString(res, 0));
+
             ArrayList<Date> dates = StringParser.findDateAtString(res, 0);
             ArrayList<String> lists = new ArrayList<>();
             GregorianCalendar cal = new GregorianCalendar();
             for (Date d : dates) {
                 cal.setTime(d);
-                lists.add((cal.get(Calendar.MONTH) + 1) + "월 " + cal.get(Calendar.DAY_OF_MONTH) + "일");
+                lists.add((cal.get(Calendar.MONTH) + 1) + "월_" + cal.get(Calendar.DAY_OF_MONTH) + "일");
             }
 
-            tags = lists;
+            tags.addAll(lists);
         }
     }
 

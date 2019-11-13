@@ -25,8 +25,8 @@ import java.util.List;
 public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAdapter.ViewHolder> implements LifecycleOwner, LifecycleObserver {
     private LifecycleRegistry registry = new LifecycleRegistry(this);
 
-    List<Notice> notices;
-    Fragment fragment;
+    private List<Notice> notices;
+    private Fragment fragment;
 
     public NoticeRecyclerAdapter(List<Notice> notices, Fragment fragment) {
         this.notices = notices;

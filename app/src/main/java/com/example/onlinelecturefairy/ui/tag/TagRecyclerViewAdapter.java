@@ -10,17 +10,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.onlinelecturefairy.R;
 import com.example.onlinelecturefairy.databinding.TagCardViewBinding;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 public class TagRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<String> tags;
 
-    public TagRecyclerViewAdapter(List<String> tags) {
-        this.tags = tags;
+    public TagRecyclerViewAdapter(TreeSet<String> tags) {
+        this.tags = new ArrayList<>();
+        this.tags.addAll(tags);
     }
 
-    public void setTags(List<String> tags) {
-        this.tags = tags;
+    public void setTags(TreeSet<String> tags) {
+        this.tags.clear();
+        this.tags.addAll(tags);
         notifyDataSetChanged();
     }
 
