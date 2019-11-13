@@ -307,6 +307,7 @@ public class OnlineLectureFragment extends Fragment implements SwipeRefreshLayou
 
 
                                 lecture_header = (course.select("a.comboLink").text());
+                                lecture_header = lecture_header.replaceFirst(" ", "");
                                 week_header = webLectureName;
                                 date_header = date;
                                 pass_header = Character.toString(e.text().charAt(e.text().length()-1));
