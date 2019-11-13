@@ -1318,6 +1318,12 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
                     .build();
         }
 
+        @Override
+        protected void onPostExecute(String result) {
+
+            mProgress.hide();
+            mResultText.setText(result);
+        }
 
         @Override
         protected void onPreExecute() {
@@ -1336,13 +1342,16 @@ public class GoogleCalendarSyncTest extends AppCompatActivity implements EasyPer
         protected String doInBackground(Void... params) {
             try {
                 String calendarID = getCalendarID("CalendarTitle");
+                if(calendarID == null){
+                    result = "지울 캘린더가 없습니다.";
+                }
                 mService.calendarList().delete(calendarID).execute();
             } catch (Exception e) {
                 mLastError = e;
                 cancel(true);
                 return null;
             }
-
+            result="지웠음";
             return null;
         }
     }
