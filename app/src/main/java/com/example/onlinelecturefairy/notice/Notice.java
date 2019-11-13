@@ -1,7 +1,14 @@
 package com.example.onlinelecturefairy.notice;
 
+import com.example.onlinelecturefairy.common.StringParser;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
+import kr.co.shineware.nlp.komoran.model.KomoranResult;
 import kr.co.shineware.nlp.komoran.model.Token;
 
 import static com.example.onlinelecturefairy.common.KomoranLoader.komoran;
@@ -78,6 +85,21 @@ public class Notice {
 
     public void setTags(List<String> tags) {
         this.tags = tags;
+    }
+
+    public void setTagsByDescription() {
+        if (description != null) {
+            KomoranResult res = komoran.analyze(description);
+            ArrayList<Date> dates = StringParser.findDateAtString(res, 0);
+            ArrayList<String> lists = new ArrayList<>();
+            GregorianCalendar cal = new GregorianCalendar();
+            for (Date d : dates) {
+                cal.setTime(d);
+                lists.add((cal.get(Calendar.MONTH) + 1) + "월 " + cal.get(Calendar.DAY_OF_MONTH) + "일");
+            }
+
+            tags = lists;
+        }
     }
 
     public List<Token> analyze(String str) {

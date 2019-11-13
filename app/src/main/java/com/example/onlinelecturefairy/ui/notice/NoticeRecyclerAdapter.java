@@ -1,6 +1,5 @@
 package com.example.onlinelecturefairy.ui.notice;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -21,10 +20,7 @@ import com.example.onlinelecturefairy.notice.Notice;
 import com.example.onlinelecturefairy.ui.tag.TagRecyclerViewAdapter;
 import com.example.onlinelecturefairy.ui.tag.TagsViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAdapter.ViewHolder> implements LifecycleOwner, LifecycleObserver {
     private LifecycleRegistry registry = new LifecycleRegistry(this);
@@ -52,25 +48,10 @@ public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAd
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
         Notice notice = notices.get(position);
-
-        ArrayList<String> str = new ArrayList<>();
-        str.add("hello");
-        str.add("hi");
-        str.add("wassup");
-        str.add("hello");
-        str.add("hi");
-        str.add("wassup");
-        str.add("hello");
-        str.add("hi");
-        str.add("wassup");
-        str.add("hi");
-        str.add("wassup");
-        notice.setTags(str);
+        notice.setTagsByDescription();
 
         NoticeViewModel model = new NoticeViewModel();
         model.setNotice(notice);
-
-        Log.e(TAG, "You got tags : " + notice.getTags().get(0));
 
         viewHolder.setViewModel(model);
 
@@ -81,16 +62,16 @@ public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAd
         tagsModel.getTags().observe(fragment, tags -> {
             RecyclerView rv = viewHolder.binding.tagRecyclerVIew;
             TagRecyclerViewAdapter adapter = (TagRecyclerViewAdapter) rv.getAdapter();
-            if(adapter != null) {
+            if (adapter != null) {
                 adapter.setTags(tags);
 //                notifyDataSetChanged();
             } else {
                 adapter = new TagRecyclerViewAdapter(tags);
                 rv.setAdapter(adapter);
-                StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(adapter.getItemCount() / 4, StaggeredGridLayoutManager.HORIZONTAL);
+                int spanCount = adapter.getItemCount() / 4;
+                StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(spanCount == 0 ? 1 : spanCount, StaggeredGridLayoutManager.HORIZONTAL);
                 rv.setLayoutManager(manager);
             }
-            Log.e(TAG, "Adapter size: " + adapter.getItemCount() );
         });
     }
 

@@ -1,11 +1,8 @@
 package com.example.onlinelecturefairy.ui.grade;
 
-import android.app.ProgressDialog;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,12 +16,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.example.onlinelecturefairy.GoogleCalendarSyncTest;
 import com.example.onlinelecturefairy.R;
 import com.example.onlinelecturefairy.common.ColorPicker;
 import com.example.onlinelecturefairy.grade.Grade;
-import com.example.onlinelecturefairy.notice.Notice;
-import com.example.onlinelecturefairy.ui.notice.NoticeRecyclerAdapter;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -37,8 +31,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class GradeFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     SwipeRefreshLayout swipe;
@@ -81,7 +73,7 @@ public class GradeFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         swipe = getView().findViewById(R.id.gradeSwipeRefresh);
         swipe.setOnRefreshListener(this);
         //Color changes by each color.
-        swipe.setProgressBackgroundColorSchemeColor(Color.BLACK);
+        swipe.setProgressBackgroundColorSchemeColor(getResources().getColor(R.color.colorBackgroundDarkest));
         swipe.setColorSchemeResources(
                 android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,

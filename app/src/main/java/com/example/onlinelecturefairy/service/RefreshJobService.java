@@ -5,16 +5,13 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.util.Log;
-
-import com.example.onlinelecturefairy.LoginActivity;
-import com.example.onlinelecturefairy.R;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
 
-import static android.content.ContentValues.TAG;
+import com.example.onlinelecturefairy.LoginActivity;
+import com.example.onlinelecturefairy.R;
 
 public class RefreshJobService extends JobService {
     @Override

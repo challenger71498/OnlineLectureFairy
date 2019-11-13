@@ -1,8 +1,5 @@
 package com.example.onlinelecturefairy.common;
 
-import android.text.TextUtils;
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,15 +10,12 @@ import java.util.List;
 import kr.co.shineware.nlp.komoran.model.KomoranResult;
 import kr.co.shineware.nlp.komoran.model.Token;
 
-import static androidx.constraintlayout.widget.Constraints.TAG;
-
 public class StringParser {
     public static HashMap<Token, String> wordMap = new HashMap<>();
 
     public static ArrayList<Date> findDateAtString(KomoranResult result, int start) {
         ArrayList<Date> dates = new ArrayList<>();
         List<String> nouns = result.getMorphesByTags("NNG", "NNB", "SN", "SP");
-        Log.e(TAG, TextUtils.join(" ", nouns));
 
         for (int i = start; i < nouns.size(); ++i) {
             Integer day = null;

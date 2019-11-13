@@ -1,22 +1,12 @@
 package com.example.onlinelecturefairy.ui.onlinelecture;
 
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.example.onlinelecturefairy.R;
-import com.example.onlinelecturefairy.common.ColorPicker;
-import com.example.onlinelecturefairy.onlinelecture.OnlineLecture;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,12 +17,21 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.onlinelecturefairy.R;
+import com.example.onlinelecturefairy.common.ColorPicker;
+import com.example.onlinelecturefairy.onlinelecture.OnlineLecture;
+
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
@@ -75,7 +74,7 @@ public class OnlineLectureFragment extends Fragment implements SwipeRefreshLayou
         swipe = getView().findViewById(R.id.onlineLectureSwipeRefresh);
         swipe.setOnRefreshListener(this);
         //Color changes by each color.
-        swipe.setProgressBackgroundColorSchemeColor(Color.BLACK);
+        swipe.setProgressBackgroundColorSchemeColor(getResources().getColor(R.color.colorBackgroundDarkest));
         swipe.setColorSchemeResources(
                 android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
