@@ -16,7 +16,6 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.widget.Toast;
 
@@ -29,8 +28,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.onlinelecturefairy.common.KomoranLoader;
-import com.example.onlinelecturefairy.common.StringParser;
 import com.example.onlinelecturefairy.service.BackgroundService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -52,6 +49,7 @@ import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 
+<<<<<<< Updated upstream
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,6 +85,9 @@ public class MainActivity extends AppCompatActivity{
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
     //-------------------------------------------------------------
+=======
+public class MainActivity extends AppCompatActivity {
+>>>>>>> Stashed changes
     private AppBarConfiguration mAppBarConfiguration;
 
     // for double back to exit function.
@@ -138,6 +139,7 @@ public class MainActivity extends AppCompatActivity{
 
         //Notification
         createNotificationChannel();
+<<<<<<< Updated upstream
 
         //debug
         String str = "5/24(목) 19:00~19:50 에 실시됩니다. 10월 31일은 할로윈데이!";
@@ -160,6 +162,8 @@ public class MainActivity extends AppCompatActivity{
 
 
 
+=======
+>>>>>>> Stashed changes
     }
 
     //channeling
