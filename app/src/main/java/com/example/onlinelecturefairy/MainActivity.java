@@ -13,17 +13,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.widget.Toast;
 
-import com.example.onlinelecturefairy.common.StringParser;
-import com.example.onlinelecturefairy.common.KomoranLoader;
-import com.example.onlinelecturefairy.service.BackgroundService;
-import com.example.onlinelecturefairy.service.RefreshJobService;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-
-import java.util.ArrayList;
-import java.util.Date;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -31,6 +20,16 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import com.example.onlinelecturefairy.common.KomoranLoader;
+import com.example.onlinelecturefairy.common.StringParser;
+import com.example.onlinelecturefairy.service.BackgroundService;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
+
+import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
@@ -70,13 +69,13 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         }
 
-        //JobInfo initialization.
-        long period = 15;  //minutes
+        //Background initialization.
+        long period = 1;  //minutes
         JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         assert scheduler != null;
         scheduler.schedule(
                 new JobInfo.Builder(getResources().getInteger(R.integer.REFRESH_BACKGROUND_TASK), new ComponentName(this, BackgroundService.class))
-                        .setPeriodic(period * 1000 * 60)
+                        .setOverrideDeadline(period * 1000 * 60)
                         .setPersisted(true)
                         .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                         .build());

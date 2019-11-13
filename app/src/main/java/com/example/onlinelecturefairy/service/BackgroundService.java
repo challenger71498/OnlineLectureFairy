@@ -1,20 +1,17 @@
 package com.example.onlinelecturefairy.service;
 
-import android.app.PendingIntent;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.util.Log;
 
-import com.example.onlinelecturefairy.LoginActivity;
-import com.example.onlinelecturefairy.R;
-import com.example.onlinelecturefairy.common.AsyncTaskCallBack;
-import com.example.onlinelecturefairy.common.BlackboardInfoCheck;
-
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
+
+import com.example.onlinelecturefairy.common.AsyncTaskCallBack;
+import com.example.onlinelecturefairy.common.BlackboardInfoCheckBackground;
+
+import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class BackgroundService extends JobService {
     @Override
@@ -33,29 +30,28 @@ public class BackgroundService extends JobService {
         JobParameters params;
         Boolean isInfoCorrect;
 
+        String id;
+        String pw;
+
         BackgroundTask(JobParameters params) {
             this.params = params;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+        protected void onPreExecute() {
+            super.onPreExecute();
 
             // Blackboard ID PW validity check
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            String id = pref.getString("ID", "");
-            String pw = pref.getString("PW", "");
+            id = pref.getString("ID", "");
+            pw = pref.getString("PW", "");
 
-//            // Blackboard setting 예시
-//            pref.edit()
-//                    .putString("ID", "12181632")
-//                    .apply();
-
-            BlackboardInfoCheck.CheckBlackBoard board
-                    = new BlackboardInfoCheck.CheckBlackBoard(getApplicationContext(), id, pw, isInfoCorrect, new AsyncTaskCallBack() {
+            BlackboardInfoCheckBackground.CheckBlackBoard board
+                    = new BlackboardInfoCheckBackground.CheckBlackBoard(getApplicationContext(), id, pw, isInfoCorrect, new AsyncTaskCallBack() {
                 @Override
                 public void onSuccess() {
                     // 로그인에 성공했을 때의 작업 작성.
+                    Log.e(TAG, "done");
                 }
 
                 @Override
@@ -63,6 +59,12 @@ public class BackgroundService extends JobService {
                     // 로그인에 실패했을 때의 작업 작성.
                 }
             });
+            board.execute();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
 
             // 웹강 조건을 check
 
@@ -75,6 +77,7 @@ public class BackgroundService extends JobService {
         @Override
         protected Void doInBackground(Void... voids) {
             //여기에 함수를 실행.
+
             return null;
         }
     }
