@@ -73,7 +73,7 @@
                     android:layout_marginTop="8dp"
                     android:text="(2019-02)애니메이션속의상상과인식-003"
                     android:textAlignment="textStart"
-                    android:textSize="20sp"
+                    android:textSize="12sp"
                     app:layout_constraintEnd_toStartOf="@+id/onlineLectureCalendar"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
