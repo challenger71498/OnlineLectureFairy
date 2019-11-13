@@ -306,12 +306,13 @@ public class OnlineLectureFragment extends Fragment implements SwipeRefreshLayou
                                 webLectureName = webLectureName.replaceAll(match2, "");
 
 
-                                lecture_header = ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0];
+                                lecture_header = (course.select("a.comboLink").text());
                                 week_header = webLectureName;
                                 date_header = date;
                                 pass_header = Character.toString(e.text().charAt(e.text().length()-1));
 
-                                lecture = ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0];
+                                lecture = (course.select("a.comboLink").text());
+                                lecture = lecture.replaceFirst(" ", "");
                                 Log.e(TAG, "lecture :" + lecture+"@"+date);
                                 week = (e.text().split("XIN -")[1]).split("/")[0];
                                 pass = Character.toString(e.text().charAt(e.text().length()-1));
@@ -319,7 +320,8 @@ public class OnlineLectureFragment extends Fragment implements SwipeRefreshLayou
                                 //lectureInfo += ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0] + "@" + webLectureName + "@" + simpledateformat.format(webEndDate.getTime()) + "\n";
                             }
                             else if((today.compareTo(webStartDate) == 1)){
-                                lecture = ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0];
+                                lecture = (course.select("a.comboLink").text());
+                                lecture = lecture.replaceFirst(" ", "");
                                 Log.e(TAG, "lecture :" + lecture);
                                 week = (e.text().split("XIN - ")[1]).split("/")[0];
                                 pass = Character.toString(e.text().charAt(e.text().length()-1));

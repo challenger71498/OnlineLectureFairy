@@ -230,7 +230,8 @@ public class GradeFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                             .get();
                     elem = gradePage.select("div.sortable_item_row.graded_item_row.row.expanded");
                     for (Element e : elem) {
-                        String lecture = ((gradePage.select("a.comboLink").text()).split("\\)")[1]).split("-")[0];
+                        String lecture = (gradePage.select("a.comboLink").text());
+                        lecture = lecture.replaceFirst(" ", "");
                         Document tempDoc = Jsoup.parse(e.html());
                         Element elem2;
 
