@@ -7,6 +7,7 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -17,6 +18,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
 
+import com.example.onlinelecturefairy.GoogleCalendarSyncTest;
 import com.example.onlinelecturefairy.LoginActivity;
 import com.example.onlinelecturefairy.MainActivity;
 import com.example.onlinelecturefairy.R;
@@ -81,6 +83,7 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
         super.onDestroy();
     }
 
+
     @Override
     public boolean onStartJob(JobParameters params) {
         GoogleSyncTask task = new GoogleSyncTask(params);
@@ -123,9 +126,18 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
             // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
             String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
                     .getString(PREF_ACCOUNT_NAME, null);
-            if(accountName != null) {
+            if (accountName != null) {
                 Log.e(TAG, "getResultsFromApi: CHOOSE_SAVED_ACCOUNT");
                 mCredential.setSelectedAccountName(accountName);
+                SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(getApplication());
+                String everytimeAddress = appData.getString("everytimeAddress", "");
+                if (!everytimeAddress.equals("")) {
+                    Log.e(TAG, "hi i'm crawler ");
+                    String[] temp = everytimeAddress.split("@");
+                    userIdentifier = temp[1];
+                    CrawlingEveryTime crw = new CrawlingEveryTime();
+                    crw.execute();
+                }
             } else {
                 isGoogleValid = false;
                 getResultsFromApi();
@@ -160,12 +172,12 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
 
         @Override
         protected Void doInBackground(Void... voids) {
-            if(isGoogleValid) {
+            if (isGoogleValid) {
                 // 구글 validity check에 성공 시 작업 실행.
                 Log.e(TAG, "GOOGLE_VALIDATION_COMPLETE");
 
                 //Calendar 테스트 코드.
-                mID = 2;
+                mID = 5;
                 Log.e(TAG, "done " + getResultsFromApi());
 
                 //여기에 구글 캘린더 동기화 작업을 작성.
@@ -253,8 +265,6 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = new ProgressDialog(GoogleSyncService.this);
-            progressDialog.show();
         }
 
         @Override
@@ -267,7 +277,6 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
             }
             result += numOfSubject;
             Log.e(TAG, result);
-            progressDialog.dismiss();
         }
 
         @Override
@@ -408,7 +417,7 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
 
                 Log.e(TAG, "No network connection available.");
             } else {
-
+                Log.e(TAG, "getResultsFromApi MakeRequestTask");
                 // Google Calendar API 호출
                 new GoogleSyncService.MakeRequestTask(this, mCredential).execute();
             }
@@ -1247,6 +1256,7 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
 
                     return getEventById(mCredential.getSelectedAccountName());
                 } else if (mID == 5) {
+                    createCalendar();
                     return addEveryTimeEvent();
                 } else if (mID == 6) {
                     return addBlackBoardEvent();

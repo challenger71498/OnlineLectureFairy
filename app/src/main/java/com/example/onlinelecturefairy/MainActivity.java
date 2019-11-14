@@ -136,8 +136,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
 
         //Background initialization.
+        //TODO 주기 제대로 바꾸기
         long period = 1;  //minutes
-        long googlePeriod = 1;  //minutes
+        long googlePeriod = 30000;  //minutes
 
         JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         assert scheduler != null;
@@ -147,9 +148,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                         .setPersisted(true)
                         .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                         .build());
+
+        //TODO Calendar 이용해서 조건에 맞을때만 해야함
         scheduler.schedule(
                 new JobInfo.Builder(2, new ComponentName(this, GoogleSyncService.class))
-                .setOverrideDeadline(period * 1000 * 60)
+                .setOverrideDeadline(googlePeriod * 1000 * 60)
                 .setPersisted(true)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .build());
