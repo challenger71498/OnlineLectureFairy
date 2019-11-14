@@ -150,7 +150,7 @@ public class BackgroundService extends JobService {
                     temp++;
                 }
                 else{
-                    noneList += lecture.getLecture()+" "+lecture.getWeek()+"\n";
+                    noneList += lecture.getLecture()+": "+lecture.getWeek()+"\n";
                 }
             }
 
@@ -160,15 +160,15 @@ public class BackgroundService extends JobService {
             java.util.Calendar today = java.util.Calendar.getInstance();
 
 
-            if(temp!=lecturesOfWeek.size()) {  //조건을 만족할 때, 일단 true로 박아놓음
+            if(temp!=lecturesOfWeek.size()) {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
                         .setSmallIcon(R.drawable.web_fairy_short)
-                        .setContentTitle("웹강 알림")
-                        .setContentText((lecturesOfWeek.size() - temp) + "개의 듣지 않은 웹강이 있습니다.")
+                        .setContentTitle("이번 주에 듣지 않은 웹강이 " + Integer.toString(lecturesOfWeek.size() - temp)+"개 있습니다.")
+                        .setContentText("아래로 스크롤하여 듣지 않은 웹강을 확인하세요.")
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(noneList))
                         .setContentIntent(pendingIntent)
@@ -372,14 +372,18 @@ public class BackgroundService extends JobService {
                                 webLectureName = webLectureName.replaceAll(match2, "");
 
 
-                                lecture_header = (course.select("a.comboLink").text());
-                                week_header = webLectureName;
+                                lecture_header = (course.select("a.comboLink").text()).split("\\)")[1].split("-")[0];
+
                                 date_header = date;
                                 pass_header = Character.toString(e.text().charAt(e.text().length() - 1));
 
                                 lecture = (course.select("a.comboLink").text());
                                 lecture = lecture.replaceFirst(" ", "");
                                 week = (e.text().split("XIN -")[1]).split("/")[0];
+                                week = week.replaceFirst(" ","");
+                                webLectureName = webLectureName.replace(" ","");
+                                week_header = week;
+                                lecture_header+=" (" + webLectureName+")";
                                 pass = Character.toString(e.text().charAt(e.text().length() - 1));
                                 lecturesOfWeek.add(new OnlineLecture(lecture_header, week_header, date_header, pass_header, OnlineLectureAdapter.HEADER));
                             } else if (today.compareTo(webStartDate) == -1) {
