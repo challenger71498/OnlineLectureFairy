@@ -135,14 +135,16 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         //Background initialization.
         //TODO 주기 제대로 바꾸기
-        long period = 60;  //minutes
-        long googlePeriod = 60;  //minutes
+        long period = 30;  //minutes
+        long latency = 15;
+        long googlePeriod = 60;
+        long googleLatency = 30;
 
         JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         assert scheduler != null;
         scheduler.schedule(
                 new JobInfo.Builder(getResources().getInteger(R.integer.REFRESH_BACKGROUND_TASK), new ComponentName(this, BackgroundService.class))
-                        .setPeriodic(period * 1000 * 60)
+                        .setPeriodic(period * 1000 * 60, latency * 1000 * 60)
                         .setPersisted(true)
                         .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                         .build());
@@ -150,17 +152,17 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         //TODO Calendar 이용해서 조건에 맞을때만 해야함
         scheduler.schedule(
                 new JobInfo.Builder(2, new ComponentName(this, GoogleSyncService.class))
-                .setPeriodic(googlePeriod * 1000 * 60)
-                .setPersisted(true)
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .build());
+                        .setPeriodic(googlePeriod * 1000 * 60, googleLatency * 1000 * 60)
+                        .setPersisted(true)
+                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                        .build());
 
-        if(!shown) {
+        if (!shown) {
             startService(new Intent(this, GoogleSyncService.class));
             shown = true;
         }
 
-        if(intent.getBooleanExtra("account-check", false)) {
+        if (intent.getBooleanExtra("account-check", false)) {
             Log.e(TAG, "onReceive: RECEIVED account-check");
             Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "계정이 연동되지 않았습니다.", Snackbar.LENGTH_INDEFINITE);
             snackbar
@@ -169,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                         snackbar.dismiss();
                     })
                     .show();
-        } else if(intent.getBooleanExtra("permission-check", false)) {
+        } else if (intent.getBooleanExtra("permission-check", false)) {
             Log.e(TAG, "onCreate: RECEIVED permission-check");
             Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "권한이 승인되지 않았습니다.", Snackbar.LENGTH_INDEFINITE);
             snackbar
@@ -178,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                         snackbar.dismiss();
                     })
                     .show();
-        } else if(intent.getBooleanExtra("everytime", false)) {
+        } else if (intent.getBooleanExtra("everytime", false)) {
             Log.e(TAG, "onCreate: RECEIVED everytime");
             Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "에브리타임 연동에 실패했습니다.", Snackbar.LENGTH_INDEFINITE);
             snackbar
@@ -1325,7 +1327,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         protected String doInBackground(Void... params) {
             try {
                 String calendarID = getCalendarID("웹강요정");
-                if(calendarID == null){
+                if (calendarID == null) {
                     result = "지울 캘린더가 없습니다.";
                 }
                 mService.calendarList().delete(calendarID).execute();
@@ -1334,7 +1336,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 cancel(true);
                 return null;
             }
-            result="지웠음";
+            result = "지웠음";
             return null;
         }
     }
@@ -1551,7 +1553,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         @Override
         protected void onPostExecute(String output) {
-            if(output != null) {
+            if (output != null) {
                 Log.e(TAG, output);
             }
 //            if (mID == 3) mResultText.setText(TextUtils.join("\n\n", eventStrings));

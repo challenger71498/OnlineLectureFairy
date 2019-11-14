@@ -6,6 +6,8 @@ import android.app.job.JobService;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
@@ -40,73 +42,46 @@ public class BackgroundService extends JobService {
     int temp;
     Boolean crawlingIsDone = false;
 
+    Boolean isInfoCorrect;
+    Boolean readyToCrawling = false;
+
+    String id;
+    String pw;
+
+    Boolean isDone = false;
+
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
-        BackgroundTask task = new BackgroundTask(jobParameters);
-        task.execute();
-        return true;
-    }
 
-    @Override
-    public boolean onStopJob(JobParameters jobParameters) {
-        return true;    //Set true to re-schedule.
-    }
+        // Blackboard ID PW validity check
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        id = pref.getString("ID", "");
+        pw = pref.getString("PW", "");
 
-    class BackgroundTask extends AsyncTask<Void, Void, Void> {
-        JobParameters params;
-        Boolean isInfoCorrect;
-        Boolean readyToCrawling = false;
+        BlackboardInfoCheckBackground.CheckBlackBoard board
+                = new BlackboardInfoCheckBackground.CheckBlackBoard(getApplicationContext(), id, pw, isInfoCorrect, new AsyncTaskCallBack() {
+            @Override
+            public void onSuccess() {
+                // 로그인에 성공했을 때의 작업 작성.
+                Log.e(TAG, "done");
+                isInfoCorrect = true;
+                isDone = true;
+            }
 
-        String id;
-        String pw;
+            @Override
+            public void onFailure() {
 
-        Boolean isDone = false;
+                // 로그인에 실패했을 때의 작업 작성.
+                Log.e(TAG, "failed");
+                isInfoCorrect = false;
+                isDone = true;
+            }
+        });
+        board.execute();
 
-        BackgroundTask(JobParameters params) {
-            this.params = params;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            // Blackboard ID PW validity check
-            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            id = pref.getString("ID", "");
-            pw = pref.getString("PW", "");
-
-            BlackboardInfoCheckBackground.CheckBlackBoard board
-                    = new BlackboardInfoCheckBackground.CheckBlackBoard(getApplicationContext(), id, pw, isInfoCorrect, new AsyncTaskCallBack() {
-                @Override
-                public void onSuccess() {
-                    // 로그인에 성공했을 때의 작업 작성.
-                    Log.e(TAG, "done");
-                    isInfoCorrect = true;
-                    isDone = true;
-                }
-
-                @Override
-                public void onFailure() {
-
-                    // 로그인에 실패했을 때의 작업 작성.
-                    Log.e(TAG, "failed");
-                    isInfoCorrect = false;
-                    isDone = true;
-                }
-            });
-            board.execute();
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            CrawlingBlackBoardWeb crw = new CrawlingBlackBoardWeb();
-            crw.execute();
-            jobFinished(params, true);   // true로 놓아야 계속 job을 돌림
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
+        Handler handler = new Handler();
+        Thread thread = new Thread(() -> {
+            Looper.prepare();
             //여기에 함수를 실행.
             // TODO: 10초 이상 빠져나가지 않는 경우 오류 내뿜기
             while (!isDone) {
@@ -119,14 +94,21 @@ public class BackgroundService extends JobService {
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                 readyToCrawling = true;
             }
+            handler.post(() -> {
+                CrawlingBlackBoardWeb crw = new CrawlingBlackBoardWeb();
+                crw.execute();
+                jobFinished(jobParameters, true);   // true로 놓아야 계속 job을 돌림
+            });
+            Looper.loop();
+        });
+        thread.start();
 
-//            //Background
-//            MainActivity activity = (MainActivity) MainActivity.context;
-//            MainActivity.mID = 2;
-//            Log.e(TAG, "doInBackground: " + activity.getResultsFromApi());
+        return true;
+    }
 
-            return null;
-        }
+    @Override
+    public boolean onStopJob(JobParameters jobParameters) {
+        return true;    //Set true to re-schedule.
     }
 
     private class CrawlingBlackBoardWeb extends AsyncTask<Void, Void, Void> {
