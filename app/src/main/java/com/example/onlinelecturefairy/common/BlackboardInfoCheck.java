@@ -2,16 +2,12 @@ package com.example.onlinelecturefairy.common;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.view.View;
 
-import com.example.onlinelecturefairy.LoginActivity;
-import com.example.onlinelecturefairy.MainActivity;
+import androidx.preference.PreferenceManager;
+
 import com.example.onlinelecturefairy.R;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -19,11 +15,6 @@ import org.jsoup.Jsoup;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import androidx.core.content.ContextCompat;
-import androidx.preference.PreferenceManager;
-
-import static android.content.ContentValues.TAG;
 
 public class BlackboardInfoCheck {
     public static class CheckBlackBoard extends AsyncTask<Void, Void, Void> {
@@ -47,10 +38,12 @@ public class BlackboardInfoCheck {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = new ProgressDialog(context, ProgressDialog.STYLE_SPINNER);
-            progressDialog.getWindow().setBackgroundDrawableResource(R.color.colorBackground);
-            progressDialog.setMessage("블랙보드에 로그인 중..");
-            progressDialog.show();
+            if(context != null) {
+                progressDialog = new ProgressDialog(context, ProgressDialog.STYLE_SPINNER);
+                progressDialog.getWindow().setBackgroundDrawableResource(R.color.colorBackground);
+                progressDialog.setMessage("블랙보드에 로그인 중..");
+                progressDialog.show();
+            }
         }
 
         @Override

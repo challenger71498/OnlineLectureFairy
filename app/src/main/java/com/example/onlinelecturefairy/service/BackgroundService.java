@@ -167,12 +167,15 @@ public class BackgroundService extends JobService {
 
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
                         .setSmallIcon(R.drawable.web_fairy_short)
-                        .setContentTitle("다 안들음 ㅡㅡ " + PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("ID", "default"))
-                        .setContentText("빨리 들어라 ㅡㅡ ")
+                        .setContentTitle("웹강 알림")
+                        .setContentText((lecturesOfWeek.size() - temp) + "개의 듣지 않은 웹강이 있습니다.")
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(noneList))
                         .setContentIntent(pendingIntent)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                        .setChannelId("0417")
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setGroup("WEB_FAIRY")
+                        .setAutoCancel(true);
 
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
 

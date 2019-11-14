@@ -56,6 +56,7 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
             // 로딩 중 화면을 빠져나갔을 경우 예외처리 해 주어야 함.
             if(getView() != null) {
                 RecyclerView recyclerView = getView().findViewById(R.id.noticeRecyclerView);
+                recyclerView.setNestedScrollingEnabled(false);
                 NoticeRecyclerAdapter adapter = (NoticeRecyclerAdapter) recyclerView.getAdapter();
                 if(adapter != null) {
                     adapter.setNotices(notices);

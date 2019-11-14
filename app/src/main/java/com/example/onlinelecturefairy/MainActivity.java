@@ -4,8 +4,6 @@ import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -16,7 +14,6 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -157,9 +154,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .build());
 
-        //Notification
-        createNotificationChannel();
-
         if(!shown) {
             startService(new Intent(this, GoogleSyncService.class));
             shown = true;
@@ -167,7 +161,22 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         if(getIntent().getBooleanExtra("account-check", false)) {
             Log.e(TAG, "onReceive: RECEIVED");
-            chooseAccount();
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "계정이 연동되지 않았습니다. 여기를 탭하여 계정을 추가해 주세요.", Snackbar.LENGTH_INDEFINITE);
+            snackbar
+                    .setAction("설정", v -> {
+                        chooseAccount();
+                        snackbar.dismiss();
+                    })
+                    .show();
+        } else if(getIntent().getBooleanExtra("permission-check", false)) {
+            Log.e(TAG, "onCreate: RECEIVED");
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "권한이 승인되지 않았습니다. 여기를 탭하여 권한을 허가하세요..", Snackbar.LENGTH_INDEFINITE);
+            snackbar
+                    .setAction("설정", v -> {
+                        chooseAccount();
+                        snackbar.dismiss();
+                    })
+                    .show();
         }
 
         //LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter("account-check"));
@@ -180,37 +189,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 //            chooseAccount();
 //        }
 //    };
-
-    //channeling
-    private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Refresh";
-            String description = "Refreshing";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("0417", name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Account check";
-            String description = "Check your account";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("714", name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

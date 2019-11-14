@@ -17,6 +17,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
 
+import com.example.onlinelecturefairy.LoginActivity;
 import com.example.onlinelecturefairy.MainActivity;
 import com.example.onlinelecturefairy.R;
 import com.example.onlinelecturefairy.grade.Grade;
@@ -92,30 +93,6 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
         return true;    //Set true to re-schedule.
     }
 
-//    @Override
-//    public int onStartCommand(Intent intent, int flags, int startId) {
-//
-////        // Google Calendar API 사용하기 위해 필요한 인증 초기화( 자격 증명 credentials, 서비스 객체 )
-////        // OAuth 2.0를 사용하여 구글 계정 선택 및 인증하기 위한 준비
-////        mCredential = GoogleAccountCredential.usingOAuth2(
-////                getApplicationContext(),
-////                Arrays.asList(SCOPES)
-////        ).setBackOff(new ExponentialBackOff()); // I/O 예외 상황을 대비해서 백오프 정책 사용
-////
-////        // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
-////        String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-////                .getString(PREF_ACCOUNT_NAME, null);
-////        if(accountName != null) {
-////            Log.e(TAG, "getResultsFromApi: CHOOSE_SAVED_ACCOUNT");
-////            mCredential.setSelectedAccountName(accountName);
-////        }
-////
-////        //Calendar
-////        mID = 1;
-////        Log.e(TAG, "done " + getResultsFromApi());
-////
-//        return super.onStartCommand(intent, flags, startId);
-//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -151,12 +128,32 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
                 mCredential.setSelectedAccountName(accountName);
             } else {
                 isGoogleValid = false;
+                getResultsFromApi();
             }
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+
+            //종료 알림
+            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
+                    .setSmallIcon(R.drawable.web_fairy_short)
+                    .setContentTitle("시간표 동기화됨")
+                    .setContentText("에브리타임 시간표가 구글 캘린더에 동기화되었습니다.")
+                    .setContentIntent(pendingIntent)
+                    .setChannelId("0417")
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setGroup("WEB_FAIRY")
+                    .setAutoCancel(true);
+
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+            notificationManager.notify(123, builder.build());
+
 
             jobFinished(params, true);   // true로 놓아야 계속 job을 돌림
         }
@@ -167,9 +164,11 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
                 // 구글 validity check에 성공 시 작업 실행.
                 Log.e(TAG, "GOOGLE_VALIDATION_COMPLETE");
 
-                //Calendar
+                //Calendar 테스트 코드.
                 mID = 2;
                 Log.e(TAG, "done " + getResultsFromApi());
+
+                //여기에 구글 캘린더 동기화 작업을 작성.
             }
             return null;
         }
@@ -1017,17 +1016,20 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
             } else {
                 Log.e(TAG, "new");
 
+                // 계정이 제대로 설정되어 있지 않을 때
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 intent.putExtra("account-check", true);
                 PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "714")
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
                         .setSmallIcon(R.drawable.web_fairy_short)
                         .setContentTitle("계정 오류")
                         .setContentText("계정 설정에 오류가 발생하였습니다. 탭하여 설정을 확인하세요.")
                         .setContentIntent(pendingIntent)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                        .setChannelId("0417")
+                        .setGroup("WEB_FAIRY")
+                        .setPriority(NotificationCompat.PRIORITY_HIGH);
 
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
 
@@ -1044,12 +1046,32 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
         } else {
 
             Log.e(TAG, "getAccount");
-            // 사용자에게 GET_ACCOUNTS 권한을 요구하는 다이얼로그를 보여준다.(주소록 권한 요청함)
-            EasyPermissions.requestPermissions(
-                    (MainActivity) getApplicationContext(),
-                    "This app needs to access your Google account (via Contacts).",
-                    REQUEST_PERMISSION_GET_ACCOUNTS,
-                    Manifest.permission.GET_ACCOUNTS);
+
+            // 권한이 제대로 주어지지 않았을 때
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.putExtra("permission-check", true);
+            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
+                    .setSmallIcon(R.drawable.web_fairy_short)
+                    .setContentTitle("계정 오류")
+                    .setContentText("계정 설정에 오류가 발생하였습니다. 탭하여 설정을 확인하세요.")
+                    .setChannelId("0417")
+                    .setContentIntent(pendingIntent)
+                    .setGroup("WEB_FAIRY")
+                    .setPriority(NotificationCompat.PRIORITY_HIGH);
+
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+
+            // notificationId is a unique int for each notification that you must define
+            notificationManager.notify(530, builder.build());
+//            // 사용자에게 GET_ACCOUNTS 권한을 요구하는 다이얼로그를 보여준다.(주소록 권한 요청함)
+//            EasyPermissions.requestPermissions(
+//                    (MainActivity) getApplicationContext(),
+//                    "This app needs to access your Google account (via Contacts).",
+//                    REQUEST_PERMISSION_GET_ACCOUNTS,
+//                    Manifest.permission.GET_ACCOUNTS);
         }
     }
 

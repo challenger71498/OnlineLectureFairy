@@ -1,9 +1,12 @@
 package com.example.onlinelecturefairy;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,16 +14,16 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.preference.PreferenceManager;
+
 import com.example.onlinelecturefairy.common.AsyncTaskCallBack;
 import com.example.onlinelecturefairy.common.BlackboardInfoCheck;
 import com.example.onlinelecturefairy.common.KomoranLoader;
 import com.example.onlinelecturefairy.databinding.LoginActivityBinding;
 import com.google.android.material.snackbar.Snackbar;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
-import androidx.preference.PreferenceManager;
 
 import java.util.Map;
 
@@ -42,6 +45,9 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        //Removes notifications.
+        NotificationManager manager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancel(417);
 
         //Activity initialization
         super.onCreate(savedInstanceState);
@@ -65,9 +71,14 @@ public class LoginActivity extends AppCompatActivity {
         KomoranLoader.Loader loader = new KomoranLoader.Loader();
         loader.execute();
 
+        //Notification
+        createNotificationChannel();
+
         //Focuses ID if id is empty.
         if (model.getId().equals("")) {
             focusId();
+            assert imm != null;
+            imm.showSoftInput(idText, 0);
         } else {
             //아이디 비밀번호 자동완성
             model.getId().observe(this, id -> {
@@ -90,6 +101,23 @@ public class LoginActivity extends AppCompatActivity {
             final EditText inputPw = findViewById(R.id.pwInput);
             login(v, inputId.getText().toString(), inputPw.getText().toString());
         });
+    }
+
+    //channeling
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "알림";
+            String description = "시스템 전반적인 알림입니다.";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel("0417", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     @Override
@@ -120,10 +148,6 @@ public class LoginActivity extends AppCompatActivity {
         idText.post(() -> {
             idText.setFocusableInTouchMode(true);
             idText.requestFocus();
-
-            assert imm != null;
-            imm.showSoftInput(idText, 0);
-
         });
     }
 

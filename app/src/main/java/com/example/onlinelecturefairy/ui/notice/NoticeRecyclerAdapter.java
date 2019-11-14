@@ -61,6 +61,8 @@ public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAd
 
         tagsModel.getTags().observe(fragment, tags -> {
             RecyclerView rv = viewHolder.binding.tagRecyclerVIew;
+            rv.setLayoutFrozen(true);
+            rv.setNestedScrollingEnabled(false);
             TagRecyclerViewAdapter adapter = (TagRecyclerViewAdapter) rv.getAdapter();
             if (adapter != null) {
                 adapter.setTags(tags);
