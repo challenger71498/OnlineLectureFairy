@@ -79,12 +79,21 @@ public class StringParser {
         HashSet<String> out = new HashSet<>();
 
         BooleanSupplier checkIfFree = () -> {
-            List<String> nouns = result.getMorphesByTags( "NNP", "NNG", "NNB", "SL");
-            for(int i =  start; i < nouns.size(); ++i) {
-                if(nouns.get(i).equals("휴")) {
+            List<String> nouns = result.getMorphesByTags("NNP", "NNG", "NNB", "SL");
+            for (int i = start; i < nouns.size(); ++i) {
+                if (nouns.get(i).equals("휴")) {
                     try {
-                        if(nouns.get(i+1).equals("강")) {
+                        if (nouns.get(i + 1).equals("강")) {
                             out.add("휴강");
+                        }
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        e.printStackTrace();
+                    }
+                    return true;
+                } else if (nouns.get(i).equals("공")) {
+                    try {
+                        if (nouns.get(i + 1).equals("강")) {
+                            out.add("공강");
                         }
                     } catch (ArrayIndexOutOfBoundsException e) {
                         e.printStackTrace();
@@ -97,7 +106,7 @@ public class StringParser {
 
         List<String> nouns = result.getMorphesByTags("NNG", "NNB", "SL");
 
-        if(checkIfFree.getAsBoolean()) {
+        if (checkIfFree.getAsBoolean()) {
             return new ArrayList<>(out);
         }
 
@@ -105,7 +114,7 @@ public class StringParser {
             if (nouns.get(i).equals("중간") ||
                     nouns.get(i).equals("중간고사") ||
                     nouns.get(i).equals("midterm")) {  //  중간일 경우
-                if(!checkIfFree.getAsBoolean()) {
+                if (!checkIfFree.getAsBoolean()) {
                     out.add("중간");
                 } else {
                     break;
@@ -113,21 +122,40 @@ public class StringParser {
             } else if (nouns.get(i).equals("기말") ||
                     nouns.get(i).equals("기말고사") ||
                     nouns.get(i).equals("final")) {  //  기말일 경우
-                if(!checkIfFree.getAsBoolean()) {
+                if (!checkIfFree.getAsBoolean()) {
                     out.add("기말");
                 } else {
                     break;
                 }
             } else if (nouns.get(i).equals("성적") ||
                     nouns.get(i).equals("점수")) {     // 성적일 경우
-                if(!checkIfFree.getAsBoolean()) {
+                if (!checkIfFree.getAsBoolean()) {
                     out.add("성적");
                 } else {
                     break;
                 }
             } else if (nouns.get(i).equals("보고서")) {  // 보고서일 경우
-                if(!checkIfFree.getAsBoolean()) {
+                if (!checkIfFree.getAsBoolean()) {
                     out.add("보고서");
+                } else {
+                    break;
+                }
+            } else if (nouns.get(i).equals("보강")) {  // 보강일 경우
+                if (!checkIfFree.getAsBoolean()) {
+                    out.add("보강");
+                } else {
+                    break;
+                }
+            } else if (nouns.get(i).equals("퀴즈") ||
+                    nouns.get(i).equals("Quiz")) {  // 퀴즈일 경우
+                if (!checkIfFree.getAsBoolean()) {
+                    out.add("퀴즈");
+                } else {
+                    break;
+                }
+            } else if (nouns.get(i).equals("과제")) {  // 과제일 경우
+                if (!checkIfFree.getAsBoolean()) {
+                    out.add("과제");
                 } else {
                     break;
                 }

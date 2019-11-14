@@ -16,7 +16,8 @@ public class TagBindingAdapter {
 
     @BindingAdapter("setTagColor")
     public static void setTagColor(View v, TagViewModel m) {
-        if(m.getName().getValue().equals("휴강")) {
+        if (m.getName().getValue().equals("휴강") ||
+                m.getName().getValue().equals("공강")) {
             v.setBackgroundResource(R.color.colorPrimary);
         }
     }
