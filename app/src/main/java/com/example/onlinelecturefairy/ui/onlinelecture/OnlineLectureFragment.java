@@ -40,6 +40,9 @@ public class OnlineLectureFragment extends Fragment implements SwipeRefreshLayou
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // 검색 버튼 비활성화
+        setHasOptionsMenu(false);
+
         return inflater.inflate(R.layout.fragment_online_lecture, container, false);
     }
 

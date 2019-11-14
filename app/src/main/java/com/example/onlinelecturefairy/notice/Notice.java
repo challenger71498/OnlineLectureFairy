@@ -28,6 +28,7 @@ public class Notice {
         this.title = title;
         this.calendar = calendar;
         this.description = description;
+        setTagsByDescription();
         tokens = analyze(description);
     }
 
@@ -62,6 +63,7 @@ public class Notice {
     public void setDescription(String description) {
         this.description = description;
         tokens = analyze(description);
+        setTagsByDescription();
     }
 
     public String getSubId() {

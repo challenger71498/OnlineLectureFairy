@@ -48,7 +48,6 @@ public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAd
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
         Notice notice = notices.get(position);
-        notice.setTagsByDescription();
 
         NoticeViewModel model = new NoticeViewModel();
         model.setNotice(notice);
@@ -61,7 +60,6 @@ public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAd
 
         tagsModel.getTags().observe(fragment, tags -> {
             RecyclerView rv = viewHolder.binding.tagRecyclerVIew;
-            rv.setLayoutFrozen(true);
             rv.setNestedScrollingEnabled(false);
             TagRecyclerViewAdapter adapter = (TagRecyclerViewAdapter) rv.getAdapter();
             if (adapter != null) {

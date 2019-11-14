@@ -4,6 +4,8 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -41,6 +43,8 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        // 검색 버튼 활성화
+        setHasOptionsMenu(true);
 
         return inflater.inflate(R.layout.fragment_notice, container, false);
     }
@@ -84,6 +88,12 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
         //Crawling
         CrawlingBlackBoard crw =  new CrawlingBlackBoard();
         crw.execute();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.main, menu);
     }
 
     @Override

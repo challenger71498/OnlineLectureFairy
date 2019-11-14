@@ -41,6 +41,8 @@ public class GradeFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // 검색 버튼 비활성화
+        setHasOptionsMenu(false);
 
         return inflater.inflate(R.layout.fragment_grade, container, false);
     }
