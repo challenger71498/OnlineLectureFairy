@@ -18,7 +18,6 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
 
-import com.example.onlinelecturefairy.GoogleCalendarSyncTest;
 import com.example.onlinelecturefairy.LoginActivity;
 import com.example.onlinelecturefairy.MainActivity;
 import com.example.onlinelecturefairy.R;
@@ -1613,7 +1612,7 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
             }
             //TODO 과목별 고유한 색상 넣기
             for(Event e:events){
-                e.setColorId(Integer.toString(ColorPicker.getColorByLectureId(e.getSummary())));
+                e.setColorId(ColorPicker.lectureMap.getOrDefault(e.getSummary(), "1"));
                 try{
                     e = mService.events().insert(calendarID,e).execute();
                 }catch (Exception o){

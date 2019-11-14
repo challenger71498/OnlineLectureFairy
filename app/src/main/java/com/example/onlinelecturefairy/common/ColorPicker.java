@@ -1,17 +1,12 @@
 package com.example.onlinelecturefairy.common;
 
-import android.util.Log;
-
 import com.example.onlinelecturefairy.R;
 import com.google.common.collect.HashBiMap;
 
 import java.util.HashMap;
-import java.util.Map;
-
-import static android.content.ContentValues.TAG;
 
 public class ColorPicker {
-    private static final HashBiMap<String, Integer> colorMap = HashBiMap.create();
+    public static final HashBiMap<String, Integer> colorMap = HashBiMap.create();
 
     static {
         colorMap.put("1", R.color.lavender);
@@ -35,7 +30,7 @@ public class ColorPicker {
         }
     }
 
-    private static HashMap<String, String> lectureMap = new HashMap<>();
+    public static HashMap<String, String> lectureMap = new HashMap<>();
 
     static {
         lectureMap.put("defaultLectureString", "0");
