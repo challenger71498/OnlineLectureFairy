@@ -22,6 +22,7 @@ import com.example.onlinelecturefairy.GoogleCalendarSyncTest;
 import com.example.onlinelecturefairy.LoginActivity;
 import com.example.onlinelecturefairy.MainActivity;
 import com.example.onlinelecturefairy.R;
+import com.example.onlinelecturefairy.common.ColorPicker;
 import com.example.onlinelecturefairy.grade.Grade;
 import com.example.onlinelecturefairy.notice.Notice;
 import com.example.onlinelecturefairy.onlinelecture.OnlineLecture;
@@ -73,7 +74,6 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
     @Override
     public void onCreate() {
         Log.e("StartService", "onCreate()");
-
         super.onCreate();
     }
 
@@ -86,6 +86,8 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
 
     @Override
     public boolean onStartJob(JobParameters params) {
+
+
         GoogleSyncTask task = new GoogleSyncTask(params);
         task.execute();
         return true;
@@ -132,6 +134,7 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
                 SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(getApplication());
                 String everytimeAddress = appData.getString("everytimeAddress", "");
                 if (!everytimeAddress.equals("")) {
+                    deleteCalendar();
                     Log.e(TAG, "hi i'm crawler ");
                     String[] temp = everytimeAddress.split("@");
                     userIdentifier = temp[1];
@@ -579,7 +582,6 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
     }
 
     private ArrayList<Grade> arrGrade;
-    //TODO 함수 정의
 
     /**
      * get grade from blackboard after login
@@ -619,11 +621,6 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
                 Element contest = blackboard.select("contents").first();
                 Document doc = Jsoup.parse(contest.text());
 
-
-                /**
-                 * TODO: Calendar를 이용해서 현재 학기에 해당하는 과목의 주소만 들고오는 논리 구현
-                 *
-                 */
 
                 //현재가 무슨학기인지 알아내자.
                 String current_semester = "";
@@ -1172,7 +1169,7 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
 
         @Override
         protected void onPostExecute(String result) {
-            Log.e(TAG, result);
+            Log.e(TAG, "post delete");
         }
 
         @Override
@@ -1199,7 +1196,7 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
                 cancel(true);
                 return null;
             }
-            result = "지웠음";
+            Log.e(TAG, "지웠습니다.");
             return null;
         }
     }
@@ -1536,6 +1533,7 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
             int tYear = calendar.get(calendar.YEAR);
             int tMonth = calendar.get(calendar.MONTH);
             int tDate = calendar.get(calendar.DATE);
+            Event[] events = new Event[numOfSubject];
             for (int i = 0; i < numOfSubject; i++) {
                 calendar = java.util.Calendar.getInstance();
                 temp = arrSubInfo[i].split("@");
@@ -1545,7 +1543,7 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
                 startTime = temp[3];
                 endTime = temp[4];
                 location = temp[5];
-                Event event = new Event()
+                events[i]= new Event()
                         .setSummary(subjectName)
                         .setLocation(location)
                         .setDescription(professorName);
@@ -1577,7 +1575,7 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
                 EventDateTime start = new EventDateTime()
                         .setDateTime(startDateTime)
                         .setTimeZone("Asia/Seoul");
-                event.setStart(start);
+                events[i].setStart(start);
 
                 //set start time  default한 시간을 위해 다시 초기화
                 calendar = java.util.Calendar.getInstance();
@@ -1606,23 +1604,18 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
                 EventDateTime end = new EventDateTime()
                         .setDateTime(endDateTime)
                         .setTimeZone("Asia/Seoul");
-                event.setEnd(end);
-                Random random = new Random();
-                int cR = random.nextInt(11) + 1;
-                event.setColorId(Integer.toString(cR));
+                events[i].setEnd(end);
+                ColorPicker.addLectureId(subjectName);
+
                 //String[] recurrence = new String[]{"RRULE:FREQ=DAILY;COUNT=2"};
                 //fragment_event.setRecurrence(Arrays.asList(recurrence));
 
+            }
 
-                try {
-                    event = mService.events().insert(calendarID, event).execute();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.e("Exception", "Exception : " + e.toString());
-                }
+            for(Event e:events){
+                e.setColorId(Integer.toString(ColorPicker.getColorByLectureId(e.getSummary())));
             }
             String eventStrings = "시간표가 구글 캘린더 이번 주의 일정에 추가되었습니다.";
-
 
             return eventStrings;
         }
