@@ -3,7 +3,6 @@ package com.example.onlinelecturefairy.service;
 import android.Manifest;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
-import android.app.Service;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
@@ -13,12 +12,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
@@ -68,7 +65,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -91,76 +87,81 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        isGoogleValid = true;
-        AtomicBoolean done = new AtomicBoolean(false);
+        // check setting first.
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        Boolean sync = pref.getBoolean("everytimeSync", false);
 
-        // Google Calendar API 사용하기 위해 필요한 인증 초기화( 자격 증명 credentials, 서비스 객체 )
-        // OAuth 2.0를 사용하여 구글 계정 선택 및 인증하기 위한 준비
-        mCredential = GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(),
-                Arrays.asList(SCOPES)
-        ).setBackOff(new ExponentialBackOff()); // I/O 예외 상황을 대비해서 백오프 정책 사용
+        if(sync) {
+            // Broadcasting test
+            //LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent("hello-there"));
 
-        // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
-        String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-                .getString(PREF_ACCOUNT_NAME, null);
-        if (accountName != null) {
-            Log.e(TAG, "getResultsFromApi: CHOOSE_SAVED_ACCOUNT");
-            mCredential.setSelectedAccountName(accountName);
-            SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(getApplication());
-            String everytimeAddress = appData.getString("everytimeAddress", "");
-            Log.e(TAG, "onPreExecute: REMOVE_CALENDAR");
-            deleteCalendar();
-            Log.e(TAG, "onPreExecute: EVERYTIME_CRAWLER_EXECUTED");
-            String[] temp = everytimeAddress.split("@");
-            if(temp.length > 1) {
-                userIdentifier = temp[1];
-            } else {
-                userIdentifier = "";
-            }
-            CrawlingEveryTime crw = new CrawlingEveryTime();
-            crw.execute();
-        } else {
-            isGoogleValid = false;
-            getResultsFromApi();
-        }
+            isGoogleValid = true;
+            AtomicBoolean done = new AtomicBoolean(false);
 
-        Handler handler = new Handler();
-        Thread thread = new Thread(() -> {
-            Looper.prepare();
-            handler.post(() -> {
-                if (done.get()) {
-                    notifyTimetableSyncFinished();
-                    Log.e(TAG, "onStartJob: THREAD HANDLER POST");
+            // Google Calendar API 사용하기 위해 필요한 인증 초기화( 자격 증명 credentials, 서비스 객체 )
+            // OAuth 2.0를 사용하여 구글 계정 선택 및 인증하기 위한 준비
+            mCredential = GoogleAccountCredential.usingOAuth2(
+                    getApplicationContext(),
+                    Arrays.asList(SCOPES)
+            ).setBackOff(new ExponentialBackOff()); // I/O 예외 상황을 대비해서 백오프 정책 사용
+
+            // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
+            String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+                    .getString(PREF_ACCOUNT_NAME, null);
+            if (accountName != null) {
+                Log.e(TAG, "getResultsFromApi: CHOOSE_SAVED_ACCOUNT");
+                mCredential.setSelectedAccountName(accountName);
+                SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(getApplication());
+                String everytimeAddress = appData.getString("everytimeAddress", "");
+                Log.e(TAG, "onPreExecute: REMOVE_CALENDAR");
+                deleteCalendar();
+                Log.e(TAG, "onPreExecute: EVERYTIME_CRAWLER_EXECUTED");
+                String[] temp = everytimeAddress.split("@");
+                if(temp.length > 1) {
+                    userIdentifier = temp[1];
+                } else {
+                    userIdentifier = "";
                 }
-
-                jobFinished(params, true);   // true로 놓아야 계속 job을 돌림
-            });
-            done.set(false);
-            while(!crawlingEveryTimeDone) {
-                // wait until crawling is done.
-            }
-            if (isGoogleValid && isEverytimeValid) {
-                // 구글 validity check에 성공 시 작업 실행.
-                Log.e(TAG, "GOOGLE_VALIDATION_COMPLETE");
-
-                //Calendar 테스트 코드.
-                mID = 5;
-                Log.e(TAG, "done " + getResultsFromApi());
-
-                //여기에 구글 캘린더 동기화 작업을 작성.
-
-                done.set(true);
+                CrawlingEveryTime crw = new CrawlingEveryTime();
+                crw.execute();
             } else {
-                Log.e(TAG, "doInBackground: VALIDATION_FAILED " + isGoogleValid + " " + isEverytimeValid);
+                isGoogleValid = false;
+                getResultsFromApi();
             }
-            Looper.loop();
-        });
-        thread.start();
 
-//        Intent intent = new Intent(this, GoogleSyncTask.class);
-//        intent.putExtra("params", params);
-//        startService(intent);
+            Handler handler = new Handler();
+            Thread thread = new Thread(() -> {
+                Looper.prepare();
+                handler.post(() -> {
+                    if (done.get()) {
+                        notifyTimetableSyncFinished();
+                        Log.e(TAG, "onStartJob: THREAD HANDLER POST");
+                    }
+
+                    jobFinished(params, true);   // true로 놓아야 계속 job을 돌림
+                });
+                done.set(false);
+                while(!crawlingEveryTimeDone) {
+                    // wait until crawling is done.
+                }
+                if (isGoogleValid && isEverytimeValid) {
+                    // 구글 validity check에 성공 시 작업 실행.
+                    Log.e(TAG, "GOOGLE_VALIDATION_COMPLETE");
+
+                    //Calendar 테스트 코드.
+                    mID = 5;
+                    Log.e(TAG, "done " + getResultsFromApi());
+
+                    //여기에 구글 캘린더 동기화 작업을 작성.
+
+                    done.set(true);
+                } else {
+                    Log.e(TAG, "doInBackground: VALIDATION_FAILED " + isGoogleValid + " " + isEverytimeValid);
+                }
+                Looper.loop();
+            });
+            thread.start();
+        }
         return true;
     }
 

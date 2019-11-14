@@ -147,11 +147,10 @@ public class BackgroundService extends JobService {
             Log.e(TAG, "numberOfLecture: " + lecturesOfWeek.size());
             //이미 들은 웹강 counting
             for (OnlineLecture lecture : lecturesOfWeek) {
-                if (lecture.getPass().matches(".*P.*")){
+                if (lecture.getPass().matches(".*P.*")) {
                     temp++;
-                }
-                else{
-                    noneList += lecture.getLecture()+": "+lecture.getWeek()+"\n";
+                } else {
+                    noneList += lecture.getLecture() + ": " + lecture.getWeek() + "\n";
                 }
             }
 
@@ -160,18 +159,22 @@ public class BackgroundService extends JobService {
             java.util.Calendar calendar1 = java.util.Calendar.getInstance();
             java.util.Calendar calendar2 = java.util.Calendar.getInstance();
 
-            calendar2.set(Calendar.HOUR_OF_DAY,13);
-            calendar2.set(Calendar.MINUTE,0);
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            String timeString = pref.getString("notificationCheck", "0");
+            Log.e(TAG, "onPostExecute: " + timeString);
+
+            calendar2.set(Calendar.HOUR_OF_DAY, 13);
+            calendar2.set(Calendar.MINUTE, 0);
 
             //오늘이 일요일이고, 일요일 오후 1시가 지났다면,
-            if(temp!=lecturesOfWeek.size()&&calendar1.compareTo(calendar2)==1&&calendar1.get(Calendar.DAY_OF_WEEK)==1) {
+            if (temp != lecturesOfWeek.size() && calendar1.compareTo(calendar2) == 1 && calendar1.get(Calendar.DAY_OF_WEEK) == 1) {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
                         .setSmallIcon(R.drawable.web_fairy_short)
-                        .setContentTitle("이번 주에 듣지 않은 웹강이 " + Integer.toString(lecturesOfWeek.size() - temp)+"개 있습니다.")
+                        .setContentTitle("이번 주에 듣지 않은 웹강이 " + Integer.toString(lecturesOfWeek.size() - temp) + "개 있습니다.")
                         .setContentText("아래로 스크롤하여 듣지 않은 웹강을 확인하세요.")
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(noneList))
@@ -384,10 +387,10 @@ public class BackgroundService extends JobService {
                                 lecture = (course.select("a.comboLink").text());
                                 lecture = lecture.replaceFirst(" ", "");
                                 week = (e.text().split("XIN -")[1]).split("/")[0];
-                                week = week.replaceFirst(" ","");
-                                webLectureName = webLectureName.replace(" ","");
+                                week = week.replaceFirst(" ", "");
+                                webLectureName = webLectureName.replace(" ", "");
                                 week_header = week;
-                                lecture_header+=" (" + webLectureName+")";
+                                lecture_header += " (" + webLectureName + ")";
                                 pass = Character.toString(e.text().charAt(e.text().length() - 1));
                                 lecturesOfWeek.add(new OnlineLecture(lecture_header, week_header, date_header, pass_header, OnlineLectureAdapter.HEADER));
                             } else if (today.compareTo(webStartDate) == -1) {

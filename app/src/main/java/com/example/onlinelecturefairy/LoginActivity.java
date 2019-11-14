@@ -2,8 +2,10 @@ package com.example.onlinelecturefairy;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -17,6 +19,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
 import com.example.onlinelecturefairy.common.AsyncTaskCallBack;
@@ -48,6 +51,17 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        // Receiver for service status.
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.e("Receiver", "onReceive: HELLO_THERE!");
+            }
+        };
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver,
+                new IntentFilter("hello-there"));
+
         if(loader != null && loader.getStatus() == AsyncTask.Status.RUNNING) {
             loader.cancel(true);
         }
