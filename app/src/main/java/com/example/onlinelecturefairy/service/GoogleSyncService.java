@@ -1,48 +1,30 @@
-package com.example.onlinelecturefairy;
+package com.example.onlinelecturefairy.service;
 
 import android.Manifest;
-import android.accounts.AccountManager;
-import android.app.Activity;
-import android.app.Dialog;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
+import android.app.job.JobParameters;
+import android.app.job.JobService;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
 
+import com.example.onlinelecturefairy.MainActivity;
+import com.example.onlinelecturefairy.R;
 import com.example.onlinelecturefairy.grade.Grade;
 import com.example.onlinelecturefairy.notice.Notice;
 import com.example.onlinelecturefairy.onlinelecture.OnlineLecture;
-import com.example.onlinelecturefairy.service.BackgroundService;
-import com.example.onlinelecturefairy.service.GoogleSyncService;
 import com.example.onlinelecturefairy.ui.onlinelecture.OnlineLectureAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
@@ -83,21 +65,33 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
-public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
-    public static Context context;
-
-    public static boolean shown = false;
-
-    private AppBarConfiguration mAppBarConfiguration;
-
-    // for double back to exit function.
-    private final long INTERNAL_TIME = 1000;
-    private long previousTime = 0;
+public class GoogleSyncService extends JobService implements EasyPermissions.PermissionCallbacks {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    public void onCreate() {
+        Log.e("StartService", "onCreate()");
+
+        super.onCreate();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.e("StartService", "onDestroy()");
+        super.onDestroy();
+    }
+
+    @Override
+    public boolean onStartJob(JobParameters params) {
+        return false;
+    }
+
+    @Override
+    public boolean onStopJob(JobParameters params) {
+        return false;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
 
         // Google Calendar API 사용하기 위해 필요한 인증 초기화( 자격 증명 credentials, 서비스 객체 )
         // OAuth 2.0를 사용하여 구글 계정 선택 및 인증하기 위한 준비
@@ -106,198 +100,27 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 Arrays.asList(SCOPES)
         ).setBackOff(new ExponentialBackOff()); // I/O 예외 상황을 대비해서 백오프 정책 사용
 
-//        //Calendar
-//        mID = 1;
-//        if(getResultsFromApi() != null) {
-//            Log.e(TAG, getResultsFromApi());
-//        }
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show());
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_online, R.id.nav_notice, R.id.nav_grade, R.id.nav_timetable)
-                .setDrawerLayout(drawer)
-                .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
-
-        //Snackbar for login success.
-        Intent intent = getIntent();
-        if (intent.getBooleanExtra("isInfoCorrect", false)) {
-            Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "로그인 성공!", Snackbar.LENGTH_SHORT);
-            snackbar
-                    .setAction("Action", null)
-                    .show();
+        // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
+        String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+                .getString(PREF_ACCOUNT_NAME, null);
+        if(accountName != null) {
+            Log.e(TAG, "getResultsFromApi: CHOOSE_SAVED_ACCOUNT");
+            mCredential.setSelectedAccountName(accountName);
         }
 
-        //Background initialization.
-        long period = 1;  //minutes
+        //Calendar
+        mID = 1;
+        Log.e(TAG, "done " + getResultsFromApi());
 
-        JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        assert scheduler != null;
-        scheduler.schedule(
-                new JobInfo.Builder(getResources().getInteger(R.integer.REFRESH_BACKGROUND_TASK), new ComponentName(this, BackgroundService.class))
-                        .setOverrideDeadline(period * 1000 * 60)
-                        .setPersisted(true)
-                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                        .build());
-
-        //Notification
-        createNotificationChannel();
-
-        if(!shown) {
-            startService(new Intent(this, GoogleSyncService.class));
-            shown = true;
-        }
-
-        if(getIntent().getBooleanExtra("account-check", false)) {
-            Log.e(TAG, "onReceive: RECEIVED");
-            chooseAccount();
-        }
-
-        //LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter("account-check"));
-    }
-
-//    BroadcastReceiver receiver = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            Log.e(TAG, "onReceive: RECEIVED");
-//            chooseAccount();
-//        }
-//    };
-
-    //channeling
-    private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Refresh";
-            String description = "Refreshing";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("0417", name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Account check";
-            String description = "Check your account";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("714", name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
-                || super.onSupportNavigateUp();
-    }
-
-    @Override
-    public void onBackPressed() {
-        long currentTime = System.currentTimeMillis();
-
-        if (currentTime - previousTime <= INTERNAL_TIME) {
-            finishAffinity();
-        } else {
-            previousTime = currentTime;
-            Toast.makeText(this, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
-        }
     }
 
     // GoogleSync
-
-    /*
-     * 구글 플레이 서비스 업데이트 다이얼로그, 구글 계정 선택 다이얼로그, 인증 다이얼로그에서 되돌아올때 호출된다.
-     */
-
-//    @Override
-//    protected void onActivityResult(
-//            int requestCode,  // onActivityResult가 호출되었을 때 요청 코드로 요청을 구분
-//            int resultCode,   // 요청에 대한 결과 코드
-//            Intent data
-//    ) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//
-//        switch (requestCode) {
-//
-//            case REQUEST_GOOGLE_PLAY_SERVICES:
-//
-//                if (resultCode != RESULT_OK) {
-//
-//                    Log.e(TAG, " 앱을 실행시키려면 구글 플레이 서비스가 필요합니다."
-//                            + "구글 플레이 서비스를 설치 후 다시 실행하세요.");
-//                } else {
-//
-//                    getResultsFromApi();
-//                }
-//                break;
-//
-//
-//            case REQUEST_ACCOUNT_PICKER:
-//                if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
-//                    String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-//                    if (accountName != null) {
-//                        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
-//                        SharedPreferences.Editor editor = settings.edit();
-//                        editor.putString(PREF_ACCOUNT_NAME, accountName);
-//                        editor.apply();
-//                        mCredential.setSelectedAccountName(accountName);
-//                        getResultsFromApi();
-//                    }
-//                }
-//                break;
-//
-//
-//            case REQUEST_AUTHORIZATION:
-//
-//                if (resultCode == RESULT_OK) {
-//                    getResultsFromApi();
-//                }
-//                break;
-//        }
-//    }
-
-//    /*
-//     * Android 6.0 (API 23) 이상에서 런타임 권한 요청시 결과를 리턴받음
-//     */
-//    @Override
-//    public void onRequestPermissionsResult(
-//            int requestCode,  //requestPermissions(android.app.Activity, String, int, String[])에서 전달된 요청 코드
-//            @NonNull String[] permissions, // 요청한 퍼미션
-//            @NonNull int[] grantResults    // 퍼미션 처리 결과. PERMISSION_GRANTED 또는 PERMISSION_DENIED
-//    ) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//
-//        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-//    }
 
     /**
      * Google Calendar API에 접근하기 위해 사용되는 구글 캘린더 API 서비스 객체
@@ -308,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     /**
      * Google Calendar API 호출 관련 메커니즘 및 AsyncTask을 재사용하기 위해 사용
      */
-    public int mID = 0;
+    private int mID = 0;
 
 
     public static GoogleAccountCredential mCredential;
@@ -360,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         } else {
 
             // Google Calendar API 호출
-            new MainActivity.deleteCal(this, mCredential).execute();
+            new GoogleSyncService.deleteCal(this, mCredential).execute();
         }
         return;
     }
@@ -376,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = new ProgressDialog(MainActivity.this);
+            progressDialog = new ProgressDialog(GoogleSyncService.this);
             progressDialog.show();
         }
 
@@ -514,22 +337,32 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
      * <p>
      * 하나라도 만족하지 않으면 해당 사항을 사용자에게 알림.
      */
-    public String getResultsFromApi() {
+    private String getResultsFromApi() {
+        try {
+            if (!isGooglePlayServicesAvailable()) { // Google Play Services를 사용할 수 없는 경우
+                Log.e(TAG, "getResultsFromApi: CANNOT_USE_GOOGLE_PLAY_SERVICES");
+                acquireGooglePlayServices();
+            } else if (mCredential.getSelectedAccountName() == null) { // 유효한 Google 계정이 선택되어 있지 않은 경우
 
-        if (!isGooglePlayServicesAvailable()) { // Google Play Services를 사용할 수 없는 경우
+                Log.e(TAG, "getResultsFromApi: CANNOT_GET_VAILD_GOOGLE_ACCOUNT");
+                chooseAccount();
 
-            acquireGooglePlayServices();
-        } else if (mCredential.getSelectedAccountName() == null) { // 유효한 Google 계정이 선택되어 있지 않은 경우
+                //startActivity(new Intent(this, MainActivity.class));
+//            Intent intent = new Intent("service-callback");
+//            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+            } else if (!isDeviceOnline()) {    // 인터넷을 사용할 수 없는 경우
 
-            chooseAccount();
-        } else if (!isDeviceOnline()) {    // 인터넷을 사용할 수 없는 경우
+                Log.e(TAG, "No network connection available.");
+            } else {
 
-            Log.e(TAG, "No network connection available.");
-        } else {
-
-            // Google Calendar API 호출
-            new MainActivity.MakeRequestTask(this, mCredential).execute();
+                // Google Calendar API 호출
+                new GoogleSyncService.MakeRequestTask(this, mCredential).execute();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        Log.e(TAG, "getResultsFromApi: You shouldn't reach here.");
         return null;
     }
 
@@ -541,7 +374,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = new ProgressDialog(MainActivity.this);
+            progressDialog = new ProgressDialog(GoogleSyncService.this);
             progressDialog.show();
         }
 
@@ -693,7 +526,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = new ProgressDialog(MainActivity.this);
+            progressDialog = new ProgressDialog(GoogleSyncService.this);
             progressDialog.show();
         }
 
@@ -840,7 +673,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = new ProgressDialog(MainActivity.this);
+            progressDialog = new ProgressDialog(GoogleSyncService.this);
             progressDialog.show();
         }
 
@@ -1097,12 +930,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
 
-        Dialog dialog = apiAvailability.getErrorDialog(
-                MainActivity.this,
-                connectionStatusCode,
-                REQUEST_GOOGLE_PLAY_SERVICES
-        );
-        dialog.show();
+//        Dialog dialog = apiAvailability.getErrorDialog(
+//                GoogleSyncService.this,
+//                connectionStatusCode,
+//                REQUEST_GOOGLE_PLAY_SERVICES
+//        );
+//        dialog.show();
     }
 
 
@@ -1117,117 +950,53 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         // GET_ACCOUNTS 권한을 가지고 있다면
         if (EasyPermissions.hasPermissions(this, Manifest.permission.GET_ACCOUNTS)) {
-
-            Log.e(TAG, "chooseAccount: GET_NAME");
+            Log.e(TAG, "chooseAccount: Bring name at sharedpref");
             // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
             String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
                     .getString(PREF_ACCOUNT_NAME, null);
             if (accountName != null) {
-                Log.e(TAG, "chooseAccount: SET_INTENT " + accountName);
                 // 선택된 구글 계정 이름으로 설정한다.
-                GoogleSyncService.mCredential.setSelectedAccountName(accountName);
-                Log.e(TAG, "chooseAccount: ACCOUNTNAME : " + GoogleSyncService.mCredential.getSelectedAccountName());
-                //getResultsFromApi();
-//                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-//                pref.edit()
-//                        .putString(PREF_ACCOUNT_NAME, GoogleSyncService.mCredential.getSelectedAccountName())
-//                        .apply();
-                startService(new Intent(this, GoogleSyncService.class));
+                Log.e(TAG, "set");
+                mCredential.setSelectedAccountName(accountName);
+                getResultsFromApi();
             } else {
-                Log.e(TAG, "chooseAccount: DIALOG");
-                // 사용자가 구글 계정을 선택할 수 있는 다이얼로그를 보여준다.
-                startActivityForResult(
-                        GoogleSyncService.mCredential.newChooseAccountIntent(),
-                        REQUEST_ACCOUNT_PICKER);
+                Log.e(TAG, "new");
+
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.putExtra("account-check", true);
+                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "714")
+                        .setSmallIcon(R.drawable.web_fairy_short)
+                        .setContentTitle("계정 오류")
+                        .setContentText("계정 설정에 오류가 발생하였습니다. 탭하여 설정을 확인하세요.")
+                        .setContentIntent(pendingIntent)
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+
+                // notificationId is a unique int for each notification that you must define
+                notificationManager.notify(714, builder.build());
+
+//                startActivity(new Intent(this, MainActivity.class));
+//                ((MainActivity) MainActivity.context).startActivityForResult(
+//                        mCredential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
             }
 
 
             // GET_ACCOUNTS 권한을 가지고 있지 않다면
         } else {
 
-
+            Log.e(TAG, "getAccount");
             // 사용자에게 GET_ACCOUNTS 권한을 요구하는 다이얼로그를 보여준다.(주소록 권한 요청함)
             EasyPermissions.requestPermissions(
-                    (Activity) this,
+                    (MainActivity) getApplicationContext(),
                     "This app needs to access your Google account (via Contacts).",
                     REQUEST_PERMISSION_GET_ACCOUNTS,
                     Manifest.permission.GET_ACCOUNTS);
         }
     }
-
-
-
-    /*
-     * 구글 플레이 서비스 업데이트 다이얼로그, 구글 계정 선택 다이얼로그, 인증 다이얼로그에서 되돌아올때 호출된다.
-     */
-
-    @Override
-    public void onActivityResult(
-            int requestCode,  // onActivityResult가 호출되었을 때 요청 코드로 요청을 구분
-            int resultCode,   // 요청에 대한 결과 코드
-            Intent data
-    ) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-
-        switch (requestCode) {
-
-            case REQUEST_GOOGLE_PLAY_SERVICES:
-
-                if (resultCode != RESULT_OK) {
-
-                    Log.e(TAG, " 앱을 실행시키려면 구글 플레이 서비스가 필요합니다."
-                            + "구글 플레이 서비스를 설치 후 다시 실행하세요.");
-                } else {
-                    Intent intent = new Intent(this, GoogleSyncService.class);
-                    startService(intent);
-                    //getResultsFromApi();
-                }
-                break;
-
-
-            case REQUEST_ACCOUNT_PICKER:
-                if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
-                    String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-                    if (accountName != null) {
-                        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                        settings.edit()
-                                .putString(PREF_ACCOUNT_NAME, accountName)
-                                .apply();
-                        //mCredential.setSelectedAccountName(accountName);
-                        GoogleSyncService.mCredential.setSelectedAccountName(accountName);
-                        //getResultsFromApi();
-                        startService(new Intent(this, GoogleSyncService.class));
-                    }
-                }
-                break;
-
-
-            case REQUEST_AUTHORIZATION:
-
-                if (resultCode == RESULT_OK) {
-                    startService(new Intent(this, GoogleSyncService.class));
-                    //getResultsFromApi();
-                }
-                break;
-        }
-    }
-
-
-    /*
-     * Android 6.0 (API 23) 이상에서 런타임 권한 요청시 결과를 리턴받음
-     */
-    @Override
-    public void onRequestPermissionsResult(
-            int requestCode,  //requestPermissions(android.app.Activity, String, int, String[])에서 전달된 요청 코드
-            @NonNull String[] permissions, // 요청한 퍼미션
-            @NonNull int[] grantResults    // 퍼미션 처리 결과. PERMISSION_GRANTED 또는 PERMISSION_DENIED
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-    }
-
 
     /*
      * EasyPermissions 라이브러리를 사용하여 요청한 권한을 사용자가 승인한 경우 호출된다.
@@ -1275,7 +1044,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             try {
                 calendarList = mService.calendarList().list().setPageToken(pageToken).execute();
             } catch (UserRecoverableAuthIOException e) {
-                startActivityForResult(e.getIntent(), REQUEST_AUTHORIZATION);
+                ((MainActivity) getApplicationContext()).startActivityForResult(e.getIntent(), REQUEST_AUTHORIZATION);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -1298,11 +1067,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private class deleteCal extends AsyncTask<Void, Void, String> {
 
         private Exception mLastError = null;
-        private MainActivity mActivity;
+        private GoogleSyncService mActivity;
         List<String> eventStrings = new ArrayList<String>();
         List<Event> ourEventArray = new ArrayList<Event>();
 
-        public deleteCal(MainActivity activity, GoogleAccountCredential credential) {
+        public deleteCal(GoogleSyncService activity, GoogleAccountCredential credential) {
 
             mActivity = activity;
 
@@ -1335,7 +1104,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         protected String doInBackground(Void... params) {
             try {
                 String calendarID = getCalendarID("웹강요정");
-                if(calendarID == null){
+                if (calendarID == null) {
                     result = "지울 캘린더가 없습니다.";
                 }
                 mService.calendarList().delete(calendarID).execute();
@@ -1344,7 +1113,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 cancel(true);
                 return null;
             }
-            result="지웠음";
+            result = "지웠음";
             return null;
         }
     }
@@ -1355,11 +1124,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private class MakeRequestTask extends AsyncTask<Void, Void, String> {
 
         private Exception mLastError = null;
-        private MainActivity mActivity;
+        private GoogleSyncService mActivity;
         List<String> eventStrings = new ArrayList<String>();
         List<Event> ourEventArray = new ArrayList<Event>();
 
-        public MakeRequestTask(MainActivity activity, GoogleAccountCredential credential) {
+        public MakeRequestTask(GoogleSyncService activity, GoogleAccountCredential credential) {
 
             mActivity = activity;
 
@@ -1561,9 +1330,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         @Override
         protected void onPostExecute(String output) {
-            if(output != null) {
-                Log.e(TAG, output);
-            }
+            Log.e(TAG, output);
+
 //            if (mID == 3) mResultText.setText(TextUtils.join("\n\n", eventStrings));
 //            if (mID == 4) mResultText.setText(TextUtils.join("\n\n", eventStrings));
 //            if (mID == 5) mResultText.setText(TextUtils.join("\n\n", eventStrings));
@@ -1578,9 +1346,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                             ((GooglePlayServicesAvailabilityIOException) mLastError)
                                     .getConnectionStatusCode());
                 } else if (mLastError instanceof UserRecoverableAuthIOException) {
-                    startActivityForResult(
+                    ((MainActivity) getApplicationContext()).startActivityForResult(
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                            MainActivity.REQUEST_AUTHORIZATION);
+                            GoogleSyncService.REQUEST_AUTHORIZATION);
                 } else {
                     Log.e(TAG, "MakeRequestTask The following error occurred:\n" + mLastError.getMessage());
                 }

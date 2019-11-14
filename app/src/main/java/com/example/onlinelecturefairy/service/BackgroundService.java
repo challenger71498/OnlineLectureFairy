@@ -10,16 +10,15 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
 import com.example.onlinelecturefairy.LoginActivity;
 import com.example.onlinelecturefairy.R;
 import com.example.onlinelecturefairy.common.AsyncTaskCallBack;
 import com.example.onlinelecturefairy.common.BlackboardInfoCheckBackground;
-import com.example.onlinelecturefairy.common.ColorPicker;
 import com.example.onlinelecturefairy.onlinelecture.OnlineLecture;
 import com.example.onlinelecturefairy.ui.onlinelecture.OnlineLectureAdapter;
-import com.google.api.services.calendar.Calendar;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -59,7 +58,6 @@ public class BackgroundService extends JobService {
 
         String id;
         String pw;
-
 
         Boolean isDone = false;
 
@@ -115,9 +113,16 @@ public class BackgroundService extends JobService {
             }
             // TODO: 에브리타임 URL이 적절한지 check
             if (isInfoCorrect) {
-                Log.e(TAG, "Hey, what up!");
+                Intent intent = new Intent("my-event");
+                intent.putExtra("message", "hello!");
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                 readyToCrawling = true;
             }
+
+//            //Background
+//            MainActivity activity = (MainActivity) MainActivity.context;
+//            MainActivity.mID = 2;
+//            Log.e(TAG, "doInBackground: " + activity.getResultsFromApi());
 
             return null;
         }
@@ -371,7 +376,6 @@ public class BackgroundService extends JobService {
 
                                 lecture = (course.select("a.comboLink").text());
                                 lecture = lecture.replaceFirst(" ", "");
-                                Log.e(TAG, "lecture :" + lecture + "@" + date);
                                 week = (e.text().split("XIN -")[1]).split("/")[0];
                                 pass = Character.toString(e.text().charAt(e.text().length() - 1));
                                 lecturesOfWeek.add(new OnlineLecture(lecture_header, week_header, date_header, pass_header, OnlineLectureAdapter.HEADER));
