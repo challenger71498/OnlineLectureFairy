@@ -2,10 +2,10 @@ package com.example.onlinelecturefairy;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,14 +28,17 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
+    InputMethodManager imm;
+    BlackboardInfoCheck.CheckBlackBoard check;
+    KomoranLoader.Loader loader;
+    Intent intent = null;
+
     private SharedPreferences appData;
     private LoginActivityViewModel model;
-    InputMethodManager imm;
     private String blackboard_user_id;
     private String blackboard_user_password;
     private EditText idText;
     private EditText pwText;
-    ProgressDialog progressDialog;
     boolean isInfoCorrect;
     private Map<String, String> loginCookie;
 
@@ -45,6 +48,10 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        if(loader != null && loader.getStatus() == AsyncTask.Status.RUNNING) {
+            loader.cancel(true);
+        }
+
         //Removes notifications.
         NotificationManager manager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(417);
@@ -67,12 +74,11 @@ public class LoginActivity extends AppCompatActivity {
         idText = binding.idInput;
         pwText = binding.pwInput;
 
-        //Komoran load.
-        KomoranLoader.Loader loader = new KomoranLoader.Loader();
-        loader.execute();
-
         //Notification
         createNotificationChannel();
+
+        //Intent
+        intent = getIntent();
 
         //Focuses ID if id is empty.
         if (model.getId().equals("")) {
@@ -95,12 +101,27 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
 
+        //Komoran load.
+        loader = new KomoranLoader.Loader();
+        loader.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+
         binding.loginButton.setOnClickListener(v -> {
             imm.hideSoftInputFromWindow(pwText.getWindowToken(), 0);
             final EditText inputId = findViewById(R.id.idInput);
             final EditText inputPw = findViewById(R.id.pwInput);
             login(v, inputId.getText().toString(), inputPw.getText().toString());
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(check != null) {
+            if(!check.isCancelled()) {
+                check.cancel(true);
+            }
+        }
     }
 
     //channeling
@@ -156,14 +177,36 @@ public class LoginActivity extends AppCompatActivity {
         Log.e(null, _id + " " + _pw);
         blackboard_user_id = _id;
         blackboard_user_password = _pw;
-        BlackboardInfoCheck.CheckBlackBoard check = new BlackboardInfoCheck.CheckBlackBoard(v.getContext(), _id, _pw, isInfoCorrect, new AsyncTaskCallBack() {
+        check = new BlackboardInfoCheck.CheckBlackBoard(v.getContext(), _id, _pw, isInfoCorrect, new AsyncTaskCallBack() {
             @Override
             public void onSuccess() {
                 isInfoCorrect = true;
                 save();
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                intent.putExtra("isInfoCorrect", isInfoCorrect);
-                startActivity(intent);
+                Intent sendIntent = new Intent(LoginActivity.this, MainActivity.class);
+                sendIntent.putExtra("isInfoCorrect", isInfoCorrect);
+                // Error intents
+                if(intent != null) {
+                    if(intent.getBooleanExtra("account-check", false)) {
+                        Log.e("TAG", "onSuccess: LOGIN_ACTIVITY got accuont-check");
+                        sendIntent.putExtra("account-check", true);
+                        intent.removeExtra("account-check");
+                    }
+                    else if (intent.getBooleanExtra("permission-check", false)) {
+                        Log.e("TAG", "onSuccess: LOGIN_ACTIVITY got permission-check");
+                        sendIntent.putExtra("permission-check", true);
+                        intent.removeExtra("permission-check");
+                    }
+                    else if (intent.getBooleanExtra("everytime", false)) {
+                        Log.e("TAG", "onSuccess: LOGIN_ACTIVITY got everytime");
+                        sendIntent.putExtra("everytime", true);
+                        intent.removeExtra("everytime");
+                    }
+                }
+
+                //intent 초기화
+                intent = null;
+
+                startActivity(sendIntent);
             }
 
             @Override
@@ -174,6 +217,6 @@ public class LoginActivity extends AppCompatActivity {
                         .show();
             }
         });
-        check.execute();
+        check.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 }

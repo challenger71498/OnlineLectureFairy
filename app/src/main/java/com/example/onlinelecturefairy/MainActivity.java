@@ -16,7 +16,6 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -37,7 +36,6 @@ import com.example.onlinelecturefairy.service.GoogleSyncService;
 import com.example.onlinelecturefairy.ui.onlinelecture.OnlineLectureAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -111,9 +109,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show());
+//        FloatingActionButton fab = findViewById(R.id.fab);
+//        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                .setAction("Action", null).show());
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -162,25 +160,36 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             shown = true;
         }
 
-        if(getIntent().getBooleanExtra("account-check", false)) {
-            Log.e(TAG, "onReceive: RECEIVED");
-            Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "계정이 연동되지 않았습니다. 여기를 탭하여 계정을 추가해 주세요.", Snackbar.LENGTH_INDEFINITE);
+        if(intent.getBooleanExtra("account-check", false)) {
+            Log.e(TAG, "onReceive: RECEIVED account-check");
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "계정이 연동되지 않았습니다.", Snackbar.LENGTH_INDEFINITE);
             snackbar
                     .setAction("설정", v -> {
                         chooseAccount();
                         snackbar.dismiss();
                     })
                     .show();
-        } else if(getIntent().getBooleanExtra("permission-check", false)) {
-            Log.e(TAG, "onCreate: RECEIVED");
-            Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "권한이 승인되지 않았습니다. 여기를 탭하여 권한을 허가하세요..", Snackbar.LENGTH_INDEFINITE);
+        } else if(intent.getBooleanExtra("permission-check", false)) {
+            Log.e(TAG, "onCreate: RECEIVED permission-check");
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "권한이 승인되지 않았습니다.", Snackbar.LENGTH_INDEFINITE);
             snackbar
                     .setAction("설정", v -> {
                         chooseAccount();
                         snackbar.dismiss();
+                    })
+                    .show();
+        } else if(intent.getBooleanExtra("everytime", false)) {
+            Log.e(TAG, "onCreate: RECEIVED everytime");
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "에브리타임 연동에 실패했습니다.", Snackbar.LENGTH_INDEFINITE);
+            snackbar
+                    .setAction("설정", v -> {
+                        Intent i = new Intent(this, SettingsActivity.class);
+                        startActivity(i);
                     })
                     .show();
         }
+
+        //intent 초기화
 
         //LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter("account-check"));
     }
@@ -192,13 +201,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 //            chooseAccount();
 //        }
 //    };
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
 
     @Override
     public boolean onSupportNavigateUp() {

@@ -3,6 +3,7 @@ package com.example.onlinelecturefairy.service;
 import android.Manifest;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.app.Service;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
@@ -11,9 +12,13 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
@@ -62,6 +67,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -69,26 +76,91 @@ import pub.devrel.easypermissions.EasyPermissions;
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class GoogleSyncService extends JobService implements EasyPermissions.PermissionCallbacks {
-
     @Override
     public void onCreate() {
-        Log.e("StartService", "onCreate()");
+        Log.e("GoogleSyncService", "onCreate()");
         super.onCreate();
     }
 
     @Override
     public void onDestroy() {
-        Log.e("StartService", "onDestroy()");
+        Log.e("GoogleSyncService", "onDestroy()");
         super.onDestroy();
     }
 
 
     @Override
     public boolean onStartJob(JobParameters params) {
+        isGoogleValid = true;
+        AtomicBoolean done = new AtomicBoolean(false);
 
+        // Google Calendar API 사용하기 위해 필요한 인증 초기화( 자격 증명 credentials, 서비스 객체 )
+        // OAuth 2.0를 사용하여 구글 계정 선택 및 인증하기 위한 준비
+        mCredential = GoogleAccountCredential.usingOAuth2(
+                getApplicationContext(),
+                Arrays.asList(SCOPES)
+        ).setBackOff(new ExponentialBackOff()); // I/O 예외 상황을 대비해서 백오프 정책 사용
 
-        GoogleSyncTask task = new GoogleSyncTask(params);
-        task.execute();
+        // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
+        String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+                .getString(PREF_ACCOUNT_NAME, null);
+        if (accountName != null) {
+            Log.e(TAG, "getResultsFromApi: CHOOSE_SAVED_ACCOUNT");
+            mCredential.setSelectedAccountName(accountName);
+            SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(getApplication());
+            String everytimeAddress = appData.getString("everytimeAddress", "");
+            Log.e(TAG, "onPreExecute: REMOVE_CALENDAR");
+            deleteCalendar();
+            Log.e(TAG, "onPreExecute: EVERYTIME_CRAWLER_EXECUTED");
+            String[] temp = everytimeAddress.split("@");
+            if(temp.length > 1) {
+                userIdentifier = temp[1];
+            } else {
+                userIdentifier = "";
+            }
+            CrawlingEveryTime crw = new CrawlingEveryTime();
+            crw.execute();
+        } else {
+            isGoogleValid = false;
+            getResultsFromApi();
+        }
+
+        Handler handler = new Handler();
+        Thread thread = new Thread(() -> {
+            Looper.prepare();
+            handler.post(() -> {
+                if (done.get()) {
+                    notifyTimetableSyncFinished();
+                    Log.e(TAG, "onStartJob: THREAD HANDLER POST");
+                }
+
+                jobFinished(params, true);   // true로 놓아야 계속 job을 돌림
+            });
+            done.set(false);
+            while(!crawlingEveryTimeDone) {
+                // wait until crawling is done.
+            }
+            if (isGoogleValid && isEverytimeValid) {
+                // 구글 validity check에 성공 시 작업 실행.
+                Log.e(TAG, "GOOGLE_VALIDATION_COMPLETE");
+
+                //Calendar 테스트 코드.
+                mID = 5;
+                Log.e(TAG, "done " + getResultsFromApi());
+
+                //여기에 구글 캘린더 동기화 작업을 작성.
+
+                done.set(true);
+            } else {
+                Log.e(TAG, "doInBackground: VALIDATION_FAILED " + isGoogleValid + " " + isEverytimeValid);
+            }
+            Looper.loop();
+        });
+        thread.start();
+
+//        Intent intent = new Intent(this, GoogleSyncTask.class);
+//        intent.putExtra("params", params);
+//        startService(intent);
         return true;
     }
 
@@ -100,92 +172,99 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
+        ;
     }
 
-    class GoogleSyncTask extends AsyncTask<Void, Void, Void> {
-        boolean isGoogleValid;
-        JobParameters params;
+    boolean isGoogleValid;
+    boolean isEverytimeValid;
 
-        public GoogleSyncTask(JobParameters params) {
-            this.params = params;
-        }
+    //notifications
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
+    protected void notifyTimetableSyncFinished() {
 
-            isGoogleValid = true;
+        //종료 알림
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
 
-            // Google Calendar API 사용하기 위해 필요한 인증 초기화( 자격 증명 credentials, 서비스 객체 )
-            // OAuth 2.0를 사용하여 구글 계정 선택 및 인증하기 위한 준비
-            mCredential = GoogleAccountCredential.usingOAuth2(
-                    getApplicationContext(),
-                    Arrays.asList(SCOPES)
-            ).setBackOff(new ExponentialBackOff()); // I/O 예외 상황을 대비해서 백오프 정책 사용
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
+                .setSmallIcon(R.drawable.web_fairy_short)
+                .setContentTitle("시간표 동기화됨")
+                .setContentText("에브리타임 시간표가 구글 캘린더에 동기화되었습니다.")
+                .setContentIntent(pendingIntent)
+                .setChannelId("0417")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setGroup("WEB_FAIRY")
+                .setAutoCancel(true);
 
-            // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
-            String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-                    .getString(PREF_ACCOUNT_NAME, null);
-            if (accountName != null) {
-                Log.e(TAG, "getResultsFromApi: CHOOSE_SAVED_ACCOUNT");
-                mCredential.setSelectedAccountName(accountName);
-                SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(getApplication());
-                String everytimeAddress = appData.getString("everytimeAddress", "");
-                if (!everytimeAddress.equals("")) {
-                    deleteCalendar();
-                    Log.e(TAG, "hi i'm crawler ");
-                    String[] temp = everytimeAddress.split("@");
-                    userIdentifier = temp[1];
-                    CrawlingEveryTime crw = new CrawlingEveryTime();
-                    crw.execute();
-                }
-            } else {
-                isGoogleValid = false;
-                getResultsFromApi();
-            }
-        }
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+        notificationManager.notify(123, builder.build());
+    }
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+    protected void notifyPermissionError() {
+        // 권한이 제대로 주어지지 않았을 때
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("permission-check", true);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
 
-            //종료 알림
-            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
+                .setSmallIcon(R.drawable.web_fairy_short)
+                .setContentTitle("계정 오류")
+                .setContentText("계정 설정에 오류가 발생하였습니다. 탭하여 설정을 확인하세요.")
+                .setChannelId("0417")
+                .setContentIntent(pendingIntent)
+                .setGroup("WEB_FAIRY")
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH);
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
-                    .setSmallIcon(R.drawable.web_fairy_short)
-                    .setContentTitle("시간표 동기화됨")
-                    .setContentText("에브리타임 시간표가 구글 캘린더에 동기화되었습니다.")
-                    .setContentIntent(pendingIntent)
-                    .setChannelId("0417")
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setGroup("WEB_FAIRY")
-                    .setAutoCancel(true);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(530, builder.build());
+    }
 
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-            notificationManager.notify(123, builder.build());
+    protected void notifyAccountError() {
+        // 계정이 제대로 설정되어 있지 않을 때
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("account-check", true);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
 
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
+                .setSmallIcon(R.drawable.web_fairy_short)
+                .setContentTitle("계정 오류")
+                .setContentText("계정 설정에 오류가 발생하였습니다. 탭하여 설정을 확인하세요.")
+                .setContentIntent(pendingIntent)
+                .setChannelId("0417")
+                .setGroup("WEB_FAIRY")
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH);
 
-            jobFinished(params, true);   // true로 놓아야 계속 job을 돌림
-        }
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
 
-        @Override
-        protected Void doInBackground(Void... voids) {
-            if (isGoogleValid) {
-                // 구글 validity check에 성공 시 작업 실행.
-                Log.e(TAG, "GOOGLE_VALIDATION_COMPLETE");
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(714, builder.build());
+    }
 
-                //Calendar 테스트 코드.
-                mID = 5;
-                Log.e(TAG, "done " + getResultsFromApi());
+    protected void notifyEverytimeAccountError() {
+        //계정 설정 알림
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("everytime", true);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
 
-                //여기에 구글 캘린더 동기화 작업을 작성.
-            }
-            return null;
-        }
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
+                .setSmallIcon(R.drawable.web_fairy_short)
+                .setContentTitle("계정 오류")
+                .setContentText("에브리타임 계정 설정에 오류가 발생하였습니다. 탭하여 설정을 확인하세요.")
+                .setContentIntent(pendingIntent)
+                .setChannelId("0417")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setGroup("WEB_FAIRY")
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+        notificationManager.notify(234, builder.build());
     }
 
     // GoogleSync
@@ -262,11 +341,13 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
      */
     ProgressDialog progressDialog;
 
+    public boolean crawlingEveryTimeDone = false;
     private class CrawlingEveryTime extends AsyncTask<Void, Void, Void> {
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            isEverytimeValid = true;
+            crawlingEveryTimeDone = false;
         }
 
         @Override
@@ -278,7 +359,19 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
                 result += "\n";
             }
             result += numOfSubject;
-            Log.e(TAG, result);
+            Log.e(TAG, "EVERYTIME CRAWLER GOT : " + result);
+
+            // subject 개수가 0이고 everytime 주소가 공백이라면 noti 띄움.
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            if (numOfSubject == 0 || pref.getString("everytimeAddress", "").equals("")) {
+
+                Log.e(TAG, "onPostExecute: INVALID_EVERYTIME_ADDRESS");
+                notifyEverytimeAccountError();
+
+                isEverytimeValid = false;
+            }
+
+            crawlingEveryTimeDone = true;
         }
 
         @Override
@@ -1021,25 +1114,7 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
             } else {
                 Log.e(TAG, "new");
 
-                // 계정이 제대로 설정되어 있지 않을 때
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                intent.putExtra("account-check", true);
-                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
-                        .setSmallIcon(R.drawable.web_fairy_short)
-                        .setContentTitle("계정 오류")
-                        .setContentText("계정 설정에 오류가 발생하였습니다. 탭하여 설정을 확인하세요.")
-                        .setContentIntent(pendingIntent)
-                        .setChannelId("0417")
-                        .setGroup("WEB_FAIRY")
-                        .setPriority(NotificationCompat.PRIORITY_HIGH);
-
-                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-
-                // notificationId is a unique int for each notification that you must define
-                notificationManager.notify(714, builder.build());
+                notifyAccountError();
 
 //                startActivity(new Intent(this, MainActivity.class));
 //                ((MainActivity) MainActivity.context).startActivityForResult(
@@ -1052,25 +1127,8 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
 
             Log.e(TAG, "getAccount");
 
-            // 권한이 제대로 주어지지 않았을 때
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            intent.putExtra("permission-check", true);
-            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+            notifyPermissionError();
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
-                    .setSmallIcon(R.drawable.web_fairy_short)
-                    .setContentTitle("계정 오류")
-                    .setContentText("계정 설정에 오류가 발생하였습니다. 탭하여 설정을 확인하세요.")
-                    .setChannelId("0417")
-                    .setContentIntent(pendingIntent)
-                    .setGroup("WEB_FAIRY")
-                    .setPriority(NotificationCompat.PRIORITY_HIGH);
-
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-
-            // notificationId is a unique int for each notification that you must define
-            notificationManager.notify(530, builder.build());
 //            // 사용자에게 GET_ACCOUNTS 권한을 요구하는 다이얼로그를 보여준다.(주소록 권한 요청함)
 //            EasyPermissions.requestPermissions(
 //                    (MainActivity) getApplicationContext(),
@@ -1126,7 +1184,9 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
             try {
                 calendarList = mService.calendarList().list().setPageToken(pageToken).execute();
             } catch (UserRecoverableAuthIOException e) {
-                ((MainActivity) getApplicationContext()).startActivityForResult(e.getIntent(), REQUEST_AUTHORIZATION);
+                //권한 요구
+                notifyPermissionError();
+//                ((MainActivity) getApplicationContext()).startActivityForResult(e.getIntent(), REQUEST_AUTHORIZATION);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -1542,7 +1602,7 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
                 startTime = temp[3];
                 endTime = temp[4];
                 location = temp[5];
-                events[i]= new Event()
+                events[i] = new Event()
                         .setSummary(subjectName)
                         .setLocation(location)
                         .setDescription(professorName);
@@ -1611,11 +1671,11 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
 
             }
             //TODO 과목별 고유한 색상 넣기
-            for(Event e:events){
+            for (Event e : events) {
                 e.setColorId(ColorPicker.lectureMap.getOrDefault(e.getSummary(), "1"));
-                try{
-                    e = mService.events().insert(calendarID,e).execute();
-                }catch (Exception o){
+                try {
+                    e = mService.events().insert(calendarID, e).execute();
+                } catch (Exception o) {
                     o.printStackTrace();
                 }
             }

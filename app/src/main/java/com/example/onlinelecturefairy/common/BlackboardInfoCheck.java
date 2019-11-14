@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import androidx.preference.PreferenceManager;
 
@@ -15,6 +16,8 @@ import org.jsoup.Jsoup;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class BlackboardInfoCheck {
     public static class CheckBlackBoard extends AsyncTask<Void, Void, Void> {
@@ -38,6 +41,7 @@ public class BlackboardInfoCheck {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            Log.e(TAG, "onPreExecute: BLACKBOARD_VALIDITY_CHECK");
             if(context != null) {
                 progressDialog = new ProgressDialog(context, ProgressDialog.STYLE_SPINNER);
                 progressDialog.getWindow().setBackgroundDrawableResource(R.color.colorBackground);
@@ -64,10 +68,12 @@ public class BlackboardInfoCheck {
                     .apply();
 
             progressDialog.dismiss();
+            Log.e(TAG, "onPreExecute: BLACKBOARD_VALIDITY_CHECK_END");
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
+            Log.e(TAG, "onPreExecute: BLACKBOARD_VALIDITY_CHECK_START");
             //로그인 시도
             try {
                 String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36";

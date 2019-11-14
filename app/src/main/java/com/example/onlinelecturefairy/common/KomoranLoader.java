@@ -14,7 +14,7 @@ public class KomoranLoader {
         @Override
         protected Void doInBackground(Void... voids) {
             komoran = new Komoran(DEFAULT_MODEL.LIGHT);
-            Log.e("", "KOMORAN load complete!");
+            Log.e("KomoranLoader.Loader", "KOMORAN load complete!");
             return null;
         }
     }
