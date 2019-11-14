@@ -82,42 +82,97 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        return false;
+        GoogleSyncTask task = new GoogleSyncTask(params);
+        task.execute();
+        return true;
     }
 
     @Override
     public boolean onStopJob(JobParameters params) {
-        return false;
+        return true;    //Set true to re-schedule.
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-
-        // Google Calendar API 사용하기 위해 필요한 인증 초기화( 자격 증명 credentials, 서비스 객체 )
-        // OAuth 2.0를 사용하여 구글 계정 선택 및 인증하기 위한 준비
-        mCredential = GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(),
-                Arrays.asList(SCOPES)
-        ).setBackOff(new ExponentialBackOff()); // I/O 예외 상황을 대비해서 백오프 정책 사용
-
-        // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
-        String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-                .getString(PREF_ACCOUNT_NAME, null);
-        if(accountName != null) {
-            Log.e(TAG, "getResultsFromApi: CHOOSE_SAVED_ACCOUNT");
-            mCredential.setSelectedAccountName(accountName);
-        }
-
-        //Calendar
-        mID = 1;
-        Log.e(TAG, "done " + getResultsFromApi());
-
-        return super.onStartCommand(intent, flags, startId);
-    }
+//    @Override
+//    public int onStartCommand(Intent intent, int flags, int startId) {
+//
+////        // Google Calendar API 사용하기 위해 필요한 인증 초기화( 자격 증명 credentials, 서비스 객체 )
+////        // OAuth 2.0를 사용하여 구글 계정 선택 및 인증하기 위한 준비
+////        mCredential = GoogleAccountCredential.usingOAuth2(
+////                getApplicationContext(),
+////                Arrays.asList(SCOPES)
+////        ).setBackOff(new ExponentialBackOff()); // I/O 예외 상황을 대비해서 백오프 정책 사용
+////
+////        // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
+////        String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+////                .getString(PREF_ACCOUNT_NAME, null);
+////        if(accountName != null) {
+////            Log.e(TAG, "getResultsFromApi: CHOOSE_SAVED_ACCOUNT");
+////            mCredential.setSelectedAccountName(accountName);
+////        }
+////
+////        //Calendar
+////        mID = 1;
+////        Log.e(TAG, "done " + getResultsFromApi());
+////
+//        return super.onStartCommand(intent, flags, startId);
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
+    }
+
+    class GoogleSyncTask extends AsyncTask<Void, Void, Void> {
+        boolean isGoogleValid;
+        JobParameters params;
+
+        public GoogleSyncTask(JobParameters params) {
+            this.params = params;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            isGoogleValid = true;
+
+            // Google Calendar API 사용하기 위해 필요한 인증 초기화( 자격 증명 credentials, 서비스 객체 )
+            // OAuth 2.0를 사용하여 구글 계정 선택 및 인증하기 위한 준비
+            mCredential = GoogleAccountCredential.usingOAuth2(
+                    getApplicationContext(),
+                    Arrays.asList(SCOPES)
+            ).setBackOff(new ExponentialBackOff()); // I/O 예외 상황을 대비해서 백오프 정책 사용
+
+            // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
+            String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+                    .getString(PREF_ACCOUNT_NAME, null);
+            if(accountName != null) {
+                Log.e(TAG, "getResultsFromApi: CHOOSE_SAVED_ACCOUNT");
+                mCredential.setSelectedAccountName(accountName);
+            } else {
+                isGoogleValid = false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            jobFinished(params, true);   // true로 놓아야 계속 job을 돌림
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            if(isGoogleValid) {
+                // 구글 validity check에 성공 시 작업 실행.
+                Log.e(TAG, "GOOGLE_VALIDATION_COMPLETE");
+
+                //Calendar
+                mID = 2;
+                Log.e(TAG, "done " + getResultsFromApi());
+            }
+            return null;
+        }
     }
 
     // GoogleSync
