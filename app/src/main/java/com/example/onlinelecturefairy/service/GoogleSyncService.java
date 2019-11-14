@@ -1611,9 +1611,14 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
                 //fragment_event.setRecurrence(Arrays.asList(recurrence));
 
             }
-
+            //TODO 과목별 고유한 색상 넣기
             for(Event e:events){
                 e.setColorId(Integer.toString(ColorPicker.getColorByLectureId(e.getSummary())));
+                try{
+                    e = mService.events().insert(calendarID,e).execute();
+                }catch (Exception o){
+                    o.printStackTrace();
+                }
             }
             String eventStrings = "시간표가 구글 캘린더 이번 주의 일정에 추가되었습니다.";
 
