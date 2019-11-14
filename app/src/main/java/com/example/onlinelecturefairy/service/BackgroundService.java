@@ -29,6 +29,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -155,12 +156,15 @@ public class BackgroundService extends JobService {
             }
 
 
-            //TODO: 여러 개의 알림이 겹치지 않고 떠야 함.
-            //TODO: 정해진 시간부터 알림하도록 (일단 default한 값을 씀)
-            java.util.Calendar today = java.util.Calendar.getInstance();
+            //TODO: 일요일 오후 1시가 지났으면 하도록 설정해놓음.
+            java.util.Calendar calendar1 = java.util.Calendar.getInstance();
+            java.util.Calendar calendar2 = java.util.Calendar.getInstance();
 
+            calendar2.set(Calendar.HOUR_OF_DAY,13);
+            calendar2.set(Calendar.MINUTE,0);
 
-            if(temp!=lecturesOfWeek.size()) {
+            //오늘이 일요일이고, 일요일 오후 1시가 지났다면,
+            if(temp!=lecturesOfWeek.size()&&calendar1.compareTo(calendar2)==1&&calendar1.get(Calendar.DAY_OF_WEEK)==1) {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
