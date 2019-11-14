@@ -135,8 +135,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         //Background initialization.
         //TODO 주기 제대로 바꾸기
-        long period = 20;  //minutes
-        long googlePeriod = 20;  //minutes
+        long period = 60;  //minutes
+        long googlePeriod = 60;  //minutes
 
         JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         assert scheduler != null;

@@ -161,20 +161,39 @@ public class BackgroundService extends JobService {
 
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             String timeString = pref.getString("notificationCheck", "0");
-            Log.e(TAG, "onPostExecute: " + timeString);
-
-            calendar2.set(Calendar.HOUR_OF_DAY, 13);
+            switch(timeString) {
+                case "0":
+                    calendar2.set(Calendar.HOUR_OF_DAY, 18);
+                    break;
+                case "!":
+                    calendar2.set(Calendar.HOUR_OF_DAY, 12);
+                    break;
+                case "2":
+                    calendar2.set(Calendar.HOUR_OF_DAY, 6);
+                    break;
+                case "3":
+                    calendar2.set(Calendar.DAY_OF_MONTH, calendar1.get(Calendar.DAY_OF_MONTH) - 1);
+                    calendar2.set(Calendar.HOUR_OF_DAY, 9);
+                    break;
+                case "4":
+                    calendar2.set(Calendar.DAY_OF_MONTH, calendar1.get(Calendar.DAY_OF_MONTH) - 2);
+                    calendar2.set(Calendar.HOUR_OF_DAY, 9);
+                    break;
+                case "5":
+                    calendar2.set(Calendar.YEAR, 3000);
+                    break;
+            }
             calendar2.set(Calendar.MINUTE, 0);
 
-            //오늘이 일요일이고, 일요일 오후 1시가 지났다면,
-            if (temp != lecturesOfWeek.size() && calendar1.compareTo(calendar2) == 1 && calendar1.get(Calendar.DAY_OF_WEEK) == 1) {
+            //오늘이 일요일이고, 해당 시간이 지났다면,
+            if (temp != lecturesOfWeek.size() && calendar1.compareTo(calendar2) > 0 && calendar1.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
                         .setSmallIcon(R.drawable.web_fairy_short)
-                        .setContentTitle("이번 주에 듣지 않은 웹강이 " + Integer.toString(lecturesOfWeek.size() - temp) + "개 있습니다.")
+                        .setContentTitle("이번 주에 듣지 않은 웹강이 " + (lecturesOfWeek.size() - temp) + "개 있습니다.")
                         .setContentText("아래로 스크롤하여 듣지 않은 웹강을 확인하세요.")
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(noneList))
