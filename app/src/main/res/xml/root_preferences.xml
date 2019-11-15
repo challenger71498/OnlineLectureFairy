@@ -17,7 +17,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="@layout/settings_activity">
+    tools:showIn="@layout/activity_settings">
 
     <PreferenceCategory app:title="시간표 설정">
 
