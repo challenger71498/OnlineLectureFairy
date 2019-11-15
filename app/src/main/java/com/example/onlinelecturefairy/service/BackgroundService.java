@@ -147,7 +147,7 @@ public class BackgroundService extends JobService {
                 case "0":
                     calendar2.set(Calendar.HOUR_OF_DAY, 18);
                     break;
-                case "!":
+                case "1":
                     calendar2.set(Calendar.HOUR_OF_DAY, 12);
                     break;
                 case "2":
@@ -168,7 +168,8 @@ public class BackgroundService extends JobService {
             calendar2.set(Calendar.MINUTE, 0);
 
             //오늘이 일요일이고, 해당 시간이 지났다면,
-            if (temp != lecturesOfWeek.size() && calendar1.compareTo(calendar2) > 0 && calendar1.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            Log.e(TAG, "BACKGROUND_SERVICE: IF STATEMENT IS : " + (temp != lecturesOfWeek.size() && calendar1.compareTo(calendar2) > 0));
+            if (temp != lecturesOfWeek.size() && calendar1.compareTo(calendar2) > 0) {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
