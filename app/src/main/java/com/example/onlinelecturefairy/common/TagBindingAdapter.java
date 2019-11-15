@@ -19,6 +19,10 @@ public class TagBindingAdapter {
         if (m.getName().getValue().equals("휴강") ||
                 m.getName().getValue().equals("공강")) {
             v.setBackgroundResource(R.color.colorPrimary);
+        } else if (m.getName().getValue().equals("보강")) {
+            v.setBackgroundResource(R.color.colorAccent);
+        } else {
+            v.setBackgroundResource(R.color.colorBackground);
         }
     }
 }
