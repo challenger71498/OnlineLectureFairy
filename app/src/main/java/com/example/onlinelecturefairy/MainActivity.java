@@ -5,9 +5,6 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,10 +25,10 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
+import com.example.onlinelecturefairy.common.ScheduleJob;
 import com.example.onlinelecturefairy.grade.Grade;
 import com.example.onlinelecturefairy.notice.Notice;
 import com.example.onlinelecturefairy.onlinelecture.OnlineLecture;
-import com.example.onlinelecturefairy.service.BackgroundService;
 import com.example.onlinelecturefairy.service.GoogleSyncService;
 import com.example.onlinelecturefairy.ui.onlinelecture.OnlineLectureAdapter;
 import com.google.android.gms.common.ConnectionResult;
@@ -134,33 +131,36 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
 
         //Background initialization.
-        //TODO 주기 제대로 바꾸기
-        long period = 30;  //minutes
-        long latency = 15;
-        long googlePeriod = 60;
-        long googleLatency = 30;
+        ScheduleJob s = new ScheduleJob();
+        s.refreshGoogle(this);
+        s.refreshBackground(this);
+//        //TODO 주기 제대로 바꾸기
+//        long period = 30;  //minutes
+//        long latency = 15;
+//        long googlePeriod = 60;
+//        long googleLatency = 30;
 
-        JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        assert scheduler != null;
-        scheduler.schedule(
-                new JobInfo.Builder(getResources().getInteger(R.integer.REFRESH_BACKGROUND_TASK), new ComponentName(this, BackgroundService.class))
-                        .setPeriodic(period * 1000 * 60, latency * 1000 * 60)
-                        .setPersisted(true)
-                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                        .build());
-
-        //TODO Calendar 이용해서 조건에 맞을때만 해야함
-        scheduler.schedule(
-                new JobInfo.Builder(2, new ComponentName(this, GoogleSyncService.class))
-                        .setPeriodic(googlePeriod * 1000 * 60, googleLatency * 1000 * 60)
-                        .setPersisted(true)
-                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                        .build());
-
-        if (!shown) {
-            startService(new Intent(this, GoogleSyncService.class));
-            shown = true;
-        }
+//        JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+//        assert scheduler != null;
+//        scheduler.schedule(
+//                new JobInfo.Builder(getResources().getInteger(R.integer.REFRESH_BACKGROUND_TASK), new ComponentName(this, BackgroundService.class))
+//                        .setPeriodic(period * 1000 * 60, latency * 1000 * 60)
+//                        .setPersisted(true)
+//                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+//                        .build());
+//
+//        //TODO Calendar 이용해서 조건에 맞을때만 해야함
+//        scheduler.schedule(
+//                new JobInfo.Builder(2, new ComponentName(this, GoogleSyncService.class))
+//                        .setPeriodic(googlePeriod * 1000 * 60, googleLatency * 1000 * 60)
+//                        .setPersisted(true)
+//                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+//                        .build());
+//
+//        if (!shown) {
+//            startService(new Intent(this, GoogleSyncService.class));
+//            shown = true;
+//        }
 
         if (intent.getBooleanExtra("account-check", false)) {
             Log.e(TAG, "onReceive: RECEIVED account-check");

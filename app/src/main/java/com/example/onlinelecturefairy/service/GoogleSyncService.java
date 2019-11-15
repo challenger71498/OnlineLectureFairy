@@ -8,6 +8,7 @@ import android.app.job.JobService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -74,7 +75,6 @@ import static androidx.constraintlayout.widget.Constraints.TAG;
 public class GoogleSyncService extends JobService implements EasyPermissions.PermissionCallbacks {
     @Override
     public void onCreate() {
-        Log.e("GoogleSyncService", "onCreate()");
         super.onCreate();
     }
 
@@ -84,9 +84,13 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
         super.onDestroy();
     }
 
-
     @Override
     public boolean onStartJob(JobParameters params) {
+        doBackground(getApplicationContext(), params);
+        return true;
+    }
+
+    public void doBackground(Context context, JobParameters params) {
         // check setting first.
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         Boolean sync = pref.getBoolean("everytimeSync", false);
@@ -106,12 +110,12 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
             ).setBackOff(new ExponentialBackOff()); // I/O 예외 상황을 대비해서 백오프 정책 사용
 
             // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
-            String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+            String accountName = PreferenceManager.getDefaultSharedPreferences(context)
                     .getString(PREF_ACCOUNT_NAME, null);
             if (accountName != null) {
                 Log.e(TAG, "getResultsFromApi: CHOOSE_SAVED_ACCOUNT");
                 mCredential.setSelectedAccountName(accountName);
-                SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(getApplication());
+                SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(context);
                 String everytimeAddress = appData.getString("everytimeAddress", "");
                 Log.e(TAG, "onPreExecute: REMOVE_CALENDAR");
                 deleteCalendar();
@@ -162,7 +166,82 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
             });
             thread.start();
         }
-        return true;
+    }
+
+    public void doBackground(Context context) {
+        // check setting first.
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        Boolean sync = pref.getBoolean("everytimeSync", false);
+
+        if(sync) {
+            // Broadcasting test
+            //LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent("hello-there"));
+
+            isGoogleValid = true;
+            AtomicBoolean done = new AtomicBoolean(false);
+
+            // Google Calendar API 사용하기 위해 필요한 인증 초기화( 자격 증명 credentials, 서비스 객체 )
+            // OAuth 2.0를 사용하여 구글 계정 선택 및 인증하기 위한 준비
+            mCredential = GoogleAccountCredential.usingOAuth2(
+                    context,
+                    Arrays.asList(SCOPES)
+            ).setBackOff(new ExponentialBackOff()); // I/O 예외 상황을 대비해서 백오프 정책 사용
+
+            // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
+            String accountName = PreferenceManager.getDefaultSharedPreferences(context)
+                    .getString(PREF_ACCOUNT_NAME, null);
+            if (accountName != null) {
+                Log.e(TAG, "getResultsFromApi: CHOOSE_SAVED_ACCOUNT");
+                mCredential.setSelectedAccountName(accountName);
+                SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(context);
+                String everytimeAddress = appData.getString("everytimeAddress", "");
+                Log.e(TAG, "onPreExecute: REMOVE_CALENDAR");
+                deleteCalendar();
+                Log.e(TAG, "onPreExecute: EVERYTIME_CRAWLER_EXECUTED");
+                String[] temp = everytimeAddress.split("@");
+                if(temp.length > 1) {
+                    userIdentifier = temp[1];
+                } else {
+                    userIdentifier = "";
+                }
+                CrawlingEveryTime crw = new CrawlingEveryTime();
+                crw.execute();
+            } else {
+                isGoogleValid = false;
+                getResultsFromApi();
+            }
+
+            Handler handler = new Handler();
+            Thread thread = new Thread(() -> {
+                Looper.prepare();
+                handler.post(() -> {
+                    if (done.get()) {
+                        notifyTimetableSyncFinished();
+                        Log.e(TAG, "onStartJob: THREAD HANDLER POST");
+                    }
+                });
+                done.set(false);
+                while(!crawlingEveryTimeDone) {
+                    // wait until crawling is done.
+                }
+                if (isGoogleValid && isEverytimeValid) {
+                    // 구글 validity check에 성공 시 작업 실행.
+                    Log.e(TAG, "GOOGLE_VALIDATION_COMPLETE");
+
+                    //Calendar 테스트 코드.
+                    mID = 5;
+                    Log.e(TAG, "done " + getResultsFromApi());
+
+                    //여기에 구글 캘린더 동기화 작업을 작성.
+
+                    done.set(true);
+                } else {
+                    Log.e(TAG, "doInBackground: VALIDATION_FAILED " + isGoogleValid + " " + isEverytimeValid);
+                }
+                Looper.loop();
+            });
+            thread.start();
+        }
     }
 
     @Override

@@ -32,7 +32,7 @@
     <PreferenceCategory app:title="알림 설정">
 
         <ListPreference
-            android:defaultValue="0"
+            android:defaultValue="1"
             android:entries="@array/notification_entries"
             android:entryValues="@array/notification_values"
             android:key="notificationCheck"

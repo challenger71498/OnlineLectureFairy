@@ -9,8 +9,12 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
+import androidx.preference.SwitchPreferenceCompat;
+
+import com.example.onlinelecturefairy.common.ScheduleJob;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -32,6 +36,22 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
+
+            ListPreference notificationCheck = getPreferenceManager().findPreference("notificationCheck");
+            notificationCheck.setOnPreferenceChangeListener((preference, newValue) -> {
+                ScheduleJob s = new ScheduleJob();
+                s.refreshBackground(SettingsFragment.this.getActivity().getApplicationContext());
+                return true;
+            });
+
+            SwitchPreferenceCompat everytimeSync = getPreferenceManager().findPreference("everytimeSync");
+            everytimeSync.setOnPreferenceChangeListener((preference, newValue) -> {
+                if((boolean) newValue) {
+                    ScheduleJob s = new ScheduleJob();
+                    s.refreshGoogle(SettingsFragment.this.getActivity().getApplicationContext());
+                }
+                return true;
+            });
 
             // 로그아웃 버튼 기능 추가
             PreferenceScreen logoutPreference = getPreferenceManager().findPreference("logout");
