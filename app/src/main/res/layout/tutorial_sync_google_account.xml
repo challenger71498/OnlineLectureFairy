@@ -14,19 +14,19 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:text="웹강요정은 학사일정을 \n구글 캘린더에 자동으로 동기화합니다."
-        android:textSize="24dp"
-        android:textColor="@color/textLight"
         android:textAlignment="center"
+        android:textColor="@color/textLight"
+        android:textSize="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.25" />
+        app:layout_constraintVertical_bias=".05" />
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -46,5 +46,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.75" />
+        app:layout_constraintVertical_bias=".8" />
 </androidx.constraintlayout.widget.ConstraintLayout>

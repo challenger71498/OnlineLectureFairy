@@ -196,31 +196,41 @@ public class LoginActivity extends AppCompatActivity {
             public void onSuccess() {
                 isInfoCorrect = true;
                 save();
-                Intent sendIntent = new Intent(LoginActivity.this, MainActivity.class);
-                sendIntent.putExtra("isInfoCorrect", isInfoCorrect);
-                // Error intents
-                if(intent != null) {
-                    if(intent.getBooleanExtra("account-check", false)) {
-                        Log.e("TAG", "onSuccess: LOGIN_ACTIVITY got accuont-check");
-                        sendIntent.putExtra("account-check", true);
-                        intent.removeExtra("account-check");
-                    }
-                    else if (intent.getBooleanExtra("permission-check", false)) {
-                        Log.e("TAG", "onSuccess: LOGIN_ACTIVITY got permission-check");
-                        sendIntent.putExtra("permission-check", true);
-                        intent.removeExtra("permission-check");
-                    }
-                    else if (intent.getBooleanExtra("everytime", false)) {
-                        Log.e("TAG", "onSuccess: LOGIN_ACTIVITY got everytime");
-                        sendIntent.putExtra("everytime", true);
-                        intent.removeExtra("everytime");
-                    }
+
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                Log.e("LOGIN", "LOGIN: IS_FIRST_TIME? " + pref.getBoolean("first-time", true));
+                if (pref.getBoolean("first-time", true)) {
+                    pref.edit()
+                            .putBoolean("first-time", false)
+                            .apply();
+                    startActivity(new Intent(LoginActivity.this, TutorialActivity.class));
                 }
+                else {
+                    Intent sendIntent = new Intent(LoginActivity.this, MainActivity.class);
+                    sendIntent.putExtra("isInfoCorrect", isInfoCorrect);
+                    // Error intents
+                    if(intent != null) {
+                        if(intent.getBooleanExtra("account-check", false)) {
+                            Log.e("TAG", "onSuccess: LOGIN_ACTIVITY got accuont-check");
+                            sendIntent.putExtra("account-check", true);
+                            intent.removeExtra("account-check");
+                        }
+                        else if (intent.getBooleanExtra("permission-check", false)) {
+                            Log.e("TAG", "onSuccess: LOGIN_ACTIVITY got permission-check");
+                            sendIntent.putExtra("permission-check", true);
+                            intent.removeExtra("permission-check");
+                        }
+                        else if (intent.getBooleanExtra("everytime", false)) {
+                            Log.e("TAG", "onSuccess: LOGIN_ACTIVITY got everytime");
+                            sendIntent.putExtra("everytime", true);
+                            intent.removeExtra("everytime");
+                        }
+                    }
+                    //intent 초기화
+                    intent = null;
 
-                //intent 초기화
-                intent = null;
-
-                startActivity(sendIntent);
+                    startActivity(sendIntent);
+                }
             }
 
             @Override
