@@ -21,6 +21,15 @@ public class TagBindingAdapter {
             v.setBackgroundResource(R.color.colorPrimary);
         } else if (m.getName().getValue().equals("보강")) {
             v.setBackgroundResource(R.color.colorAccent);
+        } else if (m.getName().getValue().contains("평균") ||
+                m.getName().getValue().contains("표준편차") ||
+                m.getName().getValue().contains("편차") ||
+                m.getName().getValue().contains("분산") ||
+                m.getName().getValue().contains("중앙값") ||
+                m.getName().getValue().contains("중앙") ||
+                m.getName().getValue().contains("최고점") ||
+                m.getName().getValue().contains("최저점")) {
+            v.setBackgroundResource(R.color.darkgreen);
         } else {
             v.setBackgroundResource(R.color.colorBackground);
         }

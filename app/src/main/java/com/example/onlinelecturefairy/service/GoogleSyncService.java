@@ -61,6 +61,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -74,6 +75,18 @@ import pub.devrel.easypermissions.EasyPermissions;
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class GoogleSyncService extends Service implements EasyPermissions.PermissionCallbacks {
+
+    @Override
+    public void onCreate() {
+        // Google Calendar API 사용하기 위해 필요한 인증 초기화( 자격 증명 credentials, 서비스 객체 )
+        // OAuth 2.0를 사용하여 구글 계정 선택 및 인증하기 위한 준비
+        mCredential = GoogleAccountCredential.usingOAuth2(
+                getApplicationContext(),
+                Arrays.asList(SCOPES)
+        ).setBackOff(new ExponentialBackOff()); // I/O 예외 상황을 대비해서 백오프 정책 사용
+
+        super.onCreate();
+    }
 
     @Nullable
     @Override
@@ -143,6 +156,24 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
                     // 구글 validity check에 성공 시 작업 실행.
                     Log.e(TAG, "GOOGLE_SYNC_SERVICE: VALIDATION_COMPLETE");
 
+                    //TODO: 일요일 오후 1시가 지났으면 하도록 설정해놓음.
+                    GregorianCalendar calendar1 = new GregorianCalendar();
+                    GregorianCalendar calendar2 = new GregorianCalendar();
+
+                    calendar2.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
+                    calendar2.set(java.util.Calendar.DAY_OF_MONTH, calendar2.get(java.util.Calendar.DAY_OF_MONTH) + 7);
+                    calendar2.set(java.util.Calendar.HOUR_OF_DAY, 18);
+                    calendar2.set(java.util.Calendar.MINUTE, 0);
+
+                    //오늘이 일요일이고, 해당 시간이 지났다면,
+                    if (calendar1.compareTo(calendar2) > 0) {
+
+                        notifyTimetableSyncFinished();
+
+                        Log.e(TAG, "BACKGROUND_SERVICE: NOTI_MATCHED");
+                    } else {
+                        Log.e(TAG, "BACKGROUND_SERVICE: NOTI_CONDITION_NOT_MATCHED");
+                    }
                     //여기에 구글 캘린더 동기화 작업을 작성.
 //                    mID = 5;
 //                    Log.e(TAG, "done " + GoogleSyncService.this.getResultsFromApi());
@@ -154,7 +185,7 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
                 handler.post(() -> {
                     {
                         if (done.get()) {
-                            GoogleSyncService.this.notifyTimetableSyncFinished();
+                            //notifyTimetableSyncFinished();
                             Log.e(TAG, "GOOGLE_SYNC_SERVICE: THREAD HANDLER POST");
                         }
                     }
@@ -173,7 +204,6 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
     //notifications
 
     protected void notifyTimetableSyncFinished() {
-
         //종료 알림
         Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -213,6 +243,12 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
         // notificationId is a unique int for each notification that you must define
         notificationManager.notify(530, builder.build());
+
+        // set account check pref to true.
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        pref.edit()
+                .putBoolean("permission-check", true)
+                .apply();
     }
 
     protected void notifyAccountError() {
@@ -236,6 +272,12 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
 
         // notificationId is a unique int for each notification that you must define
         notificationManager.notify(714, builder.build());
+
+        // set account check pref to true.
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        pref.edit()
+                .putBoolean("account-check", true)
+                .apply();
     }
 
     protected void notifyEverytimeAccountError() {
@@ -257,6 +299,12 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
         notificationManager.notify(234, builder.build());
+
+        // set account check pref to true.
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        pref.edit()
+                .putBoolean("everytime-check", true)
+                .apply();
     }
 
 
@@ -364,6 +412,10 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
 
                 isEverytimeValid = false;
                 crawlingEveryTimeDone = true;
+            } else {
+                pref.edit()
+                        .putBoolean("everytime-check", false)
+                        .apply();
             }
 
             crawlingEveryTimeDone = true;
@@ -1106,6 +1158,10 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
                 Log.e(TAG, "set");
                 mCredential.setSelectedAccountName(accountName);
                 getResultsFromApi();
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                pref.edit()
+                        .putBoolean("account-check", false)
+                        .apply();
             } else {
                 Log.e(TAG, "new");
 
@@ -1116,6 +1172,10 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
 //                        mCredential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
             }
 
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            pref.edit()
+                    .putBoolean("permission-check", false)
+                    .apply();
 
             // GET_ACCOUNTS 권한을 가지고 있지 않다면
         } else {

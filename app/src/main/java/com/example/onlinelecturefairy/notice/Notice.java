@@ -100,8 +100,8 @@ public class Notice {
             tags.addAll(StringParser.findTestAtString(res, 0));
 
             res = komoran.analyze(description);
-
             tags.addAll(StringParser.findTestAtString(res, 0));
+            tags.addAll(StringParser.findGradeAtString(res, lecture, new TreeSet<>(tags)));
 
             ArrayList<Date> dates = StringParser.findDateAtString(res, 0);
             ArrayList<String> lists = new ArrayList<>();

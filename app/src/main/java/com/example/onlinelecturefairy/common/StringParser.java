@@ -1,6 +1,14 @@
 package com.example.onlinelecturefairy.common;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.preference.PreferenceManager;
+
+import com.example.onlinelecturefairy.grade.CommonGrade;
+import com.example.onlinelecturefairy.grade.Grade;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -8,9 +16,12 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.function.BooleanSupplier;
+import java.util.function.IntSupplier;
 
 import kr.co.shineware.nlp.komoran.model.KomoranResult;
+import kr.co.shineware.nlp.komoran.model.Token;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
@@ -163,5 +174,71 @@ public class StringParser {
         }
 
         return new ArrayList<>(out);
+    }
+
+    public static List<String> findGradeAtString(KomoranResult result, String lecture, TreeSet<String> nouns) {
+        ArrayList<Token> temp = new ArrayList<>(result.getTokenList());
+        ArrayList<Token> tokens = new ArrayList<>();
+
+        for (Token t : temp) {
+            if (t.getPos().equals("NNG") ||
+                    t.getPos().equals("NNB") ||
+                    t.getPos().equals("SL") ||
+                    t.getPos().equals("SN") ||
+                    t.getPos().equals("SF")) {
+                tokens.add(t);
+            }
+        }
+
+        HashSet<String> s = new HashSet<>();
+
+        for (int i = 0; i < tokens.size(); ++i) {
+            String tokenMorph = tokens.get(i).getMorph();
+            if (tokenMorph.equals("평균") ||
+                    tokenMorph.equals("표준편차") ||
+                    tokenMorph.equals("편차") ||
+                    tokenMorph.equals("분산") ||
+                    tokenMorph.equals("중앙값") ||
+                    tokenMorph.equals("중앙") ||
+                    tokenMorph.equals("최고점") ||
+                    tokenMorph.equals("최저점")) { // 통계 데이터를 가지고 있을 때
+                String scoreRaw;
+                float score = -1;
+
+                boolean isCorrect = true;
+
+                Log.e(TAG, "findGradeAtString: VAL : " + tokens.get(i + 1).getMorph() + tokens.get(i + 2).getMorph() + tokens.get(i + 3).getMorph());
+
+                if (i < tokens.size() && tokens.get(i + 1).getPos().equals("SN")) {             //평균 뒤에 숫자가 있을 때    평균 3
+                    if (i + 1 < tokens.size() && tokens.get(i + 2).getMorph().equals(".")) {        //평균 뒤에 점이 있을 때     평균 3.
+                        if (i + 2 < tokens.size() && tokens.get(i + 3).getPos().equals("SN")) {          //점 뒤에 숫자가 있을 때     평균 3.14
+                            scoreRaw = tokens.get(i + 1).getMorph() +
+                                    tokens.get(i + 2).getMorph() +
+                                    tokens.get(i + 3).getMorph();
+                            Log.e(TAG, "findGradeAtString: SCORE : " + scoreRaw);
+                            score = Float.parseFloat(scoreRaw);
+                        } else {  // 오류. 예) 과목 평균\n 3. 안내 사항
+                            isCorrect = false;
+                        }
+                    } else {
+                        scoreRaw = tokens.get(i + 1).getMorph();
+                        score = (float) Integer.parseInt(scoreRaw);
+                    }
+                }
+
+                if (isCorrect) { //해당 성적을 과목에 추가.
+                    s.add(tokenMorph + "_" + score);
+                    if (tokenMorph.equals("평균") && score != -1 && lecture != null) {    //평균일 때는 값을 common grade에 추가.
+                        if (nouns.contains("중간")) {
+                            CommonGrade.setScore(lecture, "중간", score);
+                        } else if (nouns.contains("기말")) {
+                            CommonGrade.setScore(lecture, "기말", score);
+                        }
+                    }
+                }
+            }
+        }
+
+        return new ArrayList<>(s);
     }
 }

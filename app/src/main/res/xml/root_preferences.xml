@@ -32,7 +32,7 @@
     <PreferenceCategory app:title="알림 설정">
 
         <ListPreference
-            android:defaultValue="1"
+            android:defaultValue="12h"
             android:entries="@array/notification_entries"
             android:entryValues="@array/notification_values"
             android:key="notificationCheck"
@@ -42,7 +42,7 @@
         <PreferenceScreen
             android:title="지금 동기화"
             app:summary="웹강 알림을 지금 동기화합니다."
-            app:key="sync_background">
+            app:key="syncBackground">
         </PreferenceScreen>
 
     </PreferenceCategory>
@@ -59,7 +59,7 @@
         <PreferenceScreen
             android:title="지금 동기화"
             app:summary="구글 캘린더에 시간표를 지금 동기화합니다."
-            app:key="sync_google"
+            app:key="syncGoogle"
             app:dependency="everytimeAddress">
         </PreferenceScreen>
 

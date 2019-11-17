@@ -29,5 +29,7 @@
     <color name="foreground">#1D1D1D</color>
 
     <color name="everytime">#D23E2D</color>
+    <color name="darkyellow">#BD8F12</color>
+    <color name="darkgreen">#15850D</color>
 
 </resources>

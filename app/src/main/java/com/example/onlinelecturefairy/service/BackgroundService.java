@@ -119,6 +119,7 @@ public class BackgroundService extends Service {
             if (lecturesOfWeek == null) {
                 lecturesOfWeek = new ArrayList<>();
             }
+            lecturesOfWeek.clear();
             super.onPreExecute();
         }
 
@@ -172,7 +173,8 @@ public class BackgroundService extends Service {
             calendar2.set(Calendar.MINUTE, 0);
 
             //오늘이 일요일이고, 해당 시간이 지났다면,
-            Log.e(TAG, "BACKGROUND_SERVICE: IF STATEMENT IS : NOT_DONE: " + (temp != lecturesOfWeek.size()) + " TIME: " + (calendar1.compareTo(calendar2) > 0));
+            //Log.e(TAG, "BACKGROUND_SERVICE: IF STATEMENT IS : NOT_DONE: " + (temp != lecturesOfWeek.size()) + " TIME: " + (calendar1.compareTo(calendar2) > 0));
+            Log.e(TAG, "NOT_DONE: " + (temp != lecturesOfWeek.size()) + " TIME: " + (calendar1.compareTo(calendar2) > 0));
             if (temp != lecturesOfWeek.size() && calendar1.compareTo(calendar2) > 0) {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -198,6 +200,7 @@ public class BackgroundService extends Service {
             } else {
                 Log.e(TAG, "BACKGROUND_SERVICE: NOTI_CONDITION_NOT_MATCHED");
             }
+            //notifyLectureSyncFinished();
         }
 
         @Override
@@ -414,5 +417,25 @@ public class BackgroundService extends Service {
             return null;
         }
 
+    }
+
+    protected void notifyLectureSyncFinished() {
+        //웹강 동기화 알림
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
+                .setSmallIcon(R.drawable.web_fairy_short)
+                .setContentTitle("웹강 동기화됨")
+                .setContentText("블랙보드 웹강이 동기화되었습니다.")
+                .setContentIntent(pendingIntent)
+                .setChannelId("0417")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setGroup("WEB_FAIRY")
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+        notificationManager.notify(345, builder.build());
     }
 }

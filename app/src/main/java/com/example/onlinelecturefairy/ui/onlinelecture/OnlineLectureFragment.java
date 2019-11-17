@@ -3,6 +3,7 @@ package com.example.onlinelecturefairy.ui.onlinelecture;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+
+import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class OnlineLectureFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     SwipeRefreshLayout swipe;
@@ -283,7 +286,7 @@ public class OnlineLectureFragment extends Fragment implements SwipeRefreshLayou
                                 endMinute = Integer.parseInt((strEndDate.split(" ")[1]).split(":")[1]);
                                 webEndDate.set(java.util.Calendar.MONTH, endMonth - 1);
                                 webEndDate.set(java.util.Calendar.DAY_OF_MONTH, endDay);
-                                webEndDate.set(java.util.Calendar.HOUR, endHour);
+                                webEndDate.set(Calendar.HOUR_OF_DAY, endHour);
                                 webEndDate.set(java.util.Calendar.MINUTE, endMinute);
 
                                 startMonth = Integer.parseInt((strStartDate.split(" ")[0]).split("-")[1]);
@@ -292,11 +295,11 @@ public class OnlineLectureFragment extends Fragment implements SwipeRefreshLayou
                                 startMinute = Integer.parseInt((strStartDate.split(" ")[1]).split(":")[1]);
                                 webStartDate.set(java.util.Calendar.MONTH, startMonth - 1);
                                 webStartDate.set(java.util.Calendar.DAY_OF_MONTH, startDay);
-                                webStartDate.set(java.util.Calendar.HOUR, startHour);
+                                webStartDate.set(Calendar.HOUR_OF_DAY, startHour);
                                 webStartDate.set(java.util.Calendar.MINUTE, startMinute);
 
                                 webStartDate.set(Calendar.AM_PM,Calendar.AM);
-                                if (today.compareTo(webEndDate) == -1 && (today.compareTo(webStartDate) == 1)) {
+                                if (today.compareTo(webEndDate) < 0 && (today.compareTo(webStartDate) > 0)) {
 //                                webEndDate.add(java.util.Calendar.DATE, +7);
 //                                webEndDate.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
 //                                webEndDate.add(java.util.Calendar.DATE, -7);
@@ -322,7 +325,7 @@ public class OnlineLectureFragment extends Fragment implements SwipeRefreshLayou
                                     child.add(new OnlineLecture(lecture,week,date,pass, OnlineLectureAdapter.CHILD));
                                     //lectureInfo += ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0] + "@" + webLectureName + "@" + simpledateformat.format(webEndDate.getTime()) + "\n";
                                 }
-                                else if((today.compareTo(webStartDate) == 1)){
+                                else if((today.compareTo(webStartDate) > 0)){
                                     lecture = (course.select("a.comboLink").text());
                                     lecture = lecture.replaceFirst(" ", "");
                                     week = (e.text().split("XIN - ")[1]).split("/")[0];
@@ -337,9 +340,15 @@ public class OnlineLectureFragment extends Fragment implements SwipeRefreshLayou
                         lecturesWaiting.add(new OnlineLecture(lecture_header,week_header,date_header,pass_header,OnlineLectureAdapter.HEADER,child));
                         ColorPicker.addLectureId(lecture_header);
 
+                        // show lectures.
+
+                        Log.e(TAG, "ONLINE_LECTURE_FRAGMENT: LECTURE_WAITING : " + lecture_header + " " + week_header);
+                        Log.e(TAG, "START_DATE: " + webStartDate.getTime().toString() + " END_DATE: " + webEndDate.getTime().toString() + " TODAY: " + today.getTime().toString());
+
                         //Should use postValue because it is on background thread.
                         model.postLectures(lecturesWaiting);
                     }
+
                 }
             } catch (IOException o) {
                 o.printStackTrace();

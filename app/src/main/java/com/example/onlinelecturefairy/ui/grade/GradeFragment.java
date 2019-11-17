@@ -18,6 +18,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.onlinelecturefairy.R;
 import com.example.onlinelecturefairy.common.ColorPicker;
+import com.example.onlinelecturefairy.grade.CommonGrade;
 import com.example.onlinelecturefairy.grade.Grade;
 
 import org.jsoup.Connection;
@@ -30,6 +31,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class GradeFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -95,7 +97,7 @@ public class GradeFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         crw.execute();
     }
 
-    private class CrawlingBlackBoardGrade extends AsyncTask<Void, Void, Void> {
+    public class CrawlingBlackBoardGrade extends AsyncTask<Void, Void, Void> {
 
         ArrayList<Grade> gradesWaiting = new ArrayList<>();
 
@@ -223,6 +225,9 @@ public class GradeFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                             .cookies(loginCookie)
                             .get();
                     elem = gradePage.select("div.sortable_item_row.graded_item_row.row.expanded");
+
+                    HashSet<String> lectureAdded = new HashSet<>();
+
                     for (Element e : elem) {
                         String lecture = (gradePage.select("a.comboLink").text());
                         lecture = lecture.replaceFirst(" ", "");
@@ -258,6 +263,19 @@ public class GradeFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                             description = description.replaceFirst(des_temp, "");
 
                         if (scoreSub == "") scoreSub = "none";
+
+                        // Find if there's common grade, and adds it.
+                        ArrayList<String> keys = CommonGrade.findGrade(lecture);
+                        for(String k : keys) {
+                            if(!lectureAdded.contains(lecture)) {
+                                Grade grade = new Grade(lecture,
+                                        String.valueOf(CommonGrade.getScore(lecture, k.split(" ")[1])),
+                                        "평균", k.split(" ")[1]);
+                                grade.type = Grade.GRADE_TYPE_COMMON;
+                                gradesWaiting.add(grade);
+                                lectureAdded.add(lecture);
+                            }
+                        }
 
                         gradesWaiting.add(new Grade(lecture, score, scoreSub, description));
                         ColorPicker.addLectureId(lecture);

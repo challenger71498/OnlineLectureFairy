@@ -41,15 +41,32 @@ public class SettingsActivity extends AppCompatActivity {
             notificationCheck.setOnPreferenceChangeListener((preference, newValue) -> {
                 ScheduleJob s = new ScheduleJob();
                 s.refreshBackground(SettingsFragment.this.getActivity().getApplicationContext());
+                s.startBackground(SettingsFragment.this.getActivity().getApplicationContext());
                 return true;
             });
+
+            PreferenceScreen notificationSyncNow = getPreferenceManager().findPreference("syncBackground");
+            notificationSyncNow.setOnPreferenceClickListener(preference -> {
+                ScheduleJob s = new ScheduleJob();
+                s.startBackground(SettingsFragment.this.getActivity().getApplicationContext());
+                return true;
+            });
+
 
             SwitchPreferenceCompat everytimeSync = getPreferenceManager().findPreference("everytimeSync");
             everytimeSync.setOnPreferenceChangeListener((preference, newValue) -> {
                 if((boolean) newValue) {
                     ScheduleJob s = new ScheduleJob();
                     s.refreshGoogle(SettingsFragment.this.getActivity().getApplicationContext());
+                    s.startGoogle(SettingsFragment.this.getActivity().getApplicationContext());
                 }
+                return true;
+            });
+
+            PreferenceScreen everytimeSyncNow = getPreferenceManager().findPreference("syncGoogle");
+            everytimeSyncNow.setOnPreferenceClickListener(preference -> {
+                ScheduleJob s = new ScheduleJob();
+                s.startGoogle(SettingsFragment.this.getActivity().getApplicationContext());
                 return true;
             });
 

@@ -4,10 +4,13 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 
 import com.example.onlinelecturefairy.R;
 import com.example.onlinelecturefairy.service.BackgroundJobService;
+import com.example.onlinelecturefairy.service.BackgroundService;
 import com.example.onlinelecturefairy.service.GoogleSyncJobService;
+import com.example.onlinelecturefairy.service.GoogleSyncService;
 
 public class ScheduleJob {
 
@@ -42,5 +45,13 @@ public class ScheduleJob {
                         .setPersisted(true)
                         .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                         .build());
+    }
+
+    public void startBackground(Context context) {
+        context.startService(new Intent(context, BackgroundService.class));
+    }
+
+    public void startGoogle(Context context) {
+        context.startService(new Intent(context, GoogleSyncService.class));
     }
 }
