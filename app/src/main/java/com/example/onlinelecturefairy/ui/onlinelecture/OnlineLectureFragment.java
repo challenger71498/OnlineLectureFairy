@@ -29,6 +29,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -294,6 +295,7 @@ public class OnlineLectureFragment extends Fragment implements SwipeRefreshLayou
                                 webStartDate.set(java.util.Calendar.HOUR, startHour);
                                 webStartDate.set(java.util.Calendar.MINUTE, startMinute);
 
+                                webStartDate.set(Calendar.AM_PM,Calendar.AM);
                                 if (today.compareTo(webEndDate) == -1 && (today.compareTo(webStartDate) == 1)) {
 //                                webEndDate.add(java.util.Calendar.DATE, +7);
 //                                webEndDate.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
