@@ -44,10 +44,12 @@ public class CommonGrade {
         grades = new HashMap<>();
 
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        Set<String> keys = grades.keySet();
-        for(String key : keys) {
-            if(pref.contains(key)) {
-                grades.put(key, pref.getFloat("key", -1));
+        Set<String> keys = pref.getStringSet("common-grade-keys", null);
+        if(keys != null) {
+            for(String key : keys) {
+                if(pref.contains(key)) {
+                    grades.put(key, pref.getFloat(key, -1));
+                }
             }
         }
     }
@@ -55,6 +57,9 @@ public class CommonGrade {
     public static void saveGrades(Context context) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         Set<String> keys = grades.keySet();
+        pref.edit()
+                .putStringSet("common-grade-keys", keys)
+                .apply();
         for(String key : keys) {
             pref.edit()
                     .putFloat(key, grades.get(key))

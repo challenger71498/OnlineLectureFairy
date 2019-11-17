@@ -30,6 +30,14 @@ android {
             exclude module: 'commons-logging'
         }
     }
+    signingConfigs{
+        releaseWithSignedKey {
+            storeFile file("KeyStore.jks")
+            storePassword "star71498!"
+            keyAlias "key"
+            keyPassword "star71498!"
+        }
+    }
 }
 
 dependencies {

@@ -17,7 +17,7 @@ public class ScheduleJob {
     public void refreshBackground(Context context) {
         //Background initialization.
         //TODO 주기 제대로 바꾸기
-        long period = 15;  //minutes
+        long period = 30;  //minutes
         long latency = 2;
 
         JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
@@ -32,7 +32,7 @@ public class ScheduleJob {
     }
 
     public void refreshGoogle(Context context) {
-        long googlePeriod = 15;
+        long googlePeriod = 60;
         long googleLatency = 2;
 
         JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
