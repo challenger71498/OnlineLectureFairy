@@ -15,14 +15,14 @@ public class ScheduleJob {
         //Background initialization.
         //TODO 주기 제대로 바꾸기
         long period = 15;  //minutes
-        long latency = 15;
+        long latency = 2;
 
         JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         assert scheduler != null;
 
         scheduler.schedule(
                 new JobInfo.Builder(context.getResources().getInteger(R.integer.REFRESH_BACKGROUND_TASK), new ComponentName(context, BackgroundService.class))
-                        .setPeriodic(period * 1000 * 60)
+                        .setPeriodic(period * 1000 * 60, latency * 1000 * 60)
                         .setPersisted(true)
                         .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                         .build());
@@ -30,7 +30,7 @@ public class ScheduleJob {
 
     public void refreshGoogle(Context context) {
         long googlePeriod = 15;
-        long googleLatency = 10;
+        long googleLatency = 2;
 
         JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         assert scheduler != null;
@@ -38,7 +38,7 @@ public class ScheduleJob {
         //TODO Calendar 이용해서 조건에 맞을때만 해야함
         scheduler.schedule(
                 new JobInfo.Builder(2, new ComponentName(context, GoogleSyncService.class))
-                        .setPeriodic(googlePeriod * 1000 * 60)
+                        .setPeriodic(googlePeriod * 1000 * 60, googleLatency * 1000 * 60)
                         .setPersisted(true)
                         .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                         .build());

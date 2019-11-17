@@ -146,6 +146,7 @@ public class GoogleSyncService extends JobService implements EasyPermissions.Per
                 });
                 done.set(false);
                 while(!crawlingEveryTimeDone) {
+                    Log.e(TAG, "doBackground: ");
                     // wait until crawling is done.
                 }
                 if (isGoogleValid && isEverytimeValid) {
