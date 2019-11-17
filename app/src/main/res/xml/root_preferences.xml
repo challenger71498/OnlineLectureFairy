@@ -39,32 +39,11 @@
             android:title="일정 알림 설정"
             app:useSimpleSummaryProvider="true"/>
 
-<!--        <EditTextPreference-->
-<!--            android:defaultValue="Default value"-->
-<!--            android:key="edit_text_preference_1"-->
-<!--            android:selectAllOnFocus="true"-->
-<!--            android:singleLine="true"-->
-<!--            android:title="Edit text preference" />-->
-<!--        <SwitchPreference-->
-<!--            android:defaultValue="false"-->
-<!--            android:key="switch_preference_1"-->
-<!--            android:title="Switch preference" />-->
-<!--        <MultiSelectListPreference-->
-<!--            android:defaultValue="@array/reply_values"-->
-<!--            android:entries="@array/reply_entries"-->
-<!--            android:entryValues="@array/reply_values"-->
-<!--            android:key="multi_select_list_preference_1"-->
-<!--            android:title="Multi select list preference" />-->
-<!--        <SwitchPreferenceCompat-->
-<!--            app:key="sync"-->
-<!--            app:title="@string/sync_title" />-->
-
-<!--        <SwitchPreferenceCompat-->
-<!--            app:dependency="sync"-->
-<!--            app:key="attachment"-->
-<!--            app:summaryOff="@string/attachment_summary_off"-->
-<!--            app:summaryOn="@string/attachment_summary_on"-->
-<!--            app:title="@string/attachment_title" />-->
+        <PreferenceScreen
+            android:title="지금 동기화"
+            app:summary="웹강 알림을 지금 동기화합니다."
+            app:key="sync_background">
+        </PreferenceScreen>
 
     </PreferenceCategory>
 
@@ -78,10 +57,44 @@
             app:title="에브리타임 동기화" />
 
         <PreferenceScreen
+            android:title="지금 동기화"
+            app:summary="구글 캘린더에 시간표를 지금 동기화합니다."
+            app:key="sync_google"
+            app:dependency="everytimeAddress">
+        </PreferenceScreen>
+
+        <PreferenceScreen
             android:title="로그아웃"
             app:key="logout">
         </PreferenceScreen>
 
     </PreferenceCategory>
+
+    <!--        <EditTextPreference-->
+    <!--            android:defaultValue="Default value"-->
+    <!--            android:key="edit_text_preference_1"-->
+    <!--            android:selectAllOnFocus="true"-->
+    <!--            android:singleLine="true"-->
+    <!--            android:title="Edit text preference" />-->
+    <!--        <SwitchPreference-->
+    <!--            android:defaultValue="false"-->
+    <!--            android:key="switch_preference_1"-->
+    <!--            android:title="Switch preference" />-->
+    <!--        <MultiSelectListPreference-->
+    <!--            android:defaultValue="@array/reply_values"-->
+    <!--            android:entries="@array/reply_entries"-->
+    <!--            android:entryValues="@array/reply_values"-->
+    <!--            android:key="multi_select_list_preference_1"-->
+    <!--            android:title="Multi select list preference" />-->
+    <!--        <SwitchPreferenceCompat-->
+    <!--            app:key="sync"-->
+    <!--            app:title="@string/sync_title" />-->
+
+    <!--        <SwitchPreferenceCompat-->
+    <!--            app:dependency="sync"-->
+    <!--            app:key="attachment"-->
+    <!--            app:summaryOff="@string/attachment_summary_off"-->
+    <!--            app:summaryOn="@string/attachment_summary_on"-->
+    <!--            app:title="@string/attachment_title" />-->
 
 </PreferenceScreen>

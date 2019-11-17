@@ -29,6 +29,7 @@ import com.example.onlinelecturefairy.common.ScheduleJob;
 import com.example.onlinelecturefairy.grade.Grade;
 import com.example.onlinelecturefairy.notice.Notice;
 import com.example.onlinelecturefairy.onlinelecture.OnlineLecture;
+import com.example.onlinelecturefairy.service.BackgroundService;
 import com.example.onlinelecturefairy.service.GoogleSyncService;
 import com.example.onlinelecturefairy.ui.onlinelecture.OnlineLectureAdapter;
 import com.google.android.gms.common.ConnectionResult;
@@ -88,6 +89,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Test
+        startService(new Intent(this, GoogleSyncService.class));
+        startService(new Intent(this, BackgroundService.class));
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -143,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 //        JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
 //        assert scheduler != null;
 //        scheduler.schedule(
-//                new JobInfo.Builder(getResources().getInteger(R.integer.REFRESH_BACKGROUND_TASK), new ComponentName(this, BackgroundService.class))
+//                new JobInfo.Builder(getResources().getInteger(R.integer.REFRESH_BACKGROUND_TASK), new ComponentName(this, BackgroundJobService.class))
 //                        .setPeriodic(period * 1000 * 60, latency * 1000 * 60)
 //                        .setPersisted(true)
 //                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)

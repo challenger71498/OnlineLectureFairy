@@ -1,18 +1,17 @@
 package com.example.onlinelecturefairy.service;
 
 import android.app.PendingIntent;
-import android.app.job.JobParameters;
-import android.app.job.JobService;
+import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.os.Looper;
+import android.os.IBinder;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
 import com.example.onlinelecturefairy.LoginActivity;
@@ -32,12 +31,13 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
-public class BackgroundService extends JobService {
+public class BackgroundService extends Service {
     ArrayList<OnlineLecture> lecturesOfWeek;
     int temp;
     Boolean crawlingIsDone = false;
@@ -49,9 +49,15 @@ public class BackgroundService extends JobService {
     String pw;
 
     Boolean isDone = false;
+    
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
     @Override
-    public boolean onStartJob(JobParameters jobParameters) {
+    public int onStartCommand(Intent intent, int flags, int startId) {
 
         // Blackboard ID PW validity check
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -63,16 +69,16 @@ public class BackgroundService extends JobService {
             @Override
             public void onSuccess() {
                 // 로그인에 성공했을 때의 작업 작성.
-                Log.e(TAG, "done");
+                Log.e(TAG, "BACKGROUND_SERVICE: BLACKBOARD_IS_VALID");
                 isInfoCorrect = true;
                 isDone = true;
             }
 
             @Override
             public void onFailure() {
-
                 // 로그인에 실패했을 때의 작업 작성.
                 Log.e(TAG, "failed");
+                Log.e(TAG, "BACKGROUND_SERVICE: BLACKBOARD_NOT_VALID");
                 isInfoCorrect = false;
                 isDone = true;
             }
@@ -81,35 +87,30 @@ public class BackgroundService extends JobService {
 
         Handler handler = new Handler();
         Thread thread = new Thread(() -> {
-            Looper.prepare();
             //여기에 함수를 실행.
             // TODO: 10초 이상 빠져나가지 않는 경우 오류 내뿜기
             while (!isDone) {
-
+                if(Math.random() < 0.0000002f) Log.e(TAG, "BACKGROUND_SERVICE: BLACKBOARD_VALIDATION_CHECK");
             }
             // TODO: 에브리타임 URL이 적절한지 check
             if (isInfoCorrect) {
-                Intent intent = new Intent("my-event");
-                intent.putExtra("message", "hello!");
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                Log.e(TAG, "BACKGROUND_SERVICE: INFO_IS_CORRECT");
                 readyToCrawling = true;
+            } else {
+                Log.e(TAG, "BACKGROUND_SERVICE: INFO_NOT_CORRECT");
             }
             handler.post(() -> {
-                CrawlingBlackBoardWeb crw = new CrawlingBlackBoardWeb();
+                BackgroundService.CrawlingBlackBoardWeb crw = new BackgroundService.CrawlingBlackBoardWeb();
+                Log.e(TAG, "BACKGROUND_SERVICE: CRAWLING_START");
                 crw.execute();
-                jobFinished(jobParameters, true);   // true로 놓아야 계속 job을 돌림
             });
-            Looper.loop();
+            Log.e(TAG, "BACKGROUND_SERVICE: THREAD_DONE");
         });
         thread.start();
 
-        return true;
+        return super.onStartCommand(intent, flags, startId);
     }
 
-    @Override
-    public boolean onStopJob(JobParameters jobParameters) {
-        return true;    //Set true to re-schedule.
-    }
 
     private class CrawlingBlackBoardWeb extends AsyncTask<Void, Void, Void> {
 
@@ -126,7 +127,7 @@ public class BackgroundService extends JobService {
             super.onPostExecute(aVoid);
             temp = 0;
             String noneList = "";
-            Log.e(TAG, "numberOfLecture: " + lecturesOfWeek.size());
+            Log.e(TAG, "BACKGROUND_SERVICE/CRAWLING: NUMBER_OF_LECTURE: " + lecturesOfWeek.size());
             //이미 들은 웹강 counting
             for (OnlineLecture lecture : lecturesOfWeek) {
                 if (lecture.getPass().matches(".*P.*")) {
@@ -138,37 +139,40 @@ public class BackgroundService extends JobService {
 
 
             //TODO: 일요일 오후 1시가 지났으면 하도록 설정해놓음.
-            java.util.Calendar calendar1 = java.util.Calendar.getInstance();
-            java.util.Calendar calendar2 = java.util.Calendar.getInstance();
+            GregorianCalendar calendar1 = new GregorianCalendar();
+            GregorianCalendar calendar2 = new GregorianCalendar();
 
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             String timeString = pref.getString("notificationCheck", "0");
+            calendar2.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+            calendar2.set(Calendar.DAY_OF_MONTH, calendar2.get(Calendar.DAY_OF_MONTH) + 7);
+            int endOfDay = calendar2.get(Calendar.DAY_OF_MONTH);
             switch(timeString) {
-                case "0":
+                case "6h":
                     calendar2.set(Calendar.HOUR_OF_DAY, 18);
                     break;
-                case "1":
+                case "12h":
                     calendar2.set(Calendar.HOUR_OF_DAY, 12);
                     break;
-                case "2":
+                case "18h":
                     calendar2.set(Calendar.HOUR_OF_DAY, 6);
                     break;
-                case "3":
-                    calendar2.set(Calendar.DAY_OF_MONTH, calendar1.get(Calendar.DAY_OF_MONTH) - 1);
+                case "1d":
+                    calendar2.set(Calendar.DAY_OF_MONTH, endOfDay - 1);
                     calendar2.set(Calendar.HOUR_OF_DAY, 9);
                     break;
-                case "4":
-                    calendar2.set(Calendar.DAY_OF_MONTH, calendar1.get(Calendar.DAY_OF_MONTH) - 2);
+                case "2d":
+                    calendar2.set(Calendar.DAY_OF_MONTH, endOfDay - 2);
                     calendar2.set(Calendar.HOUR_OF_DAY, 9);
                     break;
-                case "5":
+                case "none":
                     calendar2.set(Calendar.YEAR, 3000);
                     break;
             }
             calendar2.set(Calendar.MINUTE, 0);
 
             //오늘이 일요일이고, 해당 시간이 지났다면,
-            Log.e(TAG, "BACKGROUND_SERVICE: IF STATEMENT IS : " + (temp != lecturesOfWeek.size() && calendar1.compareTo(calendar2) > 0));
+            Log.e(TAG, "BACKGROUND_SERVICE: IF STATEMENT IS : NOT_DONE: " + (temp != lecturesOfWeek.size()) + " TIME: " + (calendar1.compareTo(calendar2) > 0));
             if (temp != lecturesOfWeek.size() && calendar1.compareTo(calendar2) > 0) {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -190,6 +194,9 @@ public class BackgroundService extends JobService {
 
                 // notificationId is a unique int for each notification that you must define
                 notificationManager.notify(417, builder.build());
+                Log.e(TAG, "BACKGROUND_SERVICE: NOTI_MATCHED");
+            } else {
+                Log.e(TAG, "BACKGROUND_SERVICE: NOTI_CONDITION_NOT_MATCHED");
             }
         }
 
@@ -357,7 +364,7 @@ public class BackgroundService extends JobService {
                             endMinute = Integer.parseInt((strEndDate.split(" ")[1]).split(":")[1]);
                             webEndDate.set(java.util.Calendar.MONTH, endMonth - 1);
                             webEndDate.set(java.util.Calendar.DAY_OF_MONTH, endDay);
-                            webEndDate.set(java.util.Calendar.HOUR, endHour);
+                            webEndDate.set(Calendar.HOUR_OF_DAY, endHour);
                             webEndDate.set(java.util.Calendar.MINUTE, endMinute);
 
                             startMonth = Integer.parseInt((strStartDate.split(" ")[0]).split("-")[1]);
@@ -366,7 +373,7 @@ public class BackgroundService extends JobService {
                             startMinute = Integer.parseInt((strStartDate.split(" ")[1]).split(":")[1]);
                             webStartDate.set(java.util.Calendar.MONTH, startMonth - 1);
                             webStartDate.set(java.util.Calendar.DAY_OF_MONTH, startDay);
-                            webStartDate.set(java.util.Calendar.HOUR, startHour);
+                            webStartDate.set(Calendar.HOUR_OF_DAY, startHour);
                             webStartDate.set(java.util.Calendar.MINUTE, startMinute);
 
                             if (today.compareTo(webEndDate) == -1 && (today.compareTo(webStartDate) == 1)) {

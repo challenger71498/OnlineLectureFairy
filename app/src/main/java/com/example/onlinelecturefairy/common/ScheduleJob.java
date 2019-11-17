@@ -6,8 +6,8 @@ import android.content.ComponentName;
 import android.content.Context;
 
 import com.example.onlinelecturefairy.R;
-import com.example.onlinelecturefairy.service.BackgroundService;
-import com.example.onlinelecturefairy.service.GoogleSyncService;
+import com.example.onlinelecturefairy.service.BackgroundJobService;
+import com.example.onlinelecturefairy.service.GoogleSyncJobService;
 
 public class ScheduleJob {
 
@@ -21,7 +21,7 @@ public class ScheduleJob {
         assert scheduler != null;
 
         scheduler.schedule(
-                new JobInfo.Builder(context.getResources().getInteger(R.integer.REFRESH_BACKGROUND_TASK), new ComponentName(context, BackgroundService.class))
+                new JobInfo.Builder(context.getResources().getInteger(R.integer.REFRESH_BACKGROUND_TASK), new ComponentName(context, BackgroundJobService.class))
                         .setPeriodic(period * 1000 * 60, latency * 1000 * 60)
                         .setPersisted(true)
                         .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
@@ -37,7 +37,7 @@ public class ScheduleJob {
 
         //TODO Calendar 이용해서 조건에 맞을때만 해야함
         scheduler.schedule(
-                new JobInfo.Builder(2, new ComponentName(context, GoogleSyncService.class))
+                new JobInfo.Builder(2, new ComponentName(context, GoogleSyncJobService.class))
                         .setPeriodic(googlePeriod * 1000 * 60, googleLatency * 1000 * 60)
                         .setPersisted(true)
                         .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
