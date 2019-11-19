@@ -23,10 +23,15 @@
     <string name="signature_title">Your signature</string>
     <string name="reply_title">Default reply action</string>
 
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <!--  SharedPreference Settings  -->
+    <string name="EVERYTIME_CHECK">everytime-check</string>
+    <string name="PERMISSION_CHECK">permission-check</string>
+    <string name="ACCOUNT_CHECK">account-check</string>
+    <string name="BLACKBOARD_ID">ID</string>
+    <string name="BLACKBOARD_PASSWORD">PW</string>
+    <string name="AUTO_LOGIN">autoLogin</string>
+    <string name="EVERY_TIME_ADDRESS">everytimeAddress</string>
+    <string name="FIRST_TIME">first-time</string>
+    <string name="NOTIFICATION_CHECK">notificationCheck</string>
+    <string name="COMMON_GRADE_KEYS">common-grade-keys</string>
 </resources>
