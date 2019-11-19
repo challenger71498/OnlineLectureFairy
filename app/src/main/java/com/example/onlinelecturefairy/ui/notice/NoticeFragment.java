@@ -1,13 +1,17 @@
 package com.example.onlinelecturefairy.ui.notice;
 
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,6 +42,7 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
     SwipeRefreshLayout swipe;
     NoticeFragmentViewModel model;
     private ArrayList<Notice> arrNotice;
+    NoticeRecyclerAdapter adapter;
 
     @Nullable
     @Override
@@ -55,14 +60,16 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
 
         model = ViewModelProviders.of(this).get(NoticeFragmentViewModel.class);
 
+//        model.setNotices(new ArrayList<>());
+
         model.getNotices().observe(getActivity(), notices -> {
             //UI updates.
             // 로딩 중 화면을 빠져나갔을 경우 예외처리 해 주어야 함.
-            if(getView() != null) {
+            if (getView() != null) {
                 RecyclerView recyclerView = getView().findViewById(R.id.noticeRecyclerView);
                 recyclerView.setNestedScrollingEnabled(false);
-                NoticeRecyclerAdapter adapter = (NoticeRecyclerAdapter) recyclerView.getAdapter();
-                if(adapter != null) {
+                adapter = (NoticeRecyclerAdapter) recyclerView.getAdapter();
+                if (adapter != null) {
                     adapter.setNotices(notices);
                 } else {
                     LinearLayoutManager manager = new LinearLayoutManager(getActivity());
@@ -86,7 +93,7 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
         );
 
         //Crawling
-        CrawlingBlackBoard crw =  new CrawlingBlackBoard();
+        CrawlingBlackBoard crw = new CrawlingBlackBoard();
         crw.execute();
     }
 
@@ -94,12 +101,30 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.main, menu);
+
+        MenuItem mSearch = menu.findItem(R.id.menu_search);
+        SearchView view = (SearchView) mSearch.getActionView();
+        view.setQueryHint("태그 검색");
+        view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (adapter != null) {
+                    adapter.getFilter().filter(newText);
+                }
+                return true;
+            }
+        });
     }
 
     @Override
     public void onRefresh() {
 
-        CrawlingBlackBoard crw =  new CrawlingBlackBoard();
+        CrawlingBlackBoard crw = new CrawlingBlackBoard();
         crw.execute();
     }
 
@@ -115,7 +140,7 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
         protected void onPreExecute() {
             super.onPreExecute();
             //Set refresh ui to true.
-            if(!swipe.isRefreshing()) {
+            if (!swipe.isRefreshing()) {
                 swipe.setRefreshing(true);
             }
         }
@@ -130,14 +155,15 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
 
         @Override
         protected Void doInBackground(Void... voids) {
+            ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
             try {
                 String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36";
 
                 //TODO: 개발 완료 후 defValue 수정
-                if(getActivity() != null) {
+                if (getActivity() != null) {
                     SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(getActivity());
                     String blackboard_user_id = appData.getString("ID", "12181637");
-                    String blackboard_user_password = appData.getString("PW","!dlstjd1105");
+                    String blackboard_user_password = appData.getString("PW", "!dlstjd1105");
                     Connection.Response loginPageResponse = Jsoup.connect("https://learn.inha.ac.kr/webapps/login/")
                             .timeout(3000)
                             .header("Origin", "https://learn.inha.ac.kr")
@@ -162,7 +188,7 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
                             .data(userData)
                             .method(Connection.Method.POST)
                             .execute();
-                    Map<String,String> loginCookie = res.cookies();
+                    Map<String, String> loginCookie = res.cookies();
                     if (loginCookie.isEmpty()) {
                         return null;
                     }
@@ -215,7 +241,7 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
 
                     String[] arrTitle;
 
-                    if(arrNotice == null) {
+                    if (arrNotice == null) {
                         arrNotice = new ArrayList<>();
                     }
 
@@ -223,9 +249,9 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
                     String title;
                     String calendar;
                     String description;
-                    for(int i=0;i<numOfSub;i++){
+                    for (int i = 0; i < numOfSub; i++) {
                         arrTitle = blackboard_noticeTitle[i].split("\n");
-                        Document course = Jsoup.connect("https://learn.inha.ac.kr/"+blackboard_noticeLink[i])
+                        Document course = Jsoup.connect("https://learn.inha.ac.kr/" + blackboard_noticeLink[i])
                                 .userAgent(userAgent)
                                 .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
                                 .cookies(loginCookie)
@@ -233,16 +259,16 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
                         Document docNotice = Jsoup.parse(course.select("ul#announcementList").html());
 
                         //String formatting.
-                        for(String s:arrTitle){
+                        for (String s : arrTitle) {
                             elem = docNotice.select("li");
-                            for(Element e:elem){
-                                if(e.text().contains(s)){
+                            for (Element e : elem) {
+                                if (e.text().contains(s)) {
                                     title = e.text().split("게시 날짜:")[0];
                                     calendar = (e.text().split("게시 날짜:")[1]).split("KST")[0];
                                     lecture = e.text().split("게시한 곳:")[1];
                                     lecture = lecture.replaceFirst(" ", "");
                                     description = (e.text().split("KST")[2]).split("작성자:")[0];
-                                    Notice notice = new Notice(lecture,title,calendar,description);
+                                    Notice notice = new Notice(lecture, title, calendar, description);
                                     noticesWaiting.add(notice);
                                     ColorPicker.addLectureId(lecture);
 

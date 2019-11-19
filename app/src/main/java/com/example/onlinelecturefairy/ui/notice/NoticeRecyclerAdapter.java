@@ -2,15 +2,12 @@ package com.example.onlinelecturefairy.ui.notice;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LifecycleRegistry;
-import androidx.lifecycle.OnLifecycleEvent;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
@@ -20,21 +17,27 @@ import com.example.onlinelecturefairy.notice.Notice;
 import com.example.onlinelecturefairy.ui.tag.TagRecyclerViewAdapter;
 import com.example.onlinelecturefairy.ui.tag.TagsViewModel;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
-public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAdapter.ViewHolder> implements LifecycleOwner, LifecycleObserver {
-    private LifecycleRegistry registry = new LifecycleRegistry(this);
+public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAdapter.ViewHolder> implements Filterable {
 
     private List<Notice> notices;
+    private List<Notice> filteredNotices;
     private Fragment fragment;
 
     public NoticeRecyclerAdapter(List<Notice> notices, Fragment fragment) {
         this.notices = notices;
+        this.filteredNotices = notices;
         this.fragment = fragment;
     }
 
     public void setNotices(List<Notice> notices) {
         this.notices = notices;
+//        this.filteredNotices = notices;
         notifyDataSetChanged();
     }
 
@@ -47,7 +50,7 @@ public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAd
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
-        Notice notice = notices.get(position);
+        Notice notice = filteredNotices.get(position);
 
         NoticeViewModel model = new NoticeViewModel();
         model.setNotice(notice);
@@ -77,18 +80,53 @@ public class NoticeRecyclerAdapter extends RecyclerView.Adapter<NoticeRecyclerAd
 
     @Override
     public int getItemCount() {
-        return notices == null ? 0 : notices.size();
+        return filteredNotices == null ? 0 : filteredNotices.size();
     }
 
-    @NonNull
     @Override
-    public Lifecycle getLifecycle() {
-        return registry;
-    }
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                ArrayList<String> str = new ArrayList<>(Arrays.asList(constraint.toString().split("[ ,]")));   //space 나 comma로 띄움
+                //Log.e(TAG, "NOTICE_RECYCLER_ADAPTER_FILTER_STRING : " + TextUtils.join("+", str));
+                if (constraint.toString().isEmpty()) {
+                    filteredNotices = new ArrayList<>(notices);
+                } else {
+                    LinkedHashSet<Notice> filteringList = new LinkedHashSet<>();
+                    for (Notice n : new ArrayList<>(notices)) {
+                        HashSet<String> tags = new HashSet<>(n.getTags());
+                        boolean foundAll = true;
+                        for (String compare : str) {
+                            boolean found = false;
+                            for (String s : tags) {
+                                if (s.contains(compare)) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if(!found) {
+                                foundAll = false;
+                                break;
+                            }
+                        }
+                        if(foundAll) {
+                            filteringList.add(n);
+                        }
+                    }
+                    filteredNotices = new ArrayList<>(filteringList);
+                }
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = filteredNotices;
+                return filterResults;
+            }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
-    void onStateEvent(LifecycleOwner owner, Lifecycle.Event event) {
-        registry.handleLifecycleEvent(event);
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                filteredNotices = (ArrayList<Notice>) results.values;
+                notifyDataSetChanged();
+            }
+        };
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
