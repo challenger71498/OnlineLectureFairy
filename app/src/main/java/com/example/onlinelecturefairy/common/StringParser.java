@@ -1,14 +1,8 @@
 package com.example.onlinelecturefairy.common;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.preference.PreferenceManager;
-
 import com.example.onlinelecturefairy.grade.CommonGrade;
-import com.example.onlinelecturefairy.grade.Grade;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -18,7 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.function.BooleanSupplier;
-import java.util.function.IntSupplier;
 
 import kr.co.shineware.nlp.komoran.model.KomoranResult;
 import kr.co.shineware.nlp.komoran.model.Token;
@@ -185,7 +178,8 @@ public class StringParser {
                     t.getPos().equals("NNB") ||
                     t.getPos().equals("SL") ||
                     t.getPos().equals("SN") ||
-                    t.getPos().equals("SF")) {
+                    t.getPos().equals("SF") ||
+                    t.getPos().equals("SO")) {
                 tokens.add(t);
             }
         }
@@ -212,14 +206,20 @@ public class StringParser {
                 if (i < tokens.size() && tokens.get(i + 1).getPos().equals("SN")) {             //평균 뒤에 숫자가 있을 때    평균 3
                     if (i + 1 < tokens.size() && tokens.get(i + 2).getMorph().equals(".")) {        //평균 뒤에 점이 있을 때     평균 3.
                         if (i + 2 < tokens.size() && tokens.get(i + 3).getPos().equals("SN")) {          //점 뒤에 숫자가 있을 때     평균 3.14
-                            scoreRaw = tokens.get(i + 1).getMorph() +
-                                    tokens.get(i + 2).getMorph() +
-                                    tokens.get(i + 3).getMorph();
-                            Log.e(TAG, "findGradeAtString: SCORE : " + scoreRaw);
-                            score = Float.parseFloat(scoreRaw);
+                            if(i + 3 < tokens.size() && tokens.get(i + 4).getPos().equals("SO")) {      // 오류. 예) 30.5~30.8점.
+                                isCorrect = false;
+                            } else {
+                                scoreRaw = tokens.get(i + 1).getMorph() +
+                                        tokens.get(i + 2).getMorph() +
+                                        tokens.get(i + 3).getMorph();
+                                Log.e(TAG, "findGradeAtString: SCORE : " + scoreRaw);
+                                score = Float.parseFloat(scoreRaw);
+                            }
                         } else {  // 오류. 예) 과목 평균\n 3. 안내 사항
                             isCorrect = false;
                         }
+                    } else if (i + 1 < tokens.size() && tokens.get(i + 2).getPos().equals("SO")) {  // 오류. 예) 평균은 약 30~35점 예상
+                        isCorrect = false;
                     } else {
                         scoreRaw = tokens.get(i + 1).getMorph();
                         score = (float) Integer.parseInt(scoreRaw);
