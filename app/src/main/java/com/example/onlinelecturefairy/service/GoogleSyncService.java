@@ -75,6 +75,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class GoogleSyncService extends Service implements EasyPermissions.PermissionCallbacks {
+    boolean isDirect = false;
 
     @Override
     public void onCreate() {
@@ -99,41 +100,52 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e(TAG, "GOOGLE_SYNC_SERVICE: ON_START_COMMAND");
 
+        // load is-direct.
+        if(intent != null) {
+            isDirect = intent.getBooleanExtra("is-direct", false);
+        }
+
         // check setting first.
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         Boolean sync = pref.getBoolean("everytimeSync", false);
 
+        isGoogleValid = true;
+        AtomicBoolean done = new AtomicBoolean(false);
+
+        // Google Calendar API 사용하기 위해 필요한 인증 초기화( 자격 증명 credentials, 서비스 객체 )
+        // OAuth 2.0를 사용하여 구글 계정 선택 및 인증하기 위한 준비
+        mCredential = GoogleAccountCredential.usingOAuth2(
+                getApplicationContext(),
+                Arrays.asList(SCOPES)
+        ).setBackOff(new ExponentialBackOff()); // I/O 예외 상황을 대비해서 백오프 정책 사용
+
+        // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
+        String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+                .getString(PREF_ACCOUNT_NAME, null);
+
+        if (accountName != null) {
+            Log.e(TAG, "getResultsFromApi: CHOOSE_SAVED_ACCOUNT");
+            mCredential.setSelectedAccountName(accountName);
+            SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            String everytimeAddress = appData.getString("everytimeAddress", "");
+            String[] temp = everytimeAddress.split("@");
+            if (temp.length > 1) {
+                userIdentifier = temp[1];
+            } else {
+                userIdentifier = "";
+            }
+
+            pref.edit()
+                    .putBoolean("account-check", false)
+                    .apply();
+        } else {
+            isGoogleValid = false;
+            getResultsFromApi();
+        }
+
         if (sync) {
-            // Broadcasting test
-            // LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent("hello-there"));
-
-            isGoogleValid = true;
-            AtomicBoolean done = new AtomicBoolean(false);
-
-            // Google Calendar API 사용하기 위해 필요한 인증 초기화( 자격 증명 credentials, 서비스 객체 )
-            // OAuth 2.0를 사용하여 구글 계정 선택 및 인증하기 위한 준비
-            mCredential = GoogleAccountCredential.usingOAuth2(
-                    getApplicationContext(),
-                    Arrays.asList(SCOPES)
-            ).setBackOff(new ExponentialBackOff()); // I/O 예외 상황을 대비해서 백오프 정책 사용
-
-            // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
-            String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-                    .getString(PREF_ACCOUNT_NAME, null);
             if (accountName != null) {
-                Log.e(TAG, "getResultsFromApi: CHOOSE_SAVED_ACCOUNT");
-                mCredential.setSelectedAccountName(accountName);
-                SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                String everytimeAddress = appData.getString("everytimeAddress", "");
-                Log.e(TAG, "onPreExecute: REMOVE_CALENDAR");
-                deleteCalendar();
                 Log.e(TAG, "onPreExecute: EVERYTIME_CRAWLER_EXECUTED");
-                String[] temp = everytimeAddress.split("@");
-                if (temp.length > 1) {
-                    userIdentifier = temp[1];
-                } else {
-                    userIdentifier = "";
-                }
                 CrawlingEveryTime crw = new CrawlingEveryTime();
                 crw.execute();
             } else {
@@ -156,6 +168,10 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
                     // 구글 validity check에 성공 시 작업 실행.
                     Log.e(TAG, "GOOGLE_SYNC_SERVICE: VALIDATION_COMPLETE");
 
+                    pref.edit()
+                            .putBoolean("account-check", false)
+                            .apply();
+
                     //TODO: 일요일 오후 1시가 지났으면 하도록 설정해놓음.
                     GregorianCalendar calendar1 = new GregorianCalendar();
                     GregorianCalendar calendar2 = new GregorianCalendar();
@@ -165,18 +181,21 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
                     calendar2.set(java.util.Calendar.HOUR_OF_DAY, 18);
                     calendar2.set(java.util.Calendar.MINUTE, 0);
 
-                    //오늘이 일요일이고, 해당 시간이 지났다면,
-                    if (calendar1.compareTo(calendar2) > 0) {
+                    //isDirect가 참이거나, 오늘이 일요일이고 해당 시간이 지났다면,
+                    Log.e(TAG, "GOOGLE_SYNC_SERVICE: CAL1 :" + calendar1.getTime().toString() +  " CAL2: " + calendar2.getTime().toString());
+                    if (isDirect || calendar1.compareTo(calendar2) > 0) {
 
-                        notifyTimetableSyncFinished();
+                        // 여기에 구글 캘린더 동기화 작업을 작성.
+                        Log.e(TAG, "onPreExecute: REMOVE_CALENDAR");
+                        deleteCalendar();
+
+                        mID = 5;
+                        Log.e(TAG, "done " + GoogleSyncService.this.getResultsFromApi());
 
                         Log.e(TAG, "BACKGROUND_SERVICE: NOTI_MATCHED");
                     } else {
                         Log.e(TAG, "BACKGROUND_SERVICE: NOTI_CONDITION_NOT_MATCHED");
                     }
-                    //여기에 구글 캘린더 동기화 작업을 작성.
-//                    mID = 5;
-//                    Log.e(TAG, "done " + GoogleSyncService.this.getResultsFromApi());
 
                     done.set(true);
                 } else {
@@ -184,7 +203,7 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
                 }
                 handler.post(() -> {
                     {
-                        if (done.get()) {
+                        if (isDirect && done.get()) {
                             //notifyTimetableSyncFinished();
                             Log.e(TAG, "GOOGLE_SYNC_SERVICE: THREAD HANDLER POST");
                         }
@@ -255,7 +274,6 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
         // 계정이 제대로 설정되어 있지 않을 때
         Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        intent.putExtra("account-check", true);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0417")
@@ -274,10 +292,10 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
         notificationManager.notify(714, builder.build());
 
         // set account check pref to true.
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        pref.edit()
-                .putBoolean("account-check", true)
-                .apply();
+//        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//        pref.edit()
+//                .putBoolean("account-check", true)
+//                .apply();
     }
 
     protected void notifyEverytimeAccountError() {
@@ -1470,8 +1488,7 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
                     // 모든 이벤트가 시작 시간을 갖고 있지는 않다. 그런 경우 시작 날짜만 사용
                     end = event.getEnd().getDate();
                 }
-                Event tempEvent = event;
-                ourEventArray.add(tempEvent);
+                ourEventArray.add(event);
 
             }
 
@@ -1617,8 +1634,7 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
             }
             System.out.printf("EventViewModel created: %s\n", event.getHtmlLink());
             Log.e("EventViewModel", "created : " + event.getHtmlLink());
-            String eventStrings = "created : " + event.getHtmlLink();
-            return eventStrings;
+            return "created : " + event.getHtmlLink();
         }
 
         /**
@@ -1652,9 +1668,9 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
 
             }
             calendar = java.util.Calendar.getInstance();
-            int tYear = calendar.get(calendar.YEAR);
-            int tMonth = calendar.get(calendar.MONTH);
-            int tDate = calendar.get(calendar.DATE);
+            int tYear = calendar.get(java.util.Calendar.YEAR);
+            int tMonth = calendar.get(java.util.Calendar.MONTH);
+            int tDate = calendar.get(java.util.Calendar.DATE);
             Event[] events = new Event[numOfSubject];
             for (int i = 0; i < numOfSubject; i++) {
                 calendar = java.util.Calendar.getInstance();
@@ -1690,8 +1706,8 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
                 temp = startTime.split(":");
                 int startHour = Integer.parseInt(temp[0]);
                 int startMinute = Integer.parseInt(temp[1]);
-                calendar.set(calendar.HOUR_OF_DAY, startHour);
-                calendar.set(calendar.MINUTE, +startMinute);
+                calendar.set(java.util.Calendar.HOUR_OF_DAY, startHour);
+                calendar.set(java.util.Calendar.MINUTE, +startMinute);
                 String datetime = simpledateformat.format(calendar.getTime());
                 DateTime startDateTime = new DateTime(datetime);
                 EventDateTime start = new EventDateTime()
@@ -1744,6 +1760,7 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
             }
             String eventStrings = "시간표가 구글 캘린더 이번 주의 일정에 추가되었습니다.";
 
+            notifyTimetableSyncFinished();
             return eventStrings;
         }
 

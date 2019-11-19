@@ -3,7 +3,6 @@ package com.example.onlinelecturefairy;
 import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -25,7 +24,6 @@ import com.example.onlinelecturefairy.common.ScheduleJob;
 import com.example.onlinelecturefairy.grade.CommonGrade;
 import com.example.onlinelecturefairy.service.BackgroundService;
 import com.example.onlinelecturefairy.service.GoogleSyncService;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -51,10 +49,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Check if this is the first start.
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         startService(new Intent(this, GoogleSyncService.class));
         startService(new Intent(this, BackgroundService.class));
+
+        //Background initialization.
+        ScheduleJob s = new ScheduleJob();
+        s.refreshGoogle(this);
+        s.refreshBackground(this);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -92,62 +95,30 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        //Background initialization.
-        ScheduleJob s = new ScheduleJob();
-        s.refreshGoogle(this);
-        s.refreshBackground(this);
-//        //TODO 주기 제대로 바꾸기
-//        long period = 30;  //minutes
-//        long latency = 15;
-//        long googlePeriod = 60;
-//        long googleLatency = 30;
-
-//        JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-//        assert scheduler != null;
-//        scheduler.schedule(
-//                new JobInfo.Builder(getResources().getInteger(R.integer.REFRESH_BACKGROUND_TASK), new ComponentName(this, BackgroundJobService.class))
-//                        .setPeriodic(period * 1000 * 60, latency * 1000 * 60)
-//                        .setPersisted(true)
-//                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-//                        .build());
-//
-//        //TODO Calendar 이용해서 조건에 맞을때만 해야함
-//        scheduler.schedule(
-//                new JobInfo.Builder(2, new ComponentName(this, GoogleSyncService.class))
-//                        .setPeriodic(googlePeriod * 1000 * 60, googleLatency * 1000 * 60)
-//                        .setPersisted(true)
-//                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-//                        .build());
-//
-//        if (!shown) {
-//            startService(new Intent(this, GoogleSyncService.class));
-//            shown = true;
-//        }
-
         // get intent for snackbar setting.
         Intent intent = getIntent();
 
-        if (!pref.getBoolean("account-check", false)) {
-            Log.e(TAG, "onReceive: RECEIVED account-check");
-            Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "계정이 연동되지 않았습니다.", Snackbar.LENGTH_LONG);
-            snackbar
-                    .setAction("설정", v -> {
-                        chooseAccount();
-                        snackbar.dismiss();
-                    })
-                    .show();
-        } else if (!pref.getBoolean("permission-check", false)) {
+        if (pref.getBoolean("permission-check", true)) {
             Log.e(TAG, "onCreate: RECEIVED permission-check");
-            Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "권한이 승인되지 않았습니다.", Snackbar.LENGTH_LONG);
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "권한이 승인되지 않았습니다.", Snackbar.LENGTH_INDEFINITE);
             snackbar
                     .setAction("설정", v -> {
                         chooseAccount();
                         snackbar.dismiss();
                     })
                     .show();
-        } else if (!pref.getBoolean("everytime-check", false)) {
+        } else if (pref.getBoolean("account-check", true)) {
+            Log.e(TAG, "onReceive: RECEIVED account-check");
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "계정이 연동되지 않았습니다.", Snackbar.LENGTH_INDEFINITE);
+            snackbar
+                    .setAction("설정", v -> {
+                        chooseAccount();
+                        snackbar.dismiss();
+                    })
+                    .show();
+        } else if (pref.getBoolean("everytime-check", true)) {
             Log.e(TAG, "onCreate: RECEIVED everytime");
-            Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "에브리타임 연동에 실패했습니다.", Snackbar.LENGTH_LONG);
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.nav_view), "에브리타임 연동에 실패했습니다.", Snackbar.LENGTH_INDEFINITE);
             snackbar
                     .setAction("설정", v -> {
                         Intent i = new Intent(this, SettingsActivity.class);
@@ -223,25 +194,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
-
-    /*
-     * 안드로이드 디바이스에 Google Play Services가 설치 안되어 있거나 오래된 버전인 경우 보여주는 대화상자
-     */
-    void showGooglePlayServicesAvailabilityErrorDialog(
-            final int connectionStatusCode
-    ) {
-
-        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-
-        Dialog dialog = apiAvailability.getErrorDialog(
-                MainActivity.this,
-                connectionStatusCode,
-                REQUEST_GOOGLE_PLAY_SERVICES
-        );
-        dialog.show();
-    }
-
-
     /*
      * Google Calendar API의 자격 증명( credentials ) 에 사용할 구글 계정을 설정한다.
      *
@@ -254,6 +206,11 @@ public class MainActivity extends AppCompatActivity {
         // GET_ACCOUNTS 권한을 가지고 있다면
         if (EasyPermissions.hasPermissions(this, Manifest.permission.GET_ACCOUNTS)) {
 
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            pref.edit()
+                    .putBoolean("permission-check", false)
+                    .apply();
+
             Log.e(TAG, "chooseAccount: GET_NAME");
             // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
             String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
@@ -264,10 +221,10 @@ public class MainActivity extends AppCompatActivity {
                 GoogleSyncService.mCredential.setSelectedAccountName(accountName);
                 Log.e(TAG, "chooseAccount: ACCOUNTNAME : " + GoogleSyncService.mCredential.getSelectedAccountName());
                 //getResultsFromApi();
-//                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-//                pref.edit()
-//                        .putString(PREF_ACCOUNT_NAME, GoogleSyncService.mCredential.getSelectedAccountName())
-//                        .apply();
+                pref.edit()
+                        .putBoolean("permission-check", false)
+                        .putBoolean("account-check", false)
+                        .apply();
                 startService(new Intent(this, GoogleSyncService.class));
             } else {
                 Log.e(TAG, "chooseAccount: DIALOG");

@@ -41,14 +41,14 @@ public class SettingsActivity extends AppCompatActivity {
             notificationCheck.setOnPreferenceChangeListener((preference, newValue) -> {
                 ScheduleJob s = new ScheduleJob();
                 s.refreshBackground(SettingsFragment.this.getActivity().getApplicationContext());
-                s.startBackground(SettingsFragment.this.getActivity().getApplicationContext());
+                s.startBackground(SettingsFragment.this.getActivity().getApplicationContext(), true);
                 return true;
             });
 
             PreferenceScreen notificationSyncNow = getPreferenceManager().findPreference("syncBackground");
             notificationSyncNow.setOnPreferenceClickListener(preference -> {
                 ScheduleJob s = new ScheduleJob();
-                s.startBackground(SettingsFragment.this.getActivity().getApplicationContext());
+                s.startBackground(SettingsFragment.this.getActivity().getApplicationContext(), true);
                 return true;
             });
 
@@ -58,7 +58,7 @@ public class SettingsActivity extends AppCompatActivity {
                 if((boolean) newValue) {
                     ScheduleJob s = new ScheduleJob();
                     s.refreshGoogle(SettingsFragment.this.getActivity().getApplicationContext());
-                    s.startGoogle(SettingsFragment.this.getActivity().getApplicationContext());
+                    s.startGoogle(SettingsFragment.this.getActivity().getApplicationContext(), false);
                 }
                 return true;
             });
@@ -66,7 +66,7 @@ public class SettingsActivity extends AppCompatActivity {
             PreferenceScreen everytimeSyncNow = getPreferenceManager().findPreference("syncGoogle");
             everytimeSyncNow.setOnPreferenceClickListener(preference -> {
                 ScheduleJob s = new ScheduleJob();
-                s.startGoogle(SettingsFragment.this.getActivity().getApplicationContext());
+                s.startGoogle(SettingsFragment.this.getActivity().getApplicationContext(), true);
                 return true;
             });
 

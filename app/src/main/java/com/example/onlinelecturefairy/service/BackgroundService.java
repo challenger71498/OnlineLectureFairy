@@ -49,6 +49,8 @@ public class BackgroundService extends Service {
     String pw;
 
     Boolean isDone = false;
+
+    Boolean isDirect = false;
     
     @Nullable
     @Override
@@ -58,6 +60,11 @@ public class BackgroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        // load is-direct.
+        if(intent != null) {
+            isDirect = intent.getBooleanExtra("is-direct", false);
+        }
 
         // Blackboard ID PW validity check
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -172,10 +179,10 @@ public class BackgroundService extends Service {
             }
             calendar2.set(Calendar.MINUTE, 0);
 
-            //오늘이 일요일이고, 해당 시간이 지났다면,
+            //isDirect가 참이거나  오늘이 해당 요일이고 해당 시간이 지났다면,
             //Log.e(TAG, "BACKGROUND_SERVICE: IF STATEMENT IS : NOT_DONE: " + (temp != lecturesOfWeek.size()) + " TIME: " + (calendar1.compareTo(calendar2) > 0));
             Log.e(TAG, "NOT_DONE: " + (temp != lecturesOfWeek.size()) + " TIME: " + (calendar1.compareTo(calendar2) > 0));
-            if (temp != lecturesOfWeek.size() && calendar1.compareTo(calendar2) > 0) {
+            if (isDirect || (temp != lecturesOfWeek.size() && calendar1.compareTo(calendar2) > 0)) {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);

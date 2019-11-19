@@ -11,6 +11,7 @@ import com.example.onlinelecturefairy.service.BackgroundJobService;
 import com.example.onlinelecturefairy.service.BackgroundService;
 import com.example.onlinelecturefairy.service.GoogleSyncJobService;
 import com.example.onlinelecturefairy.service.GoogleSyncService;
+import com.google.common.util.concurrent.ServiceManager;
 
 public class ScheduleJob {
 
@@ -47,11 +48,16 @@ public class ScheduleJob {
                         .build());
     }
 
-    public void startBackground(Context context) {
-        context.startService(new Intent(context, BackgroundService.class));
+    public void startBackground(Context context, boolean isDirect) {
+        Intent intent = new Intent(context, BackgroundService.class);
+        intent.putExtra("is-direct", isDirect);
+
+        context.startService(intent);
     }
 
-    public void startGoogle(Context context) {
-        context.startService(new Intent(context, GoogleSyncService.class));
+    public void startGoogle(Context context,  boolean isDirect) {
+        Intent intent = new Intent(context, GoogleSyncService.class);
+        intent.putExtra("is-direct", isDirect);
+        context.startService(intent);
     }
 }
