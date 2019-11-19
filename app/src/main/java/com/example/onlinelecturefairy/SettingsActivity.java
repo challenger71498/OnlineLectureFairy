@@ -58,7 +58,7 @@ public class SettingsActivity extends AppCompatActivity {
                 if((boolean) newValue) {
                     ScheduleJob s = new ScheduleJob();
                     s.refreshGoogle(SettingsFragment.this.getActivity().getApplicationContext());
-                    s.startGoogle(SettingsFragment.this.getActivity().getApplicationContext(), false);
+                    s.startGoogle(SettingsFragment.this.getActivity().getApplicationContext(), false);  //얘는 조건을 무시하지 않음
                 }
                 return true;
             });
@@ -81,12 +81,11 @@ public class SettingsActivity extends AppCompatActivity {
                         .setMessage("로그아웃 하시겠습니까?")
                         .setPositiveButton("확인",
                                 (dialog, id) -> {
-                                    // 자동 로그인을 해제 (로그아웃했으므로)
+                                    // 설정을 모두 날려버림 (튜토리얼 스킵만 살림)
                                     SharedPreferences pref = getPreferenceManager().getSharedPreferences();
                                     pref.edit()
-                                            .putBoolean("autoLogin", false)
-                                            .putString("everytimeAddress", "")
-                                            .putString("PW", "")
+                                            .clear()
+                                            .putBoolean(getString(R.string.FIRST_TIME), false)
                                             .apply();
 
                                     // Background Service 종료
