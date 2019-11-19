@@ -93,6 +93,7 @@
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintTop_toBottomOf="@+id/onlineLectureLecture"
+                    app:layout_constraintVertical_bias="1.0"
                     card_view:layout_constraintBottom_toBottomOf="parent"
                     card_view:layout_constraintEnd_toEndOf="parent" />
 
@@ -102,10 +103,13 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:text="11주차"
                     android:textSize="14sp"
                     app:layout_constraintEnd_toStartOf="@+id/onlineLectureTitle"
+                    app:layout_constraintTop_toBottomOf="@+id/onlineLectureLecture"
+                    app:layout_constraintVertical_bias="1.0"
                     card_view:layout_constraintBottom_toBottomOf="parent"
                     card_view:layout_constraintStart_toStartOf="parent" />
 
