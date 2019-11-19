@@ -72,17 +72,9 @@ public class MainActivity extends AppCompatActivity {
                 Arrays.asList(SCOPES)
         ).setBackOff(new ExponentialBackOff()); // I/O 예외 상황을 대비해서 백오프 정책 사용
 
-//        //Calendar
-//        mID = 1;
-//        if(getResultsFromApi() != null) {
-//            Log.e(TAG, getResultsFromApi());
-//        }
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-//        FloatingActionButton fab = findViewById(R.id.fab);
-//        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                .setAction("Action", null).show());
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -132,18 +124,7 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         }
 
-        //intent 초기화
-
-        //LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter("account-check"));
     }
-
-//    BroadcastReceiver receiver = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            Log.e(TAG, "onReceive: RECEIVED");
-//            chooseAccount();
-//        }
-//    };
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -169,18 +150,6 @@ public class MainActivity extends AppCompatActivity {
         CommonGrade.saveGrades(getApplicationContext());    // 성적 저장
         super.onDestroy();
     }
-
-    /**
-     * Google Calendar API에 접근하기 위해 사용되는 구글 캘린더 API 서비스 객체
-     */
-
-    private com.google.api.services.calendar.Calendar mService = null;
-
-    /**
-     * Google Calendar API 호출 관련 메커니즘 및 AsyncTask을 재사용하기 위해 사용
-     */
-    public int mID = 0;
-
 
     public static GoogleAccountCredential mCredential;
 
