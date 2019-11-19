@@ -320,7 +320,13 @@ public class OnlineLectureFragment extends Fragment implements SwipeRefreshLayou
                                     lecture = (course.select("a.comboLink").text());
                                     lecture = lecture.replaceFirst(" ", "");
                                     //Log.e(TAG, "lecture :" + lecture+"@"+date);
-                                    week = (e.text().split("XIN -")[1]).split("/")[0];
+
+                                    // 앞에 XIN이 붙지 않는 경우
+                                    if(e.text().split("XIN - ").length > 1) {
+                                        week = (e.text().split("XIN - ")[1]).split("/")[0];
+                                    } else {
+                                        week = e.text().split("/")[0];
+                                    }
                                     pass = Character.toString(e.text().charAt(e.text().length()-1));
                                     child.add(new OnlineLecture(lecture,week,date,pass, OnlineLectureAdapter.CHILD));
                                     //lectureInfo += ((course.select("a.comboLink").text()).split("\\)")[1]).split("-")[0] + "@" + webLectureName + "@" + simpledateformat.format(webEndDate.getTime()) + "\n";
@@ -328,7 +334,13 @@ public class OnlineLectureFragment extends Fragment implements SwipeRefreshLayou
                                 else if((today.compareTo(webStartDate) > 0)){
                                     lecture = (course.select("a.comboLink").text());
                                     lecture = lecture.replaceFirst(" ", "");
-                                    week = (e.text().split("XIN - ")[1]).split("/")[0];
+
+                                    // 앞에 XIN이 붙지 않는 경우
+                                    if(e.text().split("XIN - ").length != 1) {
+                                        week = (e.text().split("XIN - ")[1]).split("/")[0];
+                                    } else {
+                                        week = (e.text().split("/")[0]);
+                                    }
                                     pass = Character.toString(e.text().charAt(e.text().length()-1));
                                     child.add(new OnlineLecture(lecture,week,date,pass, OnlineLectureAdapter.CHILD));
                                 }
