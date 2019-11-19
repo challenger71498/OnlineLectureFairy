@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
                 android:ems="12"
-                android:hint="ID"
+                android:hint="Blackboard ID"
                 android:inputType="textPersonName"
                 android:textSize="18sp"
                 setIdText="@{model}"/>
@@ -63,7 +63,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                android:text="login" />
+                android:text="LogIn" />
 
         </LinearLayout>
 
