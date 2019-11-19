@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.preference.PreferenceManager;
@@ -220,12 +222,21 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
 
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onFailure() {
-                Snackbar snackbar = Snackbar.make(v, "아이디 또는 패스워드가 잘못되었습니다.", Snackbar.LENGTH_LONG);
-                snackbar
-                        .setAction("Action", null)
-                        .show();
+                ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                if(cm.getActiveNetwork() == null) {
+                    Snackbar snackbar = Snackbar.make(v, "네트워크에 연결되지 않았습니다.", Snackbar.LENGTH_LONG);
+                    snackbar
+                            .setAction("Action", null)
+                            .show();
+                } else {
+                    Snackbar snackbar = Snackbar.make(v, "아이디 또는 패스워드가 잘못되었습니다.", Snackbar.LENGTH_LONG);
+                    snackbar
+                            .setAction("Action", null)
+                            .show();
+                }
             }
         });
         check.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
