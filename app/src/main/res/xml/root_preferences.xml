@@ -52,7 +52,7 @@
         <SwitchPreferenceCompat
             app:dependency="everytimeAddress"
             app:key="everytimeSync"
-            app:summaryOff="시간표를 동기화하지 않습니다."
+            app:summaryOff="구글 캘린더에 시간표를 동기화하지 않습니다."
             app:summaryOn="에브리타임의 시간표를 동기화합니다."
             app:title="에브리타임 동기화" />
 
