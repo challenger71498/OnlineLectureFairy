@@ -122,12 +122,10 @@ public class OnlineLectureFragment extends Fragment implements SwipeRefreshLayou
         protected Void doInBackground(Void... voids) {
             try {
                 String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36";
-
-                //TODO: 개발 완료 후 defValue 수정
                 if(getActivity() != null) {
                     SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                    String blackboard_user_id = appData.getString("ID", "12181637");
-                    String blackboard_user_password = appData.getString("PW","!dlstjd1105");
+                    String blackboard_user_id = appData.getString("ID", "");
+                    String blackboard_user_password = appData.getString("PW","");
                     Connection.Response loginPageResponse = Jsoup.connect("https://learn.inha.ac.kr/webapps/login/")
                             .timeout(3000)
                             .header("Origin", "https://learn.inha.ac.kr")

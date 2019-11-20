@@ -215,7 +215,6 @@ public class BackgroundService extends Service {
             try {
                 String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36";
 
-                //TODO: 개발 완료 후 defValue 수정
                 SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 String blackboard_user_id = appData.getString("ID", "");
                 String blackboard_user_password = appData.getString("PW", "");
