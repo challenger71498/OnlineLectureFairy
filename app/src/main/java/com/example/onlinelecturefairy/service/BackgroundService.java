@@ -217,8 +217,8 @@ public class BackgroundService extends Service {
 
                 //TODO: 개발 완료 후 defValue 수정
                 SharedPreferences appData = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                String blackboard_user_id = appData.getString("ID", "12181637");
-                String blackboard_user_password = appData.getString("PW", "!dlstjd1105");
+                String blackboard_user_id = appData.getString("ID", "");
+                String blackboard_user_password = appData.getString("PW", "");
                 Connection.Response loginPageResponse = Jsoup.connect("https://learn.inha.ac.kr/webapps/login/")
                         .timeout(3000)
                         .header("Origin", "https://learn.inha.ac.kr")
