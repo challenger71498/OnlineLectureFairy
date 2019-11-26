@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -38,6 +39,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static androidx.constraintlayout.widget.Constraints.TAG;
+
 public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     SwipeRefreshLayout swipe;
     NoticeFragmentViewModel model;
@@ -59,7 +62,7 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
         super.onViewCreated(view, savedInstanceState);
 
         model = ViewModelProviders.of(this).get(NoticeFragmentViewModel.class);
-
+        //TODO: 아직 새로 고치는 중에 필터링 시 필터링이 풀리는 문제 해결
 //        model.setNotices(new ArrayList<>());
 
         model.getNotices().observe(getActivity(), notices -> {
@@ -71,6 +74,11 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
                 adapter = (NoticeRecyclerAdapter) recyclerView.getAdapter();
                 if (adapter != null) {
                     adapter.setNotices(notices);
+                    String s = "";
+                    for(Notice n : notices) {
+                        s += n.getLecture() + " ";
+                    }
+                    Log.e(TAG, s);
                 } else {
                     LinearLayoutManager manager = new LinearLayoutManager(getActivity());
                     adapter = new NoticeRecyclerAdapter(notices, getParentFragment());
