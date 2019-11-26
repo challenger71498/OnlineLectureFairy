@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -38,8 +37,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     SwipeRefreshLayout swipe;
@@ -74,11 +71,10 @@ public class NoticeFragment extends Fragment implements SwipeRefreshLayout.OnRef
                 adapter = (NoticeRecyclerAdapter) recyclerView.getAdapter();
                 if (adapter != null) {
                     adapter.setNotices(notices);
-                    String s = "";
+                    StringBuilder s = new StringBuilder();
                     for(Notice n : notices) {
-                        s += n.getLecture() + " ";
+                        s.append(n.getLecture()).append(" ");
                     }
-                    Log.e(TAG, s);
                 } else {
                     LinearLayoutManager manager = new LinearLayoutManager(getActivity());
                     adapter = new NoticeRecyclerAdapter(notices, getParentFragment());
