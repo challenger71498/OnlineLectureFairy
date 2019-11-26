@@ -26,10 +26,6 @@ import com.example.onlinelecturefairy.LoginActivity;
 import com.example.onlinelecturefairy.MainActivity;
 import com.example.onlinelecturefairy.R;
 import com.example.onlinelecturefairy.common.ColorPicker;
-import com.example.onlinelecturefairy.grade.Grade;
-import com.example.onlinelecturefairy.notice.Notice;
-import com.example.onlinelecturefairy.onlinelecture.OnlineLecture;
-import com.example.onlinelecturefairy.ui.onlinelecture.OnlineLectureAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -50,7 +46,6 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.EventReminder;
 import com.google.api.services.calendar.model.Events;
 
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -62,11 +57,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -107,7 +102,7 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
 
         // check setting first.
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        Boolean sync = pref.getBoolean("everytimeSync", false);
+        boolean sync = pref.getBoolean("everytimeSync", false);
 
         isGoogleValid = true;
         AtomicBoolean done = new AtomicBoolean(false);
@@ -157,7 +152,9 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
             Thread thread = new Thread(() -> {
                 done.set(false);
                 while (!crawlingEveryTimeDone) {
-                    Log.e(TAG, "GOOGLE_SYNC_SERVICE: WAITING_CRAWLER_DONE");
+                    if(Math.random() < 0.00001) {
+                        Log.e(TAG, "GOOGLE_SYNC_SERVICE: WAITING_CRAWLER_DONE");
+                    }
                     // wait until crawling is done.
                     if(!isEverytimeValid || !isGoogleValid) {
                         //If everytime is invalid, or google is invalid, return asap.
@@ -176,36 +173,49 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
                     GregorianCalendar calendar1 = new GregorianCalendar();
                     GregorianCalendar calendar2 = new GregorianCalendar();
 
+                    if(pref.getInt(getString(R.string.GOOGLE_CALENDAR_SYNC_HOUR), -1) == -1) {
+                        pref.edit()
+                                .putInt(getString(R.string.GOOGLE_CALENDAR_SYNC_HOUR), (int) (Math.random() * 24))
+                                .putInt(getString(R.string.GOOGLE_CALENDAR_SYNC_MINUTE), (int) (Math.random() * 60))
+                                .putInt(getString(R.string.GOOGLE_CALENDAR_SYNC_SECOND), (int) (Math.random() * 60))
+                                .apply();
+                    }
+
                     calendar2.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
                     calendar2.set(java.util.Calendar.DAY_OF_MONTH, calendar2.get(java.util.Calendar.DAY_OF_MONTH) + 7);
-                    calendar2.set(java.util.Calendar.HOUR_OF_DAY, (int) (Math.random() * 24));
-                    calendar2.set(java.util.Calendar.MINUTE, (int) (Math.random() * 60));
-                    calendar2.set(java.util.Calendar.SECOND, (int) (Math.random() * 60));
+                    calendar2.set(java.util.Calendar.HOUR_OF_DAY, pref.getInt(getString(R.string.GOOGLE_CALENDAR_SYNC_HOUR), 18));
+                    calendar2.set(java.util.Calendar.MINUTE, pref.getInt(getString(R.string.GOOGLE_CALENDAR_SYNC_MINUTE), 0));
+                    calendar2.set(java.util.Calendar.SECOND, pref.getInt(getString(R.string.GOOGLE_CALENDAR_SYNC_SECOND), 0));
 
+                    long days = TimeUnit.MILLISECONDS.toDays(Math.abs(calendar1.getTimeInMillis() - calendar2.getTimeInMillis()));
+
+                    Log.e(TAG, "GOOGLE_SYNC_SERVICE: CAL1 :" + calendar1.getTime().toString() +
+                            " CAL2: " + calendar2.getTime().toString() +
+                            " DIFF: " + days);
                     // (isDirect가 참이거나, 오늘이 일요일이고 동기화가 되어 있지 않았을) 때 동기화 시간이 지났다면,
-                    Log.e(TAG, "GOOGLE_SYNC_SERVICE: CAL1 :" + calendar1.getTime().toString() +  " CAL2: " + calendar2.getTime().toString());
-                    if ((isDirect || calendar1.compareTo(calendar2) > 0) && pref.getBoolean(getString(R.string.GOOGLE_CALENDAR_SYNCHRONIZED), true)) {
+                    if ((isDirect || calendar1.compareTo(calendar2) > 0) && !pref.getBoolean(getString(R.string.GOOGLE_CALENDAR_SYNCHRONIZED), true)) {
 
                         // 여기에 구글 캘린더 동기화 작업을 작성.
-                        Log.e(TAG, "onPreExecute: REMOVE_CALENDAR");
-                        deleteCalendar();
+                        Log.e(TAG, "GOOGLE_SYNC_SERVICE: REMOVE_CALENDAR");
+//                        deleteCalendar();
 
-                        mID = 5;
-                        Log.e(TAG, "done " + GoogleSyncService.this.getResultsFromApi());
+//                        mID = 5;
+//                        Log.e(TAG, "done " + GoogleSyncService.this.getResultsFromApi());
 
-                        // 동기화가 되었다는 신호를 SharedPreference에 전달
+                        // 동기화가 되었다는 신호를 SharedPreference 에 전달
                         pref.edit()
                                 .putBoolean(getString(R.string.GOOGLE_CALENDAR_SYNCHRONIZED), true)
                                 .apply();
 
-                        Log.e(TAG, "BACKGROUND_SERVICE: NOTI_MATCHED");
-                    } else if (calendar1.compareTo(calendar2) > 0) {  // 이미 동기화를 진행했고 오늘이 동기화 시간을 지났을 경우
+                        Log.e(TAG, "GOOGLE_SYNC_SERVICE: NOTIFICATION_MATCHED");
+                    } else if (pref.getBoolean(getString(R.string.GOOGLE_CALENDAR_SYNCHRONIZED), false) && days > 2) {  // 이미 동기화를 진행했고 오늘이 동기화 시간과 이틀 이상 차이가 날 경우
                         // 동기화 플래그를 초기화
+                        Log.e(TAG, "GOOGLE_SYNC_SERVICE: SET_FLAG_TO_FALSE");
                         pref.edit()
                                 .putBoolean(getString(R.string.GOOGLE_CALENDAR_SYNCHRONIZED), false)
                                 .apply();
                     } else {
-                        Log.e(TAG, "BACKGROUND_SERVICE: NOTI_CONDITION_NOT_MATCHED");
+                        Log.e(TAG, "GOOGLE_SYNC_SERVICE: NOTIFICATION_CONDITION_NOT_MATCHED");
                     }
 
                     done.set(true);
