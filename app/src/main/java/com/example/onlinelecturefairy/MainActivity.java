@@ -50,6 +50,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         // Check if this is the first start.
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        if(pref.getBoolean(getString(R.string.FIRST_TIME), false)) {
+            pref.edit()
+                    .putBoolean(getString(R.string.GOOGLE_CALENDAR_SYNCHRONIZED), false)
+                    .putBoolean(getString(R.string.FIRST_TIME), true)
+                    .putInt(getString(R.string.GOOGLE_CALENDAR_SYNC_HOUR), (int) (Math.random() * 24))
+                    .putInt(getString(R.string.GOOGLE_CALENDAR_SYNC_MINUTE), (int) (Math.random() * 60))
+                    .putInt(getString(R.string.GOOGLE_CALENDAR_SYNC_SECOND), (int) (Math.random() * 60))
+                    .apply();
+        }
 
         startService(new Intent(this, GoogleSyncService.class));
         startService(new Intent(this, BackgroundService.class));

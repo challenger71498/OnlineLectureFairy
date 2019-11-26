@@ -34,4 +34,8 @@
     <string name="FIRST_TIME">first-time</string>
     <string name="NOTIFICATION_CHECK">notificationCheck</string>
     <string name="COMMON_GRADE_KEYS">common-grade-keys</string>
+    <string name="GOOGLE_CALENDAR_SYNCHRONIZED">google-calendar-synchronized</string>
+    <string name="GOOGLE_CALENDAR_SYNC_HOUR">google-calendar-sync-hour</string>
+    <string name="GOOGLE_CALENDAR_SYNC_MINUTE">google-calendar-sync-minute</string>
+    <string name="GOOGLE_CALENDAR_SYNC_SECOND">google-calendar-sync-second</string>
 </resources>

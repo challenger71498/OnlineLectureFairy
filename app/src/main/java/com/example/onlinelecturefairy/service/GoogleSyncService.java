@@ -172,18 +172,19 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
                             .putBoolean("account-check", false)
                             .apply();
 
-                    //TODO: 일요일 오후 1시가 지났으면 하도록 설정해놓음.
+                    //TODO: 일요일의 랜덤한 시간이 지났으면 하도록 설정해놓음.
                     GregorianCalendar calendar1 = new GregorianCalendar();
                     GregorianCalendar calendar2 = new GregorianCalendar();
 
                     calendar2.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
                     calendar2.set(java.util.Calendar.DAY_OF_MONTH, calendar2.get(java.util.Calendar.DAY_OF_MONTH) + 7);
-                    calendar2.set(java.util.Calendar.HOUR_OF_DAY, 18);
-                    calendar2.set(java.util.Calendar.MINUTE, 0);
+                    calendar2.set(java.util.Calendar.HOUR_OF_DAY, (int) (Math.random() * 24));
+                    calendar2.set(java.util.Calendar.MINUTE, (int) (Math.random() * 60));
+                    calendar2.set(java.util.Calendar.SECOND, (int) (Math.random() * 60));
 
-                    //isDirect가 참이거나, 오늘이 일요일이고 해당 시간이 지났다면,
+                    // (isDirect가 참이거나, 오늘이 일요일이고 동기화가 되어 있지 않았을) 때 동기화 시간이 지났다면,
                     Log.e(TAG, "GOOGLE_SYNC_SERVICE: CAL1 :" + calendar1.getTime().toString() +  " CAL2: " + calendar2.getTime().toString());
-                    if (isDirect || calendar1.compareTo(calendar2) > 0) {
+                    if ((isDirect || calendar1.compareTo(calendar2) > 0) && pref.getBoolean(getString(R.string.GOOGLE_CALENDAR_SYNCHRONIZED), true)) {
 
                         // 여기에 구글 캘린더 동기화 작업을 작성.
                         Log.e(TAG, "onPreExecute: REMOVE_CALENDAR");
@@ -192,7 +193,17 @@ public class GoogleSyncService extends Service implements EasyPermissions.Permis
                         mID = 5;
                         Log.e(TAG, "done " + GoogleSyncService.this.getResultsFromApi());
 
+                        // 동기화가 되었다는 신호를 SharedPreference에 전달
+                        pref.edit()
+                                .putBoolean(getString(R.string.GOOGLE_CALENDAR_SYNCHRONIZED), true)
+                                .apply();
+
                         Log.e(TAG, "BACKGROUND_SERVICE: NOTI_MATCHED");
+                    } else if (calendar1.compareTo(calendar2) > 0) {  // 이미 동기화를 진행했고 오늘이 동기화 시간을 지났을 경우
+                        // 동기화 플래그를 초기화
+                        pref.edit()
+                                .putBoolean(getString(R.string.GOOGLE_CALENDAR_SYNCHRONIZED), false)
+                                .apply();
                     } else {
                         Log.e(TAG, "BACKGROUND_SERVICE: NOTI_CONDITION_NOT_MATCHED");
                     }
