@@ -1,5 +1,5 @@
 # 웹강 요정 (LectureFairy) 
-![android](https://img.shields.io/badge/app-android-blue?logo=android)(https://developer.android.com/)
+[![android](https://img.shields.io/badge/app-android-blue?logo=android)](https://developer.android.com/)
 [![NLP](https://img.shields.io/badge/NLP-KOMORAN-red.svg?logo=github)](https://github.com/shin285/KOMORAN)
 [![API](https://img.shields.io/badge/API-Google-blueviolet.svg?logo=google)](https://developers.google.com/calendar)
 ![data](https://img.shields.io/badge/data-web-brightgreen.svg)(https://learn.inha.ac.kr/)
